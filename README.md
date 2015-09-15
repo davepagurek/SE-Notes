@@ -1,7 +1,7 @@
 # CS 241e
 ## Foundations of Sequential Programs Enriched
 
-Prof. Ondrej Lhotak
+Prof. Ondr̂ej Lhoták
 
 
 # 1. Introduction
