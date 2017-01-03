@@ -135,4 +135,4 @@ Trivial3SUM(A) {
 
 Complexity is $O(n^2)$.
 
-Best-known algorithm has complexity $O(n^2 \frac{\log{\log{n}}}{\log{n}}^2)$
+Best-known algorithm has complexity $O\left(n^2 \left(\frac{\log{\log{n}}}{\log{n}}\right)^2\right)$
