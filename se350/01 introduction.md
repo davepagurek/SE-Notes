@@ -99,3 +99,13 @@ Traversing heirarchy:
   - memory accesses close in time typically are close in space
 - Caches contain a copy of a portion of main memory
 - Processor first checks cache, and if not found, block is read into cache
+- Has a replacement algorithm (e.g. least recently used, least frequently used, etc)
+- Has a write policy (e.g. write back, write through)
+
+
+### Symmetric Multiprocessing (SMP)
+- Processors share:
+  - same main memory
+  - access to IO
+- connected by bus
+- integrated operating system provides interaction between processors and their programs
