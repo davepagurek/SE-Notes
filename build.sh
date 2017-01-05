@@ -1,3 +1,5 @@
 #!/usr/bin/env bash
 
-ruby render.rb
+gem install bundler
+bundle install
+bundle exec ruby render.rb
