@@ -53,7 +53,7 @@ class Converter
         .to_html(
           :no_wrap,
           :mathjax,
-          css: "/style.css"
+          css: "/SE-Notes/style.css"
         )
     )
   end
