@@ -91,9 +91,99 @@ typedef rom const struct _rom_desc_tsk {
     - some are blocked
 - with a single queue: dispatcher must scan list to find process not running, ready, and in queue the longest
 - multiple queues: make a queue for ready processes and another for busy ones
-  - We now have five states:
+  - We now have five states, and at least one queue for each state:
     - Running
     - Ready
     - Blocked/Waiting
+      - Make a queue for each type of event you can be blocked on so that you don't have to iterate through each blocked process to see which to remove from the queue
     - New (ready to enter system)
     - Exit (a halted or aborted process)
+      - So that we can dispose of resources in bulk if we want
+  - We can split blocked and ready into suspended and not suspended states so that suspended processes can be written to disk to free up RAM
+
+### Resource management
+- Things the OS needs to know about process resource management
+  - allocation of main memory processes
+  - allocation of secondary memory processes
+  - protection attrs for shared memory regions
+  - info needed for virtual memory
+  - IO tables
+    - IO device available or assigned
+    - location in main memory used as source/dest of io transfer
+  - File tables
+    - existence of files
+    - location on secondary memory
+    - status
+    - attributes (e.g. `rwxr-r-`)
+  - Process table
+    - where process is located in memory
+    - attributes in process image
+    - program
+    - data
+    - stack
+    - process control block
+      - identifiers
+        - numeric identifiers that may be stored with proceess control block include
+        - id: unique key for the process
+        - id for parent process
+        - user id
+        - this is defined by `pid_t`
+      - process state info
+        - user-visible registers
+          - user-visible register is one that may be referenced with the machine language the processor executes while in user mode.
+          - might be as low as only 1 working register
+        - control and status registers
+          - a variety of processor regsiters to control operation, including:
+            - program counter: address of next instruction to fetch
+            - condition codes: result of most recent arithmetic or logical op
+            - status info: includes interrupt enabled/disabled flags, execution mode
+        - processor state info
+        - stack pointers
+        - process control info
+          - meta info for handling processes
+          - scheduling and state info
+          - linked list for child processes
+          - linked list for same priority processes
+          - linked list for "cohort" processes
+        - importance
+        - interprocess communication
+          - flags, signals, messages which may be associated with communication between two independent processes
+        - process privileges
+          - types of instructions that can be executed
+        - memory management
+          - pointers to segment/page tables for virtual memory assignment
+        - resource ownership and utilization
+          - resources controlled by process, such as opened files
+        - contents of processor registers
+        - Program Status Word
+        - current mode of execution
+          - user mode: less trusted
+          - system mode: more privileged
+
+
+### Process creation
+1. Assign unique PID
+2. Allocate space
+3. Initialize PCB
+4. Set up appropriate links (e.g. add new process to linked list for scheduling queue)
+5. Create and expand other data structures, e.g. accounting file
+
+### When to switch processes
+- clock interrupt
+- IO interrupt
+- memory fault
+- trap (used for debugging)
+- supervisor call
+
+
+#### Steps to switch
+1. Save context of processor (PC and other registers)
+2. Update PCB of the process currently running
+3. Move PCB to appropriate queue: ready, blocked, ready/suspend
+4. Seect another process to execute
+
+#### Change of Process State
+- update PCB of selected process
+- update memory management structures
+- restore context of selected process
+

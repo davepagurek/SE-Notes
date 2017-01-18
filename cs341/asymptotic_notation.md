@@ -135,8 +135,3 @@ x &= \log_b a\\
 \text{This is an increasing function,} &\therefore \text{ case 3 applies }\\
 &\Rightarrow T(n) \in \Theta(n\log(n))\\
 \end{align*}$$
-
-# Divide and Conquer algorithms
-1. **Divide**: Split the problem up into subproblems
-2. **Conquer**: Solve subproblems recursively
-3. **Combine**: Merge subproblem solutions into the whole problem solution
