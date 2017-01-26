@@ -57,7 +57,7 @@
   - Number of iterations: $\log_{2} i$
   - $\Theta(\log(1*2*3*...*n))$
   - $\Theta(\log(n!))$
-   $\Theta(n\log n)$
+  - $\Theta(n\log n)$
 
 
 ## Recurrence Relations
