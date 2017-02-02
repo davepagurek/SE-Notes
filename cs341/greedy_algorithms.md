@@ -159,4 +159,8 @@ A set of men $M$ and a set of women $W$ exist. Each man has a preference ranking
 #### Proof of correctness
 Assume there is an instability, so that $m_i$ ranks $w_l \gt w_j$ and $w_l$ ranks $m_i \gt m_k$, but $m_i$ is matched with $w_j$ and $m_k$ is matched with $w_l$.
 
-We know $m_i$ must have proposed to $w_l$ before he proposed to $w_j$ due to the algorithm
+We know $m_i$ must have proposed to $w_l$ before he proposed to $w_j$ due to the algorithm. What happened in this proposal?
+1. $w_l$ rejected $m_i$
+  - In this case, $w_l$ rejected the proposal only if she had an offer from someone she liked better. She would not have then accepted a proposal from $m_k$, who she likes less.
+2. $w_l$ accepted the proposal, but accepted another one later.
+  - In this case, it would have only happened if $w_l$ later accepts a proposal from someone she prefers more than $m_i$. She would not accept a proposal from someone she likes less, such as $m_k$.

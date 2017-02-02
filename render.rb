@@ -49,7 +49,7 @@ class Converter
     File.write(
       output_path,
       PandocRuby
-        .markdown(contents, :standalone)
+        .new(contents, :standalone, from: "markdown_github+tex_math_dollars")
         .to_html(
           :no_wrap,
           :mathjax,
@@ -77,7 +77,7 @@ class Converter
   <h1>#{path}</h1>
   <ul>
   #{
-  Dir.entries(path).select{|f| File.directory?(f) && !f.start_with?(".")}.map{|f|
+  Dir.entries(path).select{|f| File.directory?(f) && !f.start_with?(".") && f != "vendor"}.map{|f|
     "<li><a href='#{f}'>#{f}</a></li>"
   }.join("\n")
   }
