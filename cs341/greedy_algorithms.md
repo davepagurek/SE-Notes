@@ -88,7 +88,7 @@ Sort by start time of the intervals in increasing order.
 Let $D$ be the number of colours the algorithm uses. Suppose $[s_i, f_i)$ is the first interval to use colour $D$. That means that at this point, we have $D$ mutually overlapping intervals containing the point $s_i$. Therefore we need at least $D$ colours.
 
 #### Complexity
-- Preprocessing is a sort of $\Theta(n\logn)$
+- Preprocessing is a sort of $\Theta(n\log n)$
 - Loop through each item is $\Theta(n)$ operations
 - Finding a colour for each item is $O(nD)$ where $D$ is the number of colours used. $D \in O(n)$, so complexity is $O(n^2)$.
 
