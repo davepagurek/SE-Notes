@@ -32,11 +32,11 @@ class Converter
 
   def walk(path)
     Dir.foreach(path) do |child|
-      next if child.start_with?(".")
+      next if child.start_with?("..")
       full_path = File.join(path, child)
       if File.directory?(full_path)
         write_index_page(full_path)
-        walk(full_path)
+        walk(full_path) unless child.start_with?(".")
       elsif File.extname(full_path) == ".md"
         write_page(full_path)
       end
@@ -53,13 +53,44 @@ class Converter
         .to_html(
           :no_wrap,
           :mathjax,
+          tab_stop: 2,
           css: "/SE-Notes/style.css"
         )
     )
   end
 
   def write_index_page(path)
-    puts "TODO write index page for #{path}"
+    output_path = File.join(path, "index.html")
+    File.write(
+      output_path,
+      <<-HTML
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+</head>
+<body>
+  <h1>#{path}</h1>
+  <ul>
+  #{
+  Dir.entries(path).select{|f| File.directory?(f) && !f.start_with?(".")}.map{|f|
+    "<li><a href='#{f}'>#{f}</a></li>"
+  }.join("\n")
+  }
+  #{
+  Dir.entries(path).select{|f| f.end_with?(".md")}.map{|f|
+    "<li><a href='#{File.join(File.dirname(f), File.basename(f, ".md")) + ".html"}'>#{f}</a></li>"
+  }.join("\n")
+  }
+  </ul>
+</body>
+</html>
+HTML
+    )
   end
 
   def convert

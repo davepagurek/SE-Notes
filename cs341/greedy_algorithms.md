@@ -82,4 +82,81 @@ Given another set $A$ of intervals, a $c$-colouring is a mapping $col: A \righta
 
 We will colour the $i+1$st interval with **any permissible colour**. If none exists, we will add a new colour. The question is, what order do we consider the intervals?
 
-Sort by start time of the intervals
+Sort by start time of the intervals in increasing order.
+
+#### Proof
+Let $D$ be the number of colours the algorithm uses. Suppose $[s_i, f_i)$ is the first interval to use colour $D$. That means that at this point, we have $D$ mutually overlapping intervals containing the point $s_i$. Therefore we need at least $D$ colours.
+
+#### Complexity
+- Preprocessing is a sort of $\Theta(n\logn)$
+- Loop through each item is $\Theta(n)$ operations
+- Finding a colour for each item is $O(nD)$ where $D$ is the number of colours used. $D \in O(n)$, so complexity is $O(n^2)$.
+
+
+#### Complexity for a better algorithm
+- keep track of finishing times in a min heap
+- when we colour an interval, insert its finishing time into the priority queue
+- check min finishing time in the priority queue, and if it is $\le s_i$, delete the min
+- The colour finding is now $O(n\log D)$
+- overall runtime is now $O(n\log n)$
+
+
+### Knapsack problem
+Profits $P$ and weights $W$ and a capacity $M$ exist. An $n$-tuple $X$ exists where $\sum_{i=1}^n w_i x_i \le M$.
+- In the 0-1 Knapsack problem, we require that $x_i \in \{0, 1\}, 1 \le i \le n$.
+- In the Rational Knapsack problem, we require that $x_i \in \mathbb{Q}$ and $0 \le x_i \le 1, 1 \le i \le n$.
+
+Find a solution $X$ that maximizes $\sum_{i=1}^n p_i x_i$.
+
+- Rational knapsack problem is easy to solve with a greedy algorithm.
+- 0-1 Knapsack problem is NP-hard.
+
+
+#### Strategy
+- Sort by profit divided by weight
+- If you can fit the whole item, add it
+- otherwise, add as much of it as you can (this will be the last item)
+
+#### Proof
+Assumption: $\frac{p_1}{w_1} \gt \frac{p_2}{w_2} \gt ... \gt \frac{p_n}{w_n}$
+
+Let the greedy solution by $X$. Let the optimal solution be $Y$. We will prove that $X=Y$ by contradiction. Assume $X \ne Y$.
+
+Let $j$ be the first index such that $x_j \ne y_j$. We know that $x_j$ will be greater than $y_j$ because the greedy algorithm chooses the maximum value for $x_j$. Pick an index $k \gt j$ such that $y_k \gt 0$. $k$ exists because the greedy solution can't be better than the optimal solution. So, $x_j \gt y_j$ and $k_y \gt 0$ ($k \gt i$).
+
+Idea: alter $Y$ to become a new $Y'$ with a higher profit than $Y$. Let $\delta=\min\{w_ky_k, w_j(w_j-y_j)\}$. Note that $\delta \gt 0$.
+
+Let $y_k' = y_k - \delta/w_k$, and let $y_j'=y_j+\delta/w_j$. We now need to show that $y_j' \ge 1$ and that $k_k' \ge 0$.
+
+$$y_j' = y_j + \frac{\delta}{w_j} \le y_j + \frac{w_j(x_j-y_j)}{w_j} = x_j \le 1$$
+$$y_k' = y_k - \frac{\delta}{w_k} \ge y_k - \frac{w_ky_k}{w_k} = 0$$
+$$Weight(Y') = Weight(Y) + \frac{\delta w_j}{w_j} - \frac{\delta w_k}{w_k} = Weight(Y)$$
+
+$$\begin{align*}
+Profit(Y') &= Profit(Y) + \frac{\delta p_j}{w_j} - \frac{\delta p_k}{w_k}\\
+&= Profit(Y) + \delta\left(\frac{p_j}{w_j}-\frac{p_k}{w_k}\right) \\
+&\gt Profit(Y)\\
+\end{align*}$$
+This is a contradiction.
+
+### Coin changing
+A list of coin denominations $D$ exists, and a positive target sum $T$. Find an $n$-tuple of non-negative integers sich that $T=\sum_{i=1}{n} a_i d_i$ such that the number of coins $n$ is minimized.
+
+Strategy: Sort by size descending. Take as many as you can of the largest, then as many as you can of the next largest, etc, until you reach the target sum. **This doesn't work for all coin denominations.**
+
+### Stable Marriage Problem
+A set of men $M$ and a set of women $W$ exist. Each man has a preference ranking for each of the women, and each woman has a ranking for each of the men. Find a matching of the $n$ men with the $n$ women such that there does not exist a couple $(m_i, w_i)$ wh are not engaged to each other, but prefer each other to their existing matches. A matching with this property is called a **stable matching**.
+
+#### Gale-Shapley Algorithm
+- Men propose to women
+- If a woman accepts the proposal, then the couple is engaged
+- an unmatched woman must accept a proposal
+- If an engaged woman receives a proposal from a man whom she prefers, she can cancel her existing engagement
+- If an engaged woman receives a proposal from a man but she prefers the current match, the proposal is rejected
+- Engaged women never become unengaged
+- A man might make a number of proposals (up to $n$). The order is determined by the man's preference list
+
+#### Proof of correctness
+Assume there is an instability, so that $m_i$ ranks $w_l \gt w_j$ and $w_l$ ranks $m_i \gt m_k$, but $m_i$ is matched with $w_j$ and $m_k$ is matched with $w_l$.
+
+We know $m_i$ must have proposed to $w_l$ before he proposed to $w_j$ due to the algorithm

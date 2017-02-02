@@ -110,3 +110,47 @@ A concurrency control mechanism based on special variable for signalling. If a p
 - no way to know if `semWait()` will block or not
 - `semSignal()` may wake up a process, but you won't know whether or not it does
 - They block when the value is $\leq 0$
+
+
+### Monitors
+- Software module
+- local data variables are accessible only by the monitor (shared data in the monitor is safe)
+- process enters by invoking one of its procedures (controlled entry)
+- Only one process can be executing in the monitor at a time (mutex)
+- Uses condition variables for signalling
+- unused signals are lost
+- `synchronized` keyword in Java
+
+
+#### Mesa monitors
+- signalling doesn't cause the thread to lose occupancy of the monitor
+- nonblocking condition variables
+
+#### Message passing
+- Enforce mutual exclusion
+- Exchange information
+- `send(destination, message)`
+- `receive(source, message)`
+- Sender and receiver may or may not be blocking
+- blocking send and receive: both blocked until mesage delivered (rendez-vous)
+- Nonblocking send, blocking receive: sender continues on, receiver is blocked until the requiested message arrives
+- Nonblocking send, nonblocking receive: neither party is required to wait
+- Direct addressing
+  - send primitive includes identifier for the destination process
+  - receive primitive could know ahead of time from which process a message is expected
+  - receive primitive could use a source param to return a value when the receive operation has been performed
+- Indirect addressing
+  - messages sent to shared data structure consisting of queues called **mailboxes**
+  - one prcess sends message to mailbox, other picks up message from mailbox
+
+
+### Reader/Writer Problem
+- Any number of readers can read a file
+- Only one writer can write at a time
+- IF a writer is writing, no one can read
+
+
+# Deadlock
+- permanent blocking of processes that either compete for resources or communicate with each other
+- no efficient solution in general case
+- involve conflicting needs for resources
