@@ -154,3 +154,54 @@ A concurrency control mechanism based on special variable for signalling. If a p
 - permanent blocking of processes that either compete for resources or communicate with each other
 - no efficient solution in general case
 - involve conflicting needs for resources
+
+
+## Resources
+### Reusable
+- processors, IO channels, main memory, devices, files, semaphores, etc
+- deadlock occurs if each process holds one resource and requests the other
+
+### Consumable
+- Created and destroyed
+- Interrupts, signals, messages, information on IO buffers
+- deadlock can occur if `receive()` is blocking
+
+## Conditions for Deadlock
+- necessary and sufficient 
+  - Mutual exclusion (only one process can use a resource at a time)
+- necessary
+  - Hold and wait (a process holds allocated resources while waiting for assignment of others)
+  - No preemption (no resource can be removed forcibly from the process holding it, require rollback mechanism for saving state)
+  - circular wait (closed chain of processes exist, such that each process holds at least one resource needed by the next process in the chain)
+
+## Avoidance at runtime
+- Whenever you make a request, first check if it can be granted without problem
+- Requires knowledge of future processes
+
+
+e.g.
+1. Do not start a process if its demands might deadlock
+  - If the sum of all requested resources exceeds resource budget
+2. Do not grant incremental resource request if this might lead to deadlock
+
+Referred to as the **Banker's Algorithm.** The state of the system is the current allocation of resources to process. It is in a **safe state** if there is at least one sequence that doesn't result in deadlock. The goal is to always have a safe state.
+
+Conditions and requirements:
+- maximum resource requirement must be stated in advance
+- processes under consideration must be independent, no synchronization requirements
+- must be fixed number of resources to allocate
+- no process may exit when holding resources
+
+## Recovering
+- Abort all deadlocked processes
+- Back up deadlocked process to some previously defined checkpoint, restart all processes
+- successfully abort deadlocked processes until deadlock no longer exists
+- Successfully preempt resources until deadlock no longer exists
+
+
+# Unix concurrency
+- Pipes: producer/consumer data passing between programs
+- Messages
+- Shared memory
+- Semaphores
+- Signals
