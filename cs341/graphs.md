@@ -55,11 +55,74 @@ In a directed graph, every edge corresponds to a node in only one adjacency list
 ### Shortest paths
 <img src="img/bfs-shortestpath.png" />
 
-- If $u$ is discovered before $v$, then $dist[u] \le dist[v]$
-- If $\{u,v\}$ is **any edge**, then $|dist[u]-dist[v]| \le 1$
-- $dist[v]$ is the length of the **shortest path** from $s$ to $v$
+The shortest path from $s$ (the source) to some other vertex $v$:
+$v, \pi[v], \pi[\pi[v]], \pi[\pi[\pi[v]]], ...$
 
+Runtime
+- We go once through every adjacency list
+- The total number of nodes in all the adjacency lists = $2m$
+- Complexity is therefore $\Theta(n+2m) = \Theta(n+m)$
+
+#### Proof
+##### Lemma 1
+If $u$ is discovered before $v$, then $dist[u] \le dist[v]$
+
+Suppose $u$ is discovered before $v$, but $dist[u] \gt dist[v]$. Let $dist[u]=d$, so $dist[v] \le d-1$.
+
+With no loss of generality, choose the first pair of vertices where this happens, so let $\pi[u]=u_1, \pi[v]=v_1$. Then:
+$$\begin{align*}
+d=dist[u]=dist[u_1]+1 &\rightarrow dist[u_1]=d-1\\
+d-1 \ge dist[v]=dist[v_1]+1 &\rightarrow dist[v_1]\le d-2 \lt dist[u_1]
+\end{align*}$$
+
+So $v_1$ was discovered before $u_1$. This implies that $Adj[v_1]$ was processed before $Adj[u_1]$. This only happens if $v$ was discovered before $u$. This is a contradiction, so therefore if $u$ is discovered before $v$, then $dist[u] \le dist[v]$.
+
+##### Lemma 2
+If $\{u,v\}$ is **any edge**, then $|dist[u]-dist[v]| \le 1$
+
+Suppose $u$ is discovered before $v$ without any loss of generality. Then we are processing $Adj[u]$ when we encounter $v$ in the adjacency list. Then, we have three cases:
+1. **$v$ is white.** In this case, $dist[v]=dist[u]-1$.
+2. **$v$ is grey.**
+3. **$v$ is black.** This can't happen, since it would mean we have already processed the adjacency list for $v$, and therefore would have encountered $u$ in the adjacency list for $v$.
+
+For the second case, let $\pi[v]=v_1$. This tells us that $dist[v]=dist[v_1]+1$ (1). So $v$ was discovered when $Adj[v_1]$ was being processed. Therefore $v_1$ was discovered before  $u$. This tells us that $dist[v_1] \le dist[u]$ (2). Finally, $u$ was discovered before $v$ from our assumption, so Lemma 1 says that $dist[u] \le dist[v]$. (3). From (1), (2), and (3), we can say that $|dist[u]-dist[v]| \le 1$.
+
+##### Theorem
+$dist[v]$ is the length of the **shortest path** from $s$ to $v$
+
+Let $\delta(v)$ be the lenfth of the shortest path from $s$ to $v$. We want to prove that $\delta(v) = dist[v]$. We will prove $\delta(v) \le dist[v]$ and $\delta(v) \ge dist[v]$.
+
+Consider the path $v, \pi[v], \pi[\pi[v]], ..., s$. This is a path from $s$ to $v$ having length $dist[v]$. Therefore $\delta(v) \le dist[v]$.
+
+We prove $\delta(v) \ge dist[v]$ by induction in $\delta(v)$.
+
+Base case: $\delta(v) = 0 \rightarrow s=v$. We know $dist[s]=0$, so $dist[v]=\delta(v)$.
+
+Assumption: Suppose the inequality is true for $\delta(v) \le d-1$.
+
+Consider $v$ such that $\delta(v)=d$. Let $S, v_1, v_2, ..., v_{d-1}, v_d = v$ be the shortest path from $s$ to $v$ (length is $d$). The section from $s$ to $v_{d-1}$ is a shortest path. By induction, $d-1=\delta(v_{d-1})=dist[v_{d-1}]$.
+
+
+### Bipartite graphs
+A graph is **bipartite** if the vertex set can be partitioned as $V=X \cup Y$ such that all the edges have one end point in $X$ and one in $Y$. This is the case if and only if there is not an odd cycle in the graph.
+
+We can use BFS to test if a graph is bipartite.
+- If we enounter an edge $\{u,v\}$ with $dist[u]=dist[v]$, then $G$ os not bipartite, whereas
+- if no such edge is found, then define $X = \{u : dist[u] \text{ is even}\}$ and $Y = \{u : dist[u] \text{ is odd}\}$, and $X,Y$ is the bipartition.
+
+Suppose $G$ is not bipartite (and assume it is connected). Let $s$ be any vertex.
+Define $X=\{v : dist[v] \text{ is even}\}, Y=\{v: dist[v] \text{ is odd}$.
+Since $G$ is not bipartite, there is an edge $uv$ where $u,v \in X$ or $u,v \in Y$. There is an edge $uv$ where $dist[u]$ and $dist[v]$ are both even or both odd. Since $|dist[u]-dist[v]| \le 1$, we have $dist[u]=dist[v]$. How do we find an odd cycle?
+
+Given a connected graph, we can use BFS to either:
+1. Find a bipartition $X,Y$ ($G$ is bipartite), or
+2. Find an odd length cycle ($G$ is not bipartite)
+
+Run BFS. IF we ever encounter $v \in Adj[u]$ where $dist[u] = dist[v]$, then we can construct an odd cycle. If this doesn't happen, then $X,Y$ will be a bipartition.
 
 ## Depth-first Search
 - Uses a stack or recursion
 - Looks at most deeply nested children first, then parents
+
+<img src="img/dfs.png" />
+<img src="img/dfsvisit.png" />
