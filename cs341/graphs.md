@@ -126,3 +126,40 @@ Run BFS. IF we ever encounter $v \in Adj[u]$ where $dist[u] = dist[v]$, then we 
 
 <img src="img/dfs.png" />
 <img src="img/dfsvisit.png" />
+
+### Classification of edges
+Given $uv$:
+- **Tree edge**: $u=\pi[v]$
+- **Forward edge**: not a tree edge, and $v$ is a descendant of $u$ in a tree in the dfs forest
+- **Backa edge**: $u$ is a descendant of $v$ in a tree in the dfs forest
+- **Cross edge**, otherwise
+
+### Properties
+<img src="img/discovery_times.png" />
+Note that the intervals $(d[u], f[u])$ and $(d[v], f[v])$ never overlap. Two intervals are either disjoint or nested. This is called the **parenthesis theorem.**
+
+### Topological orderings
+A directed graph $G$ is a **directed acyclic graph** (DAG) if $G$ contains no directed cycle.
+
+A directed graph $G=(V,E)$ has a **topological ordering**, or **topological sort** if there is a linear ordering of all the vertices in $V$ such that $u \lt v$ whenever $uv \in E$.
+
+- A DAG contains a vertex of indegree 0 (has no directed edges going into it)
+- A directed graph $G$ has a topological ordering iff it is a DAG
+- A directed graph $G$ is a DAG iff a DFS of G has no back edges
+- If *uv* is an edge in DAG, then a DFS of $G$ has $f[v] \lt f[u]$
+
+**Lemma.** A DAG contains a vertex of indegree 0.
+
+Suppose there are no vertices od indegree 0. Pick any vertex $v_1$. There must always be an edge going into it, so there is an edge $v_2 v_1$ There is also an edge $v_3 v_2$. You can keep finding edges like this infinitely, and since there are not infinite points, there must therefore be a repatition. Therefore there is a directed cycle in the graph.
+
+**Theorem.** A directed graph $D$ has a topological ordering iff it is a DAG.
+
+Suppose $D$ has a directed cycle. Then, $v_1 \lt v_2 \lt ... \lt v_j \lt ... \lt v_!$. This is not a linear ordering.
+
+Suppose $D$ is a DAG. Let $v_1$ be a vertex of indegree 0. This will be the first vertex in the ordering.
+- Delete edges incident with $v_1$
+- get a smaller DAG $D_1$ on $n-1$ vertices
+- choose a vertex in $D_1$ with indegree 0
+- repeat
+
+<img src="img/topological_ordering.png" />
