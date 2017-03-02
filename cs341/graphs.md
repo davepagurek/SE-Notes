@@ -131,7 +131,7 @@ Run BFS. IF we ever encounter $v \in Adj[u]$ where $dist[u] = dist[v]$, then we 
 Given $uv$:
 - **Tree edge**: $u=\pi[v]$
 - **Forward edge**: not a tree edge, and $v$ is a descendant of $u$ in a tree in the dfs forest
-- **Backa edge**: $u$ is a descendant of $v$ in a tree in the dfs forest
+- **Back edge**: $u$ is a descendant of $v$ in a tree in the dfs forest
 - **Cross edge**, otherwise
 
 ### Properties
@@ -163,3 +163,51 @@ Suppose $D$ is a DAG. Let $v_1$ be a vertex of indegree 0. This will be the firs
 - repeat
 
 <img src="img/topological_ordering.png" />
+
+<img src="img/topological_ordering2.png" />
+
+We find a topoligical sort "efficiently" ($O(m+n)$) without using DFS using Kahn's Algorithm.
+Using an adjacency list representation:
+1. Compute $deg(V)$ for all $v$ (indegrees)
+2. For all $v$ with $deg(v)=0$, put $v$ in a queue $Q$
+3. Repeat $n$ times:
+  a. If $Q$ is empty, quit, because $G$ is not a DAG
+  b. Let $v$ be the first vertex in $Q$. Delete it, and output $v$
+  c. $\forall w \in Adj(v), deg^{-1}(w) = deg^{-1}(w)-1$. If $deg^{-1}(w)=0$, then insert $w$ into $Q$.
+
+**Lemma.** $G$ is a DAG iff there are no back edges in a DFS.
+**Proof.** A back edge implies a directed cycle. Conversely: Assume there is a directed cycle.
+Let $v_1v_2, ..., v_lv_1$ be a directed cycle. Suppose $v_1$ is disconnected first. We calim $v_lv_1$ is a back edge: $d(v_l) \gt d(v_1)$, so from the chart, $v_lv_1$ is a back edge or a cross edge. But can it be a cross edge? If it was, then $v_1$ would be black when $v_lv_1$ is processed (from the chart). But $v_1$ is not black at the time, it's grey, so $v_lv_1$ is a backk edge.
+
+Given that there are no back edges, the topological ordering is given by the vertuces in reverse order of finishing time. Why? Look at the chart: for any edge $uv$ that is not a back edge, $f[u] \gt f[v]$ ($f$ is finishing time).
+
+### Strongly connected components
+For two vertices $x$ and $y$ of digraph $G$, define $x \sim y$ as $x=y$ or $x \ne y$ and there exists directed paths from $x$ to $y$ and $y$ to $x$.
+
+The relation $~$ is an **equivalence relation.** The strongly connected components of $G$ are the equivalence classes of vertices defined by the relation $\sim$.
+
+The **component graph** of $G$ is a directed graph whose vertices are strongly connected components of $G$. There is an arc from $C_i$ to $C_j$ iff there is an arc in $G$ from some $v \in C_i$ to some $u \in C_j$. For a stringly connected component $C$, define $f[C]=\max\{f[v] : v \in C\}$ and $d[C]=\min\{d[v] : v \in C\}$
+
+Useful facts:
+- Component graph of $G$ is a DAG
+- If there is an edge $C_iC_j$ in the component graph, then $f(C_i) \gt f(C_j)$.
+
+#### Given a directed graph, find its strongly connected components.
+First consider the **undirected** version of the problem. We can use DFS to solve the undirected problem. Each initial call to DFSVisit will "explore" a connected component. THe recursive calls to DFSVisit are the other vertices in the same component.
+
+**Lemma.** If there is an edge $C_iC_j$ in the component graph, then $f(C_i) \gt f(C_j)$.
+
+**Proof.**
+Case 1: $d(C_i) \lt d(C_j)$
+Case 2: $d(C_i) \gt d(C_j)$
+
+For case 2, we explore everything in $C_j$ before any vertex in $C_i$ is explored. So, $f(C_i) \gt d(C_i) \gt f(G_j)$.
+
+For case 1, let $u \in C_i$ be the first discovered vertex. All vertices in $C_i \cup C_j$ are reachable from $u$, so they are all descendants of $u$ in the DFS tree. So $f(v) \lt f(u) \forall v \in C_i \cup C_j, u \ne v$, and therefore $f(C_i) \gt f(C_j)$.
+
+**Algorithm**
+
+1. Perform DFS of $G$. Record the finishing times $f[v] \forall v \in G$
+2. Construct digraph $H$ from $G$ by reversing the direction of all edges in $G$
+3. Perform a DFS of $H$, considering vertices in **decreasing order** of the values $f[v]$ from step 1
+4. The strongly connected components of $G$ are the trees in the DFS forest constructed in 3
