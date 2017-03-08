@@ -211,3 +211,44 @@ For case 1, let $u \in C_i$ be the first discovered vertex. All vertices in $C_i
 2. Construct digraph $H$ from $G$ by reversing the direction of all edges in $G$
 3. Perform a DFS of $H$, considering vertices in **decreasing order** of the values $f[v]$ from step 1
 4. The strongly connected components of $G$ are the trees in the DFS forest constructed in 3
+
+## Minimum Spanning Trees (Prim's Algorithm)
+- A **tree** is a connected graph that is acyclic.
+- Removing any edge from a tree disconnects the tree
+- Breaking any edge from a cycle $G$ in a graph $G$ cannot disconnect $G$
+- Any tree with $n$ vertices contains $n-1$ edges
+- A minimum spanning tree takes a undirected and connected graph $G(V,E)$ and arbitrary edge weights and outputs a tree $T^*$ of $V$ such that $w(T^*)$ is minimized
+
+### Algorithm
+- Start with a vertex
+- At each step, add the vertex that costs the least to get to from the current set of visited vertices
+
+### Implementation
+- Keep each vertex $v$ in a priority queue $R$ using the min distance $v$ has to $L$
+
+```
+def prim(G(V,E), weights) {
+  choose any s in V
+  let l = {S}
+  let r = V-{S}
+  let minWeightEdge be a priority queue storing, for all v in R, the weight of the edge (u,v) connecting v to l
+  T = {}
+
+  for i in 1..n {
+    (v, (u,v)) = minWeightEdge.extractMin()
+    remove v from r
+    add v to l
+    add (u,v) to T
+    for each (v,z) in E such that z in R {
+      minWeightEdge.decrementKey(z, w[v,z])
+    }
+  }
+
+  return T
+}
+```
+
+A **cut** on an edge divides a graph into sections if that edge was removed.
+- A graph $G(V,E)$ is not connected if $\exists$ a cut $(X,Y)$ with no crossing edges
+- Given a cut $X,Y$ and a cycle $C$, if $C$ contains an edge $e$ crossing $X,Y$, then there exists $e' \ne e$ part of $C$ that is also crossing $(X,Y)$
+- If $\exists$ a cut $(X,Y)$ such that only one edge $e$ is crossing $(X,Y)$, then $e$ cannot be part of a cycle
