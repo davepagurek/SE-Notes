@@ -252,3 +252,55 @@ A **cut** on an edge divides a graph into sections if that edge was removed.
 - A graph $G(V,E)$ is not connected if $\exists$ a cut $(X,Y)$ with no crossing edges
 - Given a cut $X,Y$ and a cycle $C$, if $C$ contains an edge $e$ crossing $X,Y$, then there exists $e' \ne e$ part of $C$ that is also crossing $(X,Y)$
 - If $\exists$ a cut $(X,Y)$ such that only one edge $e$ is crossing $(X,Y)$, then $e$ cannot be part of a cycle
+
+Kruskal's Algorithm is another algorithm to solve this
+
+## Single Source Shortest Path
+Looking for the path of minimum weight. **Dijkstra's Algorithm** solves this when there are no negative weight edges.
+- $S$ is the set of vertices you know the shortest path to. Initially just path to the starting vertex (no edge)
+- If $v \in S$, $D[v]$ is the weight of the shortest path $P_v$ from $u_0$ to $v$ and all vertices in $P_v \in S$.
+- If $v \notin S$, $D[v]$ is the weight of the shortest path $P_v$ from $u_0$ to $v$ and all interior vertices in $P_v \in S$.
+- At each stage, we choose $v \in V \setminus S$ so that $D[v]$ is minimized, and then we add $v$ to $S$
+
+Bellman-Ford Algorithm (works with negative edges but not negative weight cycles)
+- repeat $n-1$ times:
+  - Relax each edge in the graph
+
+## Shortest path in DAG
+Since there are no directed cycles, there are no negative weight directed cycles since there are no directed cycles
+1. Find a topological ordering of the directed graph $G$ ($O(m+n)$). $v_1, v_2, ..., v_n$ is the ordering.
+2. We find shortest path from the source $v_1$. If we want to start at a later vertex, delete all vertices before it in the ordering.
+3. For $i$ in 1 to $n$, look at the vertices in $Adj[v_1]$ and "relax" them
+
+## All Pairs Shortest Paths
+In a directed graph $G=(V,E)$, and a weight matrix $W$ where $W[i,j]$ is the weight of edge $ij$, for all pairs of vertices $u,v, \in V, u \ne v$, find a directed path $P$ from $u$ to $v$ such that:
+$$w(P) = \sum_{ij \in P} W[i,j]$$
+
+### Algorithms
+
+#### Using Bellman-Ford
+Run Bellman-Ford algorithm $n$ times, once for each source. This is $O(n^2m)$.
+
+#### Slow Shortest Path
+Let $L_m[i,j]$ to be the minimum weight of an $(i,j)$ path having at most $m$ edges. (We will look at $L_{n-1}[i,j]$ to find the answer.) $W[i,j]=0$ if $i=j$.
+
+Initially, $L_1 = W$ (matrix of edge weights).
+
+Let $P$ be the min-weight $(i,j)$ path with less than or equal to $m$ edges. Let $k$ be the predecessor of $j$ on $P$. Let $P'$ be the $(i,k)$-path (delete $j$ from $P$). $P'$ is a **min-weight** $(i,k)$ path having $\le m-1$ edges.
+
+This gives us the recurrence relation:
+$$L_m[i,j] = \min{L_{m-1}[i,k]+w[k,j] : 1 \le k \le n}$$
+
+#### Slightly less slow
+This is called "successive doubling"
+
+The idea is to compute $L_1, L_2, ..., L_{2^k}$ where $2^k \ge n-1$ and each depends on the previous. There are then $\Theta(\log n)$ matrices to compute.
+
+$$L_m[i,j] = \min{L_\frac{m,2}[i,k]+L_\frac{m,2}[k,j] : 1 \le k \le n}$$
+
+#### Floyd-Warshall
+Let $D_m[i,j]$ be the min weight of an $(i,j)$-path where interior vertices are in $\{1,...,m\}$. We want to compute $D_n$.
+
+Initially, $D_0 = W$.
+
+$$D_m[i,j] = \min{D_{m-1}[i,k], D_{m-1}[i,m], D_{m-1}[m,j]}$$
