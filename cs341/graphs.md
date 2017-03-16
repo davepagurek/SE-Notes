@@ -296,7 +296,7 @@ This is called "successive doubling"
 
 The idea is to compute $L_1, L_2, ..., L_{2^k}$ where $2^k \ge n-1$ and each depends on the previous. There are then $\Theta(\log n)$ matrices to compute.
 
-$$L_m[i,j] = \min{L_\frac{m,2}[i,k]+L_\frac{m,2}[k,j] : 1 \le k \le n}$$
+$$L_m[i,j] = \min{L_\frac{m}{2}[i,k]+L_\frac{m}{2}[k,j] : 1 \le k \le n}$$
 
 #### Floyd-Warshall
 Let $D_m[i,j]$ be the min weight of an $(i,j)$-path where interior vertices are in $\{1,...,m\}$. We want to compute $D_n$.
@@ -304,3 +304,50 @@ Let $D_m[i,j]$ be the min weight of an $(i,j)$-path where interior vertices are 
 Initially, $D_0 = W$.
 
 $$D_m[i,j] = \min{D_{m-1}[i,k], D_{m-1}[i,m], D_{m-1}[m,j]}$$
+
+Is $D_{m-1}[i,m] + D_{m-1}[m,j]$ the minimum weight path that contains $m$ as an interior vertex? $p_1, p_2$ are simple paths (no negative weight cycles.) Are $p_1, p_2$ disjoint?
+- If $p_1, p_2$ are **not disjoint**, we get a lower weight path than $D_{m-1}[i,m] + D_{m-1}[m,j]$, then there is a negative weight cycle. This is a contradiction.
+
+e.g.
+<img src="img/warshall-example.png" />
+
+$$D_0 = \begin{bmatrix}
+0 & 3 & \infty & \infty \\
+\infty & 0 & 12 & 5 \\
+4 & \infty & 0 & -1 \\
+2 & -4 & \infty & 0
+\end{bmatrix}$$
+
+$$\begin{align*}
+D_1[3,2]&=\min\{D_0[3,2], D_0[3,1] + D_1[1,2]\}\\
+&= \min\{\infty, 4+3\}\\
+&= 7
+\end{align*}$$
+
+$$D_1 = \begin{bmatrix}
+0 & 3 & \infty & \infty \\
+\infty & 0 & 12 & 5 \\
+4 & [7] & 0 & -1 \\
+2 & -4 & \infty & 0
+\end{bmatrix}$$
+
+$$D_2 = \begin{bmatrix}
+0 & 3 & [15] & [8] \\
+\infty & 0 & 12 & 5 \\
+4 & 7 & 0 & -1 \\
+2 & -4 & [8] & 0
+\end{bmatrix}$$
+
+$$D_3 = \begin{bmatrix}
+0 & 3 & 15 & 8 \\
+[16] & 0 & 12 & 5 \\
+4 & -7 & 0 & -1 \\
+2 & -4 & 8 & 0
+\end{bmatrix}$$
+
+$$D_4 = \begin{bmatrix}
+0 & 3 & 15 & 8 \\
+[7] & 0 & 12 & 5 \\
+[1] & [-5] & 0 & -1 \\
+2 & -4 & 8 & 0
+\end{bmatrix}$$
