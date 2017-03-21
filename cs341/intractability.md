@@ -56,3 +56,41 @@ TSP optimal value $\le^T_P$ TSP decision. This can be done using **binary search
 This means we need to have upper and lower bounds computed to start with.
 - If we know there are no negative value cycles, we can select 0 as the lower bound
 - We can make the high value $\sum_{e \in G} w(e)$
+
+# Certificates
+- A **certificate**:  for a yes-instance $I$ is some exxtra information $C$ which makes it easy to verify that $I$ is a yes-instance
+- Suppose $Ver$ is a **certificate validation algorithm**. Then it is an algorithm that verifies certificates for yes-instances. Then $Ver(I,C)$ outputs "yes" if $I$ is a yes-instance and $C$ is a valid certificate for $I$. If the output is "no", then either $I$ is a no-instance, or $I$ is a yes-instance and $C$ is an invalid certificate.
+- A certificate verification algorithm $Ver$ is a **polynomial time** certificate verification algorithm if the complexity of $Ver$ is $O(n^k), k \in \mathbb{N}, n = Size(I)$
+
+## NP
+- Certificate verification algorithm: Solves a decision problem $\Pi$ provided:
+  - for every yes-instance $I$, there must exist a $C$ such that $Ver(I,C)$ outputs "yes"
+  - For every no instance $I$ and every certificate $C$, $Ver(I,C)$ outputs "no"
+- NP denotes the set of all decision problems that have polynomial time certificate verification algorithms solving them.
+
+### P is in NP
+Let $A$ be a polynomial-time algorithm to solve $\Pi \in P$. Define a certificate verification algorithm $Ver$ for $\Pi$:
+
+```
+Ver(I,C):
+  run A(I) (ignore C)
+```
+
+### Polynomial-time Reductions
+For a decision problem $\Pi$, let $\I(\Pi)$ denote the set of all instances of $\Pi$. Let $\I_{yes}\Pi$ and $\I_{no}\Pi$ be all the yes- and no-instances.
+
+Let $\Pi_1, \Pi_2$ be decision problems. Transformation from $\Pi_1$ to $\Pi_2$ exists if there exists a function $f : I(\Pi_1) \rightarrow I(\Pi_2)$ such that:
+- $f(I)$ is computable in polynomial time
+- if $I \in I_{yes}(\Pi_1)$, then $f(I) \in I_{yes}(\Pi_2)$
+- if $I \in I_{no}(\Pi_1)$, then $f(I) \in I_{no}(\Pi_2)$ (basically always prove this with contrapositive so that you are dealing with yes-instances)
+
+Properties
+- If $\Pi_1 \le_P \Pi_2$ and $\Pi_2 \in P$, then $\Pi_1 \in P$
+- If $\Pi_1 \le_P \Pi_2$ and $\Pi_2 \le_P \Pi_3$, then $\Pi_1 \le_P \Pi_3$
+
+## NP-Completeness
+NPC denotes the set of all decision problems $\Pi$ that satisfy:
+- $\Pi \in NP$
+- For all $\Pi' \in NP, \Pi' \le_P \Pi$
+
+If $P \cup NPC \ne \emptyset$, then $P = NP$.
