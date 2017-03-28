@@ -96,7 +96,7 @@ NPC denotes the set of all decision problems $\Pi$ that satisfy:
 If $P \cup NPC \ne \emptyset$, then $P = NP$.
 
 ### 3-CNF-SAT to Clique
-Let $I$ be the instance of 3-CNF-SAT consisting of $n$ variables, $x_1, ..., x_n$ and $m$ clauses $C_1, ..., C_n$. Let $C_i = {z_1^i, z_2^i, z_3^i}, $1 \le i \le m$.
+Let $I$ be the instance of 3-CNF-SAT consisting of $n$ variables, $x_1, ..., x_n$ and $m$ clauses $C_1, ..., C_n$. Let $C_i = {z_1^i, z_2^i, z_3^i}$, $1 \le i \le m$.
 
 Define $f(I) = (G,k), G=(V,E)$, where:
 - $V = \{v_j^i: 1 \le i \le m, 1 \le j \le 3\}
