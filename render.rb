@@ -70,7 +70,9 @@ class Converter
 
       # Move ToC to be after heading 1
       toc.unlink
-      title.add_next_sibling(toc)
+
+      title.add_next_sibling(toc) if sublist
+
       title.add_next_sibling(Nokogiri::HTML.fragment(
         <<~HTML
           <a href="index.html">Back to #{title_for_path(File.dirname(path))}</a>
