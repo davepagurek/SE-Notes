@@ -18,6 +18,8 @@ The transfer function $T(s)$ of a system with an input signal $X(s)$ and output 
 
 $$T(s) = \frac{Y_{\text{(output)}}(s)}{X_{\text{(input)}}(s)}$$
 
+A **pole** is an asymptote in the transfer function.
+
 ### How do you get a transfer function?
 
 #### 1. Block diagram to transfer function
@@ -49,3 +51,9 @@ e^{-1} &= e^{-C \tau}\\
 -1 &= -C \tau\\
 \tau = \frac{1}{C}
 \end{align}$$
+
+## Gain
+
+Given a transfer function $T(s)$, the gain of frequency $j\omega$ is defined as $\left| T(j \omega) \right|$.
+
+$j \omega$ is a frequency in rad/s, so you can put any frequency value in there as input instead of using a variable.
