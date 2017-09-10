@@ -14,9 +14,9 @@ $s$ is a complex variable, so $s = \sigma_{\text{(real part)}} + j\omega_{\text{
 
 Transfer functions exist in the $s$-plane, not the time plane.
 
-The transfer function $T(s)$ of a system with an input signal $X(s)$ and output $Y(s)$ is just defined to be the ratio of input to output:
+The transfer function $T(s)$ of a system with an input signal $X(s)$ and output $Y(s)$ is just defined to be the ratio of output to input:
 
-$$T(s) = \frac{X_{\text{(input)}}(s)}{Y_{\text{(output)}}(s)}$$
+$$T(s) = \frac{Y_{\text{(output)}}(s)}{X_{\text{(input)}}(s)}$$
 
 ### How do you get a transfer function?
 
@@ -36,3 +36,16 @@ You can produce an input $x(t)$ and measure the system response $y(t)$. Then, yo
 
 - If your input is the Dirac delta function (a value of basically $\infty$ for a tiny width of $dx$ followed by nothing), then $\mathcal{L}\{\delta(t)\} = 1$, so the Laplace transformed system response $Y(s)$ is equal to the transfer function.
 - If your input is the unit step function (a value of 0 for $x \lt 0$ and a value of 1 otherwise), $X(s) = s$, so the observed system response divided by $s$ will be your transfer function: $T(s) = Y(s)/s$
+
+
+## Time constant
+
+The time constant $\tau$ is just the $t$ value that decays an exponential to $\frac{1}{e}$. For example:
+
+$$\begin{align}
+f(t) &= e^{-C t}\\
+f(\tau) &= e^{-1}\\
+e^{-1} &= e^{-C \tau}\\
+-1 &= -C \tau\\
+\tau = \frac{1}{C}
+\end{align}$$
