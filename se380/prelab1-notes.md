@@ -42,14 +42,20 @@ You can produce an input $x(t)$ and measure the system response $y(t)$. Then, yo
 
 ## Time constant
 
-The time constant $\tau$ is just the $t$ value that decays an exponential to $\frac{1}{e}$. For example:
+You gave a unit step as an input to a system and got a response $y(t)$. The time constant $\tau$ is just the $t$ value that decays the unit step response to either $1 - \frac{1}{e}$ times its final value if the function is increasing, or $\frac{1}{e}$ times its final value if it is decreasing.
+
+For example, imagine the response is $y(t) = 20e^{-5 t}$:
+<img src="img/decay-response.png" />
+
+The function decreases to its final value 20, so the time constant is the $t$ where its value is $\frac{20}{e}$:
 
 $$\begin{align}
-f(t) &= e^{-C t}\\
-f(\tau) &= e^{-1}\\
-e^{-1} &= e^{-C \tau}\\
--1 &= -C \tau\\
-\tau = \frac{1}{C}
+f(\tau) &= \frac{20}{e}\\
+&= 20e^{-1}\\
+20e^{-1} &= 20e^{-5 \tau}\\
+e^{-1} &= e^{-5 \tau}\\
+-1 &= -5 \tau\\
+\tau = \frac{1}{5}
 \end{align}$$
 
 ## Gain
