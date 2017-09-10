@@ -1,34 +1,14 @@
 #!/usr/bin/env ruby
 
 class Converter
-  #require 'redcarpet'
   require 'pandoc-ruby'
+  require 'nokogiri'
 
-  #class DisplayRenderer < Redcarpet::Render::HTML
-    #def doc_header
-      #<<-HEADER
-        #<script type="text/x-mathjax-config">
-          #MathJax.Hub.Config({
-            #tex2jax: {
-              #inlineMath: [ ['$','$'], ["\\(","\\)"] ],
-              #displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
-              #processEscapes: true
-            #},
-          #});
-        #</script>
-        #<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
-      #HEADER
-    #end
-
-    #def block_code(code, language)
-      #"<pre><code lang=\"#{language}\">" + code + "</code></pre>"
-    #end
-  #end
-
-  #def initialize
-    #@renderer = DisplayRenderer.new(with_toc_data: true)
-    #@markdown = Redcarpet::Markdown.new(@renderer, fenced_code_blocks: true, disable_indented_code_blocks: true, tables: true)
-  #end
+  @@footer = <<~HTML
+    <div id="footer">
+      Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+    </div>
+  HTML
 
   def walk(path)
     Dir.foreach(path) do |child|
@@ -46,51 +26,108 @@ class Converter
   def write_page(path)
     output_path = File.join(File.dirname(path), File.basename(path, ".md")) + ".html"
     contents = File.read(path)
-    File.write(
-      output_path,
+    page = Nokogiri::HTML(
       PandocRuby
         .new(contents, :standalone, from: "markdown_github+tex_math_dollars")
         .to_html(
           :no_wrap,
+          :table_of_contents,
           :mathjax,
           tab_stop: 2,
           css: "/SE-Notes/style.css"
         )
     )
+    process_page!(page, path)
+
+    File.write(output_path, page.to_html)
+  end
+
+  def process_page!(page, path)
+    body = page.css("body").first
+    head = page.css("head").first
+
+    return unless body
+
+    title = page.css("h1").first
+    if title && head
+      head.add_child(Nokogiri::HTML.fragment(
+        <<~HTML
+          <title>#{title.text}</title>
+        HTML
+      ))
+    end
+
+    toc = page.css("#TOC").first
+    if title && toc
+
+      # Remove heading 1 from ToC
+      list = page.css("#TOC > ul").first
+      sublist = page.css("#TOC > ul > li > ul").first
+      if list && sublist
+        list.unlink
+        toc.add_child(sublist)
+      end
+
+      # Move ToC to be after heading 1
+      toc.unlink
+      title.add_next_sibling(toc)
+      title.add_next_sibling(Nokogiri::HTML.fragment(
+        <<~HTML
+          <a href="index.html">Back to #{title_for_path(File.dirname(path))}</a>
+        HTML
+      ))
+    end
+
+    body.add_child(Nokogiri::HTML.fragment(@@footer))
   end
 
   def write_index_page(path)
     output_path = File.join(path, "index.html")
     File.write(
       output_path,
-      <<-HTML
-<html>
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <meta name="generator" content="pandoc">
-  <title></title>
-  <style type="text/css">code{white-space: pre;}</style>
-  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
-</head>
-<body>
-  <h1>#{path}</h1>
-  <ul>
-  #{
-  Dir.entries(path).select{|f| File.directory?(f) && !f.start_with?(".") && !f.include?("vendor")}.map{|f|
-    "<li><a href='#{f}'>#{f}</a></li>"
-  }.join("\n")
-  }
-  #{
-  Dir.entries(path).select{|f| f.end_with?(".md")}.map{|f|
-    "<li><a href='#{File.join(File.dirname(f), File.basename(f, ".md")) + ".html"}'>#{f}</a></li>"
-  }.join("\n")
-  }
-  </ul>
-</body>
-</html>
-HTML
+      <<~HTML
+        <html>
+        <head>
+          <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+          <meta http-equiv="Content-Style-Type" content="text/css">
+          <meta name="generator" content="pandoc">
+          <title>#{title_for_path(path)} - Dave's SE Notes</title>
+          <style type="text/css">code{white-space: pre;}</style>
+          <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+        </head>
+        <body>
+          <h1>#{title_for_path(path)}</h1>
+          #{
+            unless path == "./."
+              "<p><a href='../index.html'>Back</a></p>"
+            else
+              ""
+            end
+          }
+          <ul>
+          #{
+            Dir.entries(path).select{|f| File.directory?(f) && !f.start_with?(".") && !f.include?("vendor")}.map{|f|
+            "<li><a href='#{f}/index.html'>#{f}</a></li>"
+            }.join("\n")
+          }
+          #{
+            Dir.entries(path).select{|f| f.end_with?(".md")}.map{|f|
+              "<li><a href='#{File.join(File.dirname(f), File.basename(f, ".md")) + ".html"}'>#{f}</a></li>"
+            }.join("\n")
+          }
+          </ul>
+          #{@@footer}
+        </body>
+        </html>
+      HTML
     )
+  end
+
+  def title_for_path(path)
+    return "All Subjects" if path == "./."
+
+    match = /^(\.\/)?(.+?)(\/.)?$/.match(path)
+    return match[2]
   end
 
   def convert

@@ -60,6 +60,6 @@ e^{-1} &= e^{-5 \tau}\\
 
 ## Gain
 
-Given a transfer function $T(s)$, the gain of frequency $j\omega$ is defined as $\left| T(j \omega) \right|$.
+Given a transfer function $T(s)$, the gain of frequency $\omega$ is defined as $\left| T(j \omega) \right|$.
 
-$j \omega$ is a frequency in rad/s, so you can put any frequency value in there as input instead of using a variable.
+$\omega$ is a frequency in rad/s, so you can put any frequency value in there as input instead of using a variable. Remember as well that $|j|=1$.
