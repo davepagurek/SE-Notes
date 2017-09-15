@@ -28,7 +28,7 @@ Force due to damper, possibly nonlinear: $C(\dot{q})$
 Altogether, we get a second order nonlinear ODE:
 $$M\ddot{q} = -Kq - C(\dot{q}) + u$$
 
-Note: if the damper is linear ($C(\dot{q})=bq), then the overall system is linear
+Note: if the damper is linear ($C(\dot{q})=bq$), then the overall system is linear
 
 ### e.g. Resistor
 
@@ -102,4 +102,96 @@ $$\begin{align}
 y &= Cx\\
 \end{align}$$
 
-This is a linear, time-invariant (LTI) model
+This is a linear, time-invariant (LTI) model.
+
+**Expect at least one question like this on the midterm**
+
+## Generalizing
+Generalizing, an important calss of systems have models of the form:
+
+$$\begin{align}
+\dot{x} &= f(x, u), & f: \mathbb{R}^n \times \mathbb{R}^m \rightarrow \mathbb{R}^n\\
+y &= h(x, u), & h: \mathbb{R}^n \times \mathbb{R}^m \rightarrow \mathbb{R}^p\\
+\end{align}$$
+
+- This model is nonlinear
+- there are $m$ control inputs $u=(u_1, ..., u_m)$
+- there are $p$ outputs $y=(y_1,...,y_p)$
+- the state vector $x$ has dimensions $n$: $x=(x_1, ..., x_n)$
+
+The linear special case is:
+$$\begin{align}
+\dot{x} &= Ax + Bu, & A \in \mathbb{R}^{n \times m}\\
+y &= Cx + Du, & C \in \mathbb{R}^{p \times m}\\
+\end{align}$$
+
+In this course, we look at single-input, single-output systems: $m=p=1$.
+
+### e.g. more carts
+<img src="img/carts.png" />
+
+$$\begin{align}
+m&=2, & u &= (u_1, u_2)\\
+p&=2, & y &= (y_1, y_2)\\
+m&=4, & x &= (x_1, x_2, x_3, x_4) := (y_1, \dot{y_1}, y_2, \dot{y_2})\\
+\end{align}$$
+
+### e.g. drones
+<img src="img/drones.png" />
+$$\begin{align}
+u &= (y_1, u_2, u_3, u_4)= (f_1, f_2, f_3, f_4)\\
+p&=3\\
+y&=(y_1, y_2, y_3)\\
+x &\in \mathbb{R}^{12} = (\text{position}, \text{orientation}, \text{velocity}, \text{angular velocity})\\
+\end{align}$$
+
+### Determining state
+What is the state of a system?
+
+The state vector $x(t_0)$ encapsulates all of the system's dynamics up to time $t_0$.
+
+More formally: For any two times $t_0 \lt t$, knowing $x(t_0)$ and knowing $\{u(t) : t_0 \le t \lt t_1\}$, we can compute $x(t_1)$ and $y(t_1)$.
+
+### e.g. cart with no forces
+<img src="img/cart-no-forces.png" />
+
+We know $M\ddot{y} = 0$ from Newton's laws.
+
+If we try a 1-dimensional state, say $x := y$, then knowing $x(t_0)$ without knowing $\dot{y}$ is not enough information to find the position in the future, $x(t)$ for $t \gt t_0$. We have the same problem if we define $x = \dot{y}$.
+
+Since the governing equation is second order, we need two initial conditions. So, $x=(y, \dot{y}) \in \mathbb{r}^2$ is a good choice.
+
+### e.g. 2.5.2: Pendulum
+
+<img src="img/pendulum.png" />
+
+Model: $\ddot{\theta} = \frac{3}{Ml^2} u - 3\frac{g}{l} \sin(\theta)$
+
+In state space form:
+$$\begin{align}
+x &= (\theta, \dot{\theta})\\
+y &= \text{angular position} = \theta\\
+\\
+\dot{x}&=f(x,u) \quad & & \dot{x_1}=x_2\\
+\dot{y}&=h(x,u) \quad & & \dot{x_2}=\frac{3}{Ml^2}u - 3\frac{s}{l} \sin(x_1)\\
+& & & y = x_1
+\end{align}$$
+
+This is nonlinear due to the sine term.
+
+### e.g. 2.4.5 Circuit
+<img src="img/circuit.png" />
+
+$$\begin{align}
+x_1 &:= \text{voltage across capacitor} = \frac{1}{C} \int{y(\tau)d\tau}\\
+x_2 &:= \text{current through inductor} = y\\
+\\
+-u + V_R + V_C + V_L &= 0\\
+\Rightarrow -u + Rx_2  + x_1 + L\dot{x_2} &= 0, \quad \text{from capacitor equation: } \dot{x_1}=\frac{1}{C} x_2\\
+\\
+\dot{x} &= \begin{bmatrix}
+0 & \frac{1}{C}\\
+\frac{-1}{2} & \frac{-R}{L}\end{bmatrix} \begin{bmatrix}x_1\\
+x_2\end{bmatrix} + \begin{bmatrix}0 \\ \frac{1}{L}\end{bmatrix} u\\
+y &= \begin{bmatrix}0 & 1\end{bmatrix}\\
+\end{align}$$
