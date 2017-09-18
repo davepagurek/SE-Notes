@@ -107,7 +107,7 @@ This is a linear, time-invariant (LTI) model.
 **Expect at least one question like this on the midterm**
 
 ## Generalizing
-Generalizing, an important calss of systems have models of the form:
+Generalizing, an important class of systems have models of the form:
 
 $$\begin{align}
 \dot{x} &= f(x, u), & f: \mathbb{R}^n \times \mathbb{R}^m \rightarrow \mathbb{R}^n\\
@@ -161,6 +161,10 @@ If we try a 1-dimensional state, say $x := y$, then knowing $x(t_0)$ without kno
 
 Since the governing equation is second order, we need two initial conditions. So, $x=(y, \dot{y}) \in \mathbb{r}^2$ is a good choice.
 
+In general, it is a good idea to use:
+- position and velocity for a physical system
+- Capacitor voltage and inductor current for a circuit
+
 ### e.g. 2.5.2: Pendulum
 
 <img src="img/pendulum.png" />
@@ -195,3 +199,114 @@ x_2 &:= \text{current through inductor} = y\\
 x_2\end{bmatrix} + \begin{bmatrix}0 \\ \frac{1}{L}\end{bmatrix} u\\
 y &= \begin{bmatrix}0 & 1\end{bmatrix}\\
 \end{align}$$
+
+## Linearization
+
+This is the process of aproximating a nonlinear state-space model with a linear model.
+
+### e.g. 2.5.2
+Linearize $y=x^3$ at the point $\bar{x}=1$.
+
+<img src="img/linearize.png" />
+
+Let $\bar{y} := f(\bar{x}) = 1^3 = 1$
+
+Taylor series at $x=\bar{x}$ is:
+$$y=\sum_{n=0}^\infty c_n (x-\bar{x})^n, \quad c_n = \frac{1}{n!} \frac{d^n f(x)}{dx^n} \biggr|_{x=\bar{x}}$$
+
+Keep only the terms $n=0$ and $n=1$:
+$$\begin{align}
+f(x) &\approx f(\bar{x}) + \frac{df(x)}{dx}\biggr|_{x-\bar{x}} (x-\bar{x})\\
+y - \bar{y} &\approx + \frac{df(x)}{dx}\biggr|_{x-\bar{x}} (x-\bar{x})\\
+\end{align}$$
+
+If we define the derivations $\partial y := y - \bar{y}, \partial x := x - \bar{x}$, then $\partial y = \frac{df}{dx} \bigg|_{x=\bar{x}} \partial x$, i.e. $\partial y = 3 \partial x$
+
+### e.g. 2.5.3
+$$y = \begin{bmatrix}y_1 \\ y_2\end{bmatrix} = f(x) = \begin{bmatrix}x_1 x_2 - 1 \\ x_3^2 - 2x_1 x_3\end{bmatrix} =: \begin{bmatrix}f_1(x) \\ f_2(x)\end{bmatrix}$$
+
+Linearize at $\bar{x}=(1, -1, 2)$.
+
+$\bar{y}=f(\bar{x})=\begin{bmatrix}-2\\0\end{bmatrix}$
+
+## Multivariable Taylor series
+$$d(x)=f(\bar{x})+\frac{\partial f}{\partial x} \biggr|_{x=\bar{x}} (x-\bar{x}) \text{ + higher order terms}$$
+
+The Jacobian of $f$ at $\bar{x}$ is:
+$$\begin{align}
+\frac{\partial f}{\partial x} \biggr|_{x = \bar{x}}
+&= \begin{bmatrix}
+  \frac{\partial f_1}{\partial x_1} & \frac{\partial f_1}{\partial x_2} & \frac{\partial f_1}{\partial x_3} \\
+  \frac{\partial f_2}{\partial x_1} & \frac{\partial f_2}{\partial x_2} & \frac{\partial f_2}{\partial x_3} \\
+  \frac{\partial f_3}{\partial x_1} & \frac{\partial f_3}{\partial x_2} & \frac{\partial f_3}{\partial x_3} \\
+\end{bmatrix}\\
+&= \begin{bmatrix}
+  x_2 & x_1 & 0 \\
+  -2x_3 & 0 & 2x_3-2x_1 \\
+\end{bmatrix}_{x=(1, -1, 2)}\\
+&= \begin{bmatrix}
+  -1 & 1 & 0\\
+  -4 & 0 & 2
+\end{bmatrix}\\
+&= A
+\end{align}$$
+
+i.e. $y-\bar{y} \approx A(x-\bar{x})$
+
+By extension, near $(x,u)=(\bar{x}, \bar{u}):
+$$f(x, u) \approx f(\bar{x}, \bar{u})+ \frac{\partial f}{\partial x} \biggr|_{(x,u)=(\bar{x}, \bar{u})} (x-\bar{x}) + \frac{\partial f}{\partial u} \biggr|_{(x,u)=(\bar{x}, \bar{u})} (u-\bar{u})$$
+
+Let's apply this to $\dot{x}=f(x,u), y=h(x,u)$.
+
+**Definition:** A constant pair $(\bar{x}, \bar{u}) \in \mathbb{R}^n \times \mathbb{R}^m$ is an **equilibrium configuration** of the system $\dot{x}=f(x,u), y=h(x,u)$ if $f(\bar{x}, \bar{u})=(0,...,0)$. The constant $\bar{x}$ is the **equilibrium point.**
+
+### e.g. Find all the equilibria at which the pendulum is upright
+
+$$$\begin{align}
+\dot{x} &= f(x,u)\\
+y &= h(x,u)\\
+x_1 &= \theta\\
+x_2 &= \dot{\theta}\\
+f(x,u) &= \begin{bmatrix}x_2\\ \frac{3}{Ml}u-\frac{3g}{l}\sin(x_1)\end{bmatrix}\\
+h(x) &= x_1
+\end{align}$$
+
+If $y=\pi$ (upright), then $\bar{x_1}=\pi$. So we have to solve:
+$$
+\begin{bmatrix}0\\0\end{bmatrix} = \begin{bmatrix}
+  \bar{x_2}\\
+  \frac{3\bar{u}}{Ml} - \frac{3g}{l}\sin(\bar{x_1})
+\end{bmatrix} \Rightarrow \bar{x_2}=0, \quad \bar{u}=0
+$$
+
+Therefore the equilibria are:
+$$
+\begin{bmatrix}\bar{x_1}\\\bar{x_2}\end{bmatrix} = \begin{bmatrix}\pi + 2\pi k \\ 0\end{bmatrix}, \quad \bar{u}=0
+$$
+
+Assume that $\dot{x}=f(x,u)$ has an equilibrium configuration at $(x,u)=(\bar{x}, \bar{u})$.
+
+$$
+f(x,u) \approx \underbrace{f(\bar{x}, \bar{u})}_{=0} + \underbrace{\frac{\partial f}{\partial x} \biggr|_{(x,u)=(\bar{x}, \bar{u})} (x - \bar{x})}_{=: A} + \underbrace{\frac{\partial f}{\partial u} \biggr|_{(x,u)=(\bar{x}, \bar{u})} (u - \bar{u})}_{=:B}$$
+
+Consider deviations from $(\bar{x}, \bar{u})$, where $||\partial x||, ||\partial u||$ are assumed to be small:
+$$\begin{align}
+\partial x(t) &:= x(t) - \bar{x}\\
+\partial u(t) &:= u(t) - \bar{u}\\
+\end{align}$$
+
+Then we get linearized state equations:
+$$\dot{\partial x} = \dot{x} - 0 = f(x,u) \approx A\partial x + B \partial u\\
+\dot{\partial x} = A\partial x + B\partial u$$
+
+Linearized output equation:
+
+$$\partial y = \underbrace{\frac{\partial h}{\partial x} \biggr|_{(x,u)=(\bar{x},\bar{u})} \partial x}_{=:C} + \underbrace{\frac{\partial h}{\partial u} \biggr|_{(x,u)=(\bar{x},\bar{u})} \partial u}_{=:D}\\
+\partial y := y-\bar{y}=y-h(\bar{x},\bar{u})$$
+
+### Summary
+Linearizing $\dot{x}=f(x,u)$ and $y=h(x,u)$:
+
+1. Select an equilibrium configuration $(\bar{x}, \bar{u}) \in \mathbb{R}^n \times \mathbb{R}^m$: $\bar{y}=h(\bar{x},\bar{u}), f(\bar{x},\bar{u})=0$
+2. Compute Jacobians of $f,h$ to get $A,B,C,D$
+3. Linearization: $\dot{\partial x} = A \partial + B \partial u, \partial y = C \partial x + D \partial u$
