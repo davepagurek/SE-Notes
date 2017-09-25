@@ -262,7 +262,7 @@ Let's apply this to $\dot{x}=f(x,u), y=h(x,u)$.
 
 ### e.g. Find all the equilibria at which the pendulum is upright
 
-$$$\begin{align}
+$$\begin{align}
 \dot{x} &= f(x,u)\\
 y &= h(x,u)\\
 x_1 &= \theta\\
