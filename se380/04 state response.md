@@ -116,4 +116,64 @@ A signal $u(t)$ is **bounded** if there exists a constant $b$ such that, for all
 
 For example, $\sin t$ is bounded by $b=1$.
 
-If $u$ is bounded, $||u||_\infty$ denotes teh **least upper bound**. For example, for $\sin t$, then $|u(t)| \le 10$ and $u$ is bounded.
+If $u$ is bounded, $||u||_\infty$ denotes the **least upper bound**. For example, for $\sin t$, then $|u(t)| \le 10$ and $u$ is bounded.
+
+A linear, time-independent system is **BIBO stable** if every bounded input produces a bounded output. $||u||_\infty$ is finite $\Rightarrow ||y||_\infty$ is finite.
+
+### e.g. 3.5.1
+$G(s)=\frac{1}{s+2}$. The impulse response is $g(t)=\mathcal{L}^{-1}\{G(s)\} = e^{-2t}$. Then:
+
+$$\begin{align}
+y(t) &=(g * u)(t)\\
+&= \int_0^t e^{-2\tau} u(t-\tau) d\tau\\
+\forall t \ge 0:\\
+|y(t)|&=\left|\int_0^t e^{-2\tau} u(t-\tau) d\tau\right|\\
+&\le \int_0^t \left|e^{-2\tau} u(t-\tau) \right| d\tau\\
+&\le \int_0^t e^{-2\tau} d\tau ||u||_\infty\\
+&\le \int_0^\infty e^{-2\tau} d\tau ||u||_\infty\\
+&= \frac{1}{2} ||u||_\infty\\
+\\
+||y||_\infty &\le \frac{1}{2} ||u||_\infty\\
+\therefore \text{ system is BIBO stable. }
+\end{align}$$
+
+## BIBO and poles
+**Theorem 3.5.4:** Assume that $G(s)$ is rational and strictly proper. Then the following are equivalent:
+1. $G$ is BIBO stable.
+2. the impulse response $g(t)=\mathcal{L}^{-1}\{G(s)\}$ is absolutely integrable: $\int_0^\infty |g(\tau)| d\tau \lt \infty$
+3. Every pole of $G$ has a negative real part
+
+For example, $\frac{1}{s+1}, \frac{1}{(s+3)^2}, \frac{s-1}{s^2+5s+6}$ are all BIBO stable because their poles have a negative real part.
+
+On the other hand, take $\frac{1}{s}, \frac{1}{s-1}$. These are all BIBO unstable because they have poles which do not have a negative real part. The function $\frac{1}{s}$ is an integrator, so when you give it a constant function as an input, the output will be a ramp, which is unbounded.
+
+**Theorem 3.5.5:** If $G(s)$ is rational and improper (the degree of the numerator is greater than the degree of the denominator), then $G$ is not BIBO stable.
+
+## Stability of state-space models and BIBO stability
+$$\begin{align}
+\dot{x} &= Ax+Bu\\
+y *= Cx+Du\\
+\Rightarrow Y(s) &= \left(C(SI-A)^{-1}B + D\right)U(s)\\
+&= \left(C\frac{\text{adj}(sI-A)}{\det(sI-A)}B + D\right)U(s)\\
+\end{align}$$
+This is BIBO stable if all poles in $\Re(s) \lt 0$
+This is asymptotically stable if all eigenvalues of $A \in \Re(s) \lt 0$
+Eigenvalues of $A$ = roots of $\det(sI-A) \supseteq$ poles of $G(s)=C(sI-A)^{-1}B+D$
+
+### e.g. 3.5.5: mass-spring
+
+$$\begin{align}
+\dot{x} &= \begin{bmatrix}0&1\\-4&0\end{bmatrix}x + \begin{bmatrix}0\\1\end{bmatrix}u\\
+y &= \begin{bmatrix}1 & 0\end{bmatrix} x
+\end{align}$$
+
+Eigenvalues of $A$ are $\pm 2j \Rightarrow$ the system is not asymptotically stable.
+
+$$\begin{align}
+\frac{Y(s)}{U(s)} &= \begin{bmatrix}1&0\end{bmatrix}\begin{bmatrix}s&1\\4&s\end{bmatrix}^{-1}\begin{bmatrix}0\\1\end{bmatrix}\\
+&=\frac{1}{s^2+4}\\
+&=G(s)
+\end{align}$$
+The system is not BIBO stable based on its poles.
+
+In this example, $C\text{adj}(sI-A)B=1$ and $\det(sI-A)=s^2+4$ are coprime, so eigenvalues of $A$ are the poles of $G$.
