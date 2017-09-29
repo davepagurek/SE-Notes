@@ -177,3 +177,64 @@ $$\begin{align}
 The system is not BIBO stable based on its poles.
 
 In this example, $C\text{adj}(sI-A)B=1$ and $\det(sI-A)=s^2+4$ are coprime, so eigenvalues of $A$ are the poles of $G$.
+
+## Steady-state gain
+Apply a constant $b$ as input to a system. When we observe the output, the **steady-state gain** of a transfer function $G(s)$ is $\frac{Y_{ss}}{b}$.
+
+**Final Value Theorem (3.6.1)**: Given $F(s)=\mathcal{L}\{f(t)\}$, where $F(s)$ is rational:
+1. If $F(s)$ has all of its poles in $\Re(s) \lt 0$, then $\lim_{t \rightarrow \infty} f(t) = 0$.
+2. If $sF(s)$ has all poles in $\Re(s) \lt 0$, then $\lim_{t \rightarrow \infty} f(t) = \lim_{s \rightarrow 0} sF(s)$
+3. If $sF(s)$ has even one pole with $\Re(s) \ge 0$, then $f(t)$ does not converge.
+
+For example: $F(s) = \frac{1}{s^2}, sF(s) = \frac{1}{s}$. $f(t)=t$, which does not converge.
+
+e.g.:
+
+$f(t)$ | $\lim_{t \Rightarrow \infty} f(t)$ | $F(s)$ | $\lim_{s \rightarrow 0} sF(s)$ | FVT case
+-|-|-|-|-
+$e^{-t}$ | 0 | $\frac{1}{s+1}$ | 0 | 1 or 2
+$1(t)$ | 1 | $\frac{1}{s}$ | 1 | 2
+$t$ | $\infty$ | $\frac{1}{s^2}$ | $\infty$ | 3
+$te^{-t}$ | 0 | $\frac{1}{(s+1)^2}$ | 0 | 1 or 2
+$e^t$ | $\infty$ | $\frac{1}{s-1}$ | 0 | 3
+$\cos{\omega t}$ | N/A | $\frac{s}{s^2 + \omega^2}$ | 0 | 3
+
+**Theorem 3.6.2**: If $G(s)$ is BIBO stable and we input $u(t)=b1(t)$, then the steady state gain $y_{ss}=bG(0)$. This can be proven using the final value theorem.
+
+This is sto say, steady-state gain is *always* $\frac{y_{ss}}{b}=G(0)$ for any $b$.
+
+### e.g. Set-point control
+$\dot{x}=-2x+u$, $y=x$. This gives the transfer function $Y(s)=\frac{1}{d+2}U(s)$. Given a constant reference $r(t)=r_o 1(t)$ where $r_0$ constant, find a control signal $u$ to make $y$ go to $r$.
+
+We want $\lim_{t \rightarrow \infty} y(t) = r_0$.
+
+Try open loop:
+<img src="img/setpointcontrol.png" />
+
+$$\begin{align}
+y_{ss} &= \lim_{t \rightarrow \infty} y(t)\\
+&=^? \lim_{s\rightarrow 0} sC(s)R(s) \\
+&= \lim_{s\rightarrow 0} C(s) \frac{1}{s+2} r_0\\
+\end{align}$$
+
+If $C(s)$ is BIBO stable, then $y_{ss} = \lim_{s \rightarrow 0} C_s \frac{r_0}{s+2} = C(0) \frac{1}{2} r_0$. So, $y_{ss} = r_0 \Leftrightarrow C(0) = 2 = \frac{1}{P(0)}$.
+
+The simplest choice is $C(s) = \frac{1}{P(0)} = 2$, a proportional controller.
+
+## Frequency response
+$Y(s)=G(s)U(s)$ or $y(t)=(g*u)(t)$. Assume $G$ is BIBO stable, and the input signal $u$ is a sinusoid: $u(t) = \cos(\omega t)$. The period is $\frac{2\pi}{\omega}$.
+
+**Theorem 3.7.1**: Assuming $G$ is rational and BIBO stable, then if $u(t)=\cos(\omega t)$, then the steady-state output is $y(t) = A\cos(\omega t + \phi)$. $A=|G(j\omega)|$, and $\phi = \angle G(j\omega)$
+
+### e.g.
+$\dot{x}=-10x+u$, $y=x$. Then $Y(s) = \frac{1}{s+10}U(s) =: G(s)U(s)$. If $u(t)=2\cos(3t+ \frac{\pi}{6})$, what is the steady-state output?
+
+- $A=-10$, so $\det(sI-A)=s+10$. The eigenvalue of $A$ is -10, so the system is asymptotically stable.
+- Because the system is asymptotically stable, which implies it is BIBO stable, which means Theorem 3.7.1 applies.
+- From Theorem 3.7.1, the steady state output is $y(t)=2A\cos(3t + \frac{\pi}{6} + \phi)$.
+
+$A=|G(3j)|=\left|\frac{1}{3j+10}\right|\approx 0.1$
+$\phi = \angle G(3j) = \angle \frac{1}{3j+10} = \angle1 - \angle(3j+10) \approx 0.2915$
+
+Therefore $y(t)=0.2\cos(3t+\frac{\pi}{6}-0.2915)$.
+
