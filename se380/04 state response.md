@@ -238,3 +238,65 @@ $\phi = \angle G(3j) = \angle \frac{1}{3j+10} = \angle1 - \angle(3j+10) \approx 
 
 Therefore $y(t)=0.2\cos(3t+\frac{\pi}{6}-0.2915)$.
 
+**Definition 3.7.2.** If $G(s) \in \mathbb{R}(s)$ and is BIBO stable, then:
+1. The function $\mathbb{R} \rightarrow \mathbb{C}, \quad \omega \mapsto G(j\omega)$ is the **frequency response**
+2. The function $\mathbb{R} \rightarrow \mathbb{R}, \quad \omega \mapsto |G(j\omega)|$ is the **magnitude response**
+3. The function $\mathbb{R} \rightarrow (-\pi, \pi], \quad \omega \mapsto \angle G(j\omega)$ is the **phase response**
+
+## Graphical representations of frequency response
+- When we graph $G(j\omega)$, we only consider $\omega \ge 0$, so there is no loss of info when $G$ is rational: $|G(j\omega)|=|G(j\omega)|$, and $\angle G(j\omega) = -\angle G(-j\omega)$
+
+### Bode plots
+1. Magnitude plot: $20\log|G(j\omega)|$ vs $\log(\omega)$
+2. Phase plot: $\angle G(j \omega)$ vs $\log(\omega)$
+
+To sketch the Bode plot of any rational transfer function, we only need to know how to sketch four terms:
+1. Pure gain: $G(s)=K$
+2. First-order terms: $G(s) = \tau s \pm 1, \quad \tau \gt 0$
+3. Zeroes at $s=0$: $G(s)=s^n$
+4. Complex conjugate roots: $G(s)=s^2 + 2\zeta \omega_n s + \omega_n^2 = \omega_n^2\left(\frac{s^2}{\omega_n^2} + \frac{2\zeta s}{\omega_n} + 1\right)$
+
+Given a transfer function, we can decompose it into these terms.
+
+### Polar plots
+$\Re(G(j\omega))$ vs $\Im(G(j\omega))$
+
+### e.g. 3.8.5
+$$\begin{align}
+G(s) &= \frac{40s^2(s-2)}{(s+5)(s^2 + 4s+100)}\\
+&= \frac{40s^2(2)\left(\frac{s}{2}-1\right)}{5(100)\left(\frac{3}{5}+1\right)\left(\frac{s^2}{10^2}+\frac{4s}{10}+j\right)}\\
+&= \frac{40(2)}{5(100)} \cdot \frac{s^2(\frac{s}{2}-1)}{(\frac{s}{5}+1)(\frac{s^2}{10^2}+\frac{4s}{10^2}+1)}\\
+\end{align}$$
+
+### e.g. 3.8.6
+To plot the Bode plot, we need:
+$$\begin{align}
+20\log|G(j\omega)|&=20\log\left|\frac{80}{500}\right| + 20\log|(j\omega)^2| + 30\log\left|\frac{j\omega}{2}-1\right|\\
+&=-20\log\left|\frac{j\omega}{5}+1\right| - 20\log\left|\frac{(j\omega)^2}{10^2} + \frac{4}{10^2}j\omega + 1\right|\\
+\\
+\angle G(j\omega)&=\angle\frac{800}{500}+\angle(j\omega)^2 + \angle\frac{j\omega}{2}+1-\angle\frac{j\omega}{5}+1-\angle\left(\frac{(j\omega)^2}{10^2}+\frac{4}{10^2}j\omega + 1\right)\\
+\end{align}$$
+
+### e.g. plot
+For $G(j\omega)=K$:
+
+Polar:
+<img src="img/constpolar.png" />
+
+Bode:
+<img src="img/constbode.png" />
+
+
+For $G(j\omega)=j\tau \omega + 1$ (the transfer function with a zero at $s=\frac{-1}{\tau}$)
+
+Polar:
+<img src="img/firstorderpolar.png" />
+
+Bode:
+
+Approximations for sketching:
+1. For $\omega \lt \frac{1}{\tau}$,  $\Im(G(j\omega)) \approx 0 \Rightarrow \forall \omega \lt \frac{1}{\tau}, \quad 20\log|G(j\omega)| \approx 20\log|1|=0$
+2. For $\omega \ge \frac{1}{\tau}$, $\Re(G) \gt \gt \Im(G) \Rightarrow 
+\omega \ge \frac{1}{\tau}, \quad 20\log|G(j\omega)| \approx 20\log|j \tau \omega|$
+
+<img src="img/firstorderbode.png" />
