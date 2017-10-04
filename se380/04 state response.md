@@ -298,5 +298,40 @@ Approximations for sketching:
 1. For $\omega \lt \frac{1}{\tau}$,  $\Im(G(j\omega)) \approx 0 \Rightarrow \forall \omega \lt \frac{1}{\tau}, \quad 20\log|G(j\omega)| \approx 20\log|1|=0$
 2. For $\omega \ge \frac{1}{\tau}$, $\Re(G) \gt \gt \Im(G) \Rightarrow 
 \omega \ge \frac{1}{\tau}, \quad 20\log|G(j\omega)| \approx 20\log|j \tau \omega|$
+3. For $\omega \lt\lt \frac{1}{\tau}$, $\angle G(j\omega)\approx \angle 0j+1 = 0$ ($\omega \lt\lt \frac{1}{\tau}$ means $\omega \le \frac{0.1}{\tau}$)
+3. For $\omega \gt\gt \frac{1}{\tau}$, $\angle G(j\omega)\approx \angle j\omega\tau = \\frac{\pi}{2}$ ($\omega \gt\gt \frac{1}{\tau}$ means $\omega \ge \frac{10}{\tau}$)
+4. Linear interpolation between $\frac{0.1}{\tau}$ and $\frac{10}{\tau}$
 
 <img src="img/firstorderbode.png" />
+
+Sub-case: $G(s) = \tau s - 1$ (zero at $s=\frac{1}{\tau}$)
+
+Polar plot:
+<img src="img/firstorderpolarsubcase.png" />
+- From the polar plot, the magnitude Bode plot is unchanged
+- for the phase plot, start at $\pi$ for small $\omega$ and goes to $\frac{\pi}{2}$ as $\omega \rightarrow \infty$
+
+<img src="img/firstordersubcasebode.png" />
+
+e.g. $G(s) = \frac{100}{s+10} = \frac{100}{10} \cdot \frac{1}{\frac{s}{10}+1} = 10 \frac{1}{\frac{s}{10}+1}$
+
+Frequency response: $G(j\omega)=10\frac{1}{\frac{j\omega}{10}+1}$
+Magnitude: $20\log|G(j\omega)|=\underbrace{20\log10}_{A}-\underbrace{20\log\left|\frac{j\omega}{10}+1\right|}_B$
+Phase: $\angle G(j\omega) = \underbrace{\angle 10}_A - \underbrace{\angle \frac{j\omega}{10}+1}_B$
+
+<img src="img/bodeplotex.png" />
+
+The **bandwidth** of the above system is the smallest frequency $\omega_{BW}$ such that:
+$$|G(j\omega_{BW})|=\frac{1}{\sqrt{2}}|G(0)|$$
+In dB: $20\log|G(0)|-20\log|G(j\omega)|=3dB$
+
+From the Bode plot, $\omega_{BW}=1.0 \text{ rad/s}$
+
+e.g. $G(s)=s^n$
+- When $n=1$: $G(j\omega)=j\omega$
+- When $n=2$: $G(j\omega)=-\omega^2$
+- When $n=3$: $G(j\omega)=-j\omega^3$
+- When $n=4$: $G(j\omega)=\omega^4$
+
+<img src="img/spowerofnpolar.png" />
+<img src="img/spowerofnbode.png" />
