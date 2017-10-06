@@ -48,6 +48,7 @@ class Converter
 
     return unless body
 
+    page.css("title").first&.unlink
     title = page.css("h1").first
     if title && head
       head.add_child(Nokogiri::HTML.fragment(
