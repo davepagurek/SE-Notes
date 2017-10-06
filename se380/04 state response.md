@@ -335,3 +335,37 @@ e.g. $G(s)=s^n$
 
 <img src="img/spowerofnpolar.png" />
 <img src="img/spowerofnbode.png" />
+
+### e.g. Complex conjugate zeroes
+$$G(s) = \frac{s^2}{\omega_n^2}+\frac{2\zeta}{\omega_n}s + 1, \quad \zeta \in [0,1), \quad \omega_n \ne 0$$
+$$G(j\omega)=\left(1-\frac{\omega^2}{\omega_n^2}\right) + j\cdot 2\zeta \frac{\omega}{\omega_n}$$
+
+<img src="img/complexconjugatezeroes.png" />
+
+Observations:
+- If $\omega \lt\lt |\omega_n|$, $|G(j\omega)| \approx 1$, $\angle G(j\omega) \approx 0$
+- If $\omega \gt\gt |\omega_n|$, $|G(j\omega)| \approx \frac{\omega^2}{\omega_n^2}$, $\angle G(j\omega) \approx 180^{\circ}$
+
+For asymptotic Bode plots of complex conjugate roots, approximate $G(s)$ as two first order terms with roots at $-\omega_n$. i.e., set $\zeta=1$:
+$$\begin{align}
+G(s)&=\frac{s^2}{\omega_n^2}+\frac{2\zeta s}{\omega_n} + 1\\
+&\approx \frac{s^2}{\omega_n^2}+\frac{2s}{\omega_n}+1\\
+&=\left(\frac{s}{\omega_n}+1\right)^2\\
+&= (\tau s + 1)^2, \quad \tau = \frac{1}{\omega_n}\\
+\end{align}$$
+
+<img src="img/complexconjugatezeroesbode.png" />
+
+## Summary
+- definition of asymptotic stability and how to test
+- definition of BIBO stability and how to test
+- relationship between asymptotic stability and BIBO stabilities
+- final value theorem, steady-state gain $G(0)$
+- frequency response physical meaning and how to draw Bode plots
+
+### Domains
+<img src="img/formats.png" />
+
+### State-space models
+$$g(t) = Ce^{At} 1(t) + D \delta(t)$$
+$$G(s) = C(sI-A)^{-1}B+D$$
