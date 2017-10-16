@@ -84,4 +84,62 @@ Zeroes: none
 <img src="img/underdampedpolar.png" />
 
 #### Impulse response
-$$g(t) = K\frac{\omega_n}{\sqrt{1-\zeta^2}} e^{-\zeta \omega_n t} \sin\left(\omega_n \sqrt{1-\zeta^2} t\right), \quad t \ge 0$$
+$$g(t) = K\frac{\omega_n}{\sqrt{1-\zeta^2}} \underbrace{e^{-\zeta \omega_n t}}_\text{decay rate} \sin\underbrace{\left(\omega_n \sqrt{1-\zeta^2} t\right)}_\text{oscillation rate}, \quad t \ge 0$$
+
+Observe: If we fix $\zeta \in (0,1)$, then larger bandwidth $\Leftrightarrow$ faster decay
+
+#### Step response
+$$\begin{align}
+u(t) &= 1(t)\\
+\Rightarrow U(s) &= \frac{1}{s}\\
+\\
+Y(s) &= G(s)U(s)\\
+\Rightarrow y(t) &= \mathcal{L}^{-1}{G \dot U}\\
+&= K\left(1 - \frac{1}{\sqrt{1 - \zeta^2}} e^{-\zeta \omega_n t} \sin\left(\omega_n \sqrt{1 - \zeta^2}t + \theta\right)\right), \quad \theta = \arccos \zeta\\
+\end{align}$$
+
+### Summary
+
+- As $\zeta \rightarrow 1$, response is less oscilatory, less overshoot, imaginary part of poles approaches zero
+- As $\zeta \rightarrow 0$, response is more oscillatory, more overshoot, real part of poles approaches 0
+- $\omega_{BW} \approx \omega_n$. As $\omega_n \rightarrow \infty$, response is faster, poles have larger magnitude.
+- Frequency of oscillation depends on imaginary part of the poles; rate of decay depends on the real part
+
+## General characteristics of step response
+- Look at common metrics to quantify the quality
+- metrics apply to **any** system
+- we use $G(s) = \frac{K \omega_n^2}{s^2 + 2\zeta \omega_n s + \omega_n^2}$ to get equations for the metrics in therms of $K, \omega_n, \zeta$
+
+<img src="img/stepcharacteristics.png" />
+
+### Overshoot
+- only undamped second order systems have it:
+$$\%OS = \frac{||y||_\infty - |G(0)|}{|G(0)|}$$
+- only depends on dampting ratio:
+$$\%OS = \exp\left(\frac{-\zeta \pi}{\sqrt{1 - \zeta^2}}\right), \quad 0 \lt \zeta \lt 1$$
+- More damping (larger $\zeta$) $\Leftrightarrow$ less overshoot
+
+#### e.g. mass-spring damper
+$$\frac{Y(s)}{U(s)} = \frac{\frac{1}{M}}{s^2 + \frac{b}{M}s + \frac{K_{spring}}{M}}$$
+
+- Find conditions on $M,b,K_{spring}$ so that $\%OS \le \%OS_{max} = 0.05$
+
+$$\begin{align}
+\zeta &= \frac{b}{2\sqrt{MK_{spring}}}\\
+\zeta &\ge \frac{-\ln(\%OS_{max})}{\sqrt{\pi^2 + (\ln\%OS_{max})^2}} =:\zeta_{min}\\
+\\
+\text{To meet specs:}\\
+\frac{b}{2\sqrt{MK_{spring}}} \ge 0.6901\\
+\end{align}$$
+
+The angle the poles make is $\pm(\pi - \arccos \zeta)$.
+$$ \zeta \ge \zeta_{min} \Leftrightarrow \theta \le \arccos(\zeta_{min})$$
+In this example, $\theta \le 46^{\circ}$
+<img src="img/overshootangle.png" />
+Therefore the overshoot spec is not met if there are poles in the shaded region.
+
+### Settling time
+- The smallest time $T_s$ such that $\forall t \ge T_s,\quad \frac{|G(0)-y(t)|}{|y(t)|} \le 0.02$.
+- An estimate is obtained by looking at the decay rate $e^{-\zeta \omega_n t}$:
+$$e^{-\zeta \omega_n t} \le 0.02 \Rightarrow t \ge \frac{4}{\zeta \omega_n} \text{ (approx)}$$
+i.e. $T_s = \frac{4}{\zeta \omega_n}$
