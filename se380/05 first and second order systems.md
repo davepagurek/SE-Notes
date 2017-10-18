@@ -176,10 +176,10 @@ $$\begin{align}
 
 <img src="img/polechanges.png" />
 
- | decrease real part | increase imaginary part | angle of poles to $\pm \pi$ | increase magnitude
- -|-|-|-|-
- $\omega_n$ | + | + | no change | +
- $\zeta$ | + | - | + | no change
- %OS | - | + | - | no change
- $T_s$ | - | no change | - | -
- $T_p$ | no change | - | + | -
+| | decrease real part | increase imaginary part | angle of poles to $\pm \pi$ | increase magnitude|
+|-|-|-|-|-|
+|$\omega_n$ | + | + | no change | +|
+|$\zeta$ | + | - | + | no change|
+|%OS | - | + | - | no change|
+|$T_s$ | - | no change | - | -|
+|$T_p$ | no change | - | + | -|
