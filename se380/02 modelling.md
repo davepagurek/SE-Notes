@@ -253,7 +253,7 @@ $$\begin{align}
 
 i.e. $y-\bar{y} \approx A(x-\bar{x})$
 
-By extension, near $(x,u)=(\bar{x}, \bar{u}):
+By extension, near $(x,u)=(\bar{x}, \bar{u})$:
 $$f(x, u) \approx f(\bar{x}, \bar{u})+ \frac{\partial f}{\partial x} \biggr|_{(x,u)=(\bar{x}, \bar{u})} (x-\bar{x}) + \frac{\partial f}{\partial u} \biggr|_{(x,u)=(\bar{x}, \bar{u})} (u-\bar{u})$$
 
 Let's apply this to $\dot{x}=f(x,u), y=h(x,u)$.
