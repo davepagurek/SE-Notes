@@ -143,3 +143,43 @@ Therefore the overshoot spec is not met if there are poles in the shaded region.
 - An estimate is obtained by looking at the decay rate $e^{-\zeta \omega_n t}$:
 $$e^{-\zeta \omega_n t} \le 0.02 \Rightarrow t \ge \frac{4}{\zeta \omega_n} \text{ (approx)}$$
 i.e. $T_s = \frac{4}{\zeta \omega_n}$
+
+#### e.g. Mass-spring damper
+Find the condition so that $T_s \le T_s^{max} = 3$
+
+$$\begin{align}
+G(s) &= \frac{\frac{1}{M}}{s^2 + \frac{b}{M}s + \frac{K_{spring}}{M}}\\
+\frac{4}{\zeta \omega_n} &\le 3 = T_s^{max}\\
+\Leftrightarrow \zeta\omega_n &\ge \frac{4}{T_s^{max}}\\
+\Leftrightarrow \frac{b}{2M} &\ge \frac{4}{3}\\
+\end{align}$$
+
+<img src="img/massspringpoles.png" />
+
+### Time-to-peak
+- Smallest $T_p \gt 0$ such that $||y||_\infty = y(T_p)$
+- Derived similar to overshoot: $T_p = \frac{\pi}{\omega_n \sqrt{1 - \zeta^2}}, \quad 0 \lt \zeta \lt 1$
+- So $T_p$ only depends on the imaginary part of the poles
+
+
+#### e.g. mass-spring damper again
+Spec: $T_p \le T_p^{max} = 3 \text{ seconds }$
+
+$$\begin{align}
+\omega_n\sqrt{1-\zeta^2} &\le \frac{\pi}{T_p^{max}}\\
+\Leftrightarrow \sqrt{\frac{K_{spring}}{M} - \frac{b^2}{4M^2}} &\le \frac{\pi}{3}\\
+\end{align}$$
+
+<img src="img/massspringpoles2.png" />
+
+#### Changes to poles
+
+<img src="img/polechanges.png" />
+
+ | decrease real part | increase imaginary part | angle of poles to $\pm \pi$ | increase magnitude
+ -|-|-|-|-
+ $\omega_n$ | + | + | no change | +
+ $\zeta$ | + | - | + | no change
+ %OS | - | + | - | no change
+ $T_s$ | - | no change | - | -
+ $T_p$ | no change | - | + | -
