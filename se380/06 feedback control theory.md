@@ -128,7 +128,7 @@ You can check that all the roots of the determinant (all the eigenvalues) have n
 
 ### Input-output stability
 Given the same feedback loop as before:
-<img src="img/controllerinternalstability.png" />
+<img src="img/stabilitysystem.png" />
 
 This system has 6 transfer functions from $(r, d)$ to $(e, u, y)$. Finding them:
 
@@ -150,3 +150,100 @@ U &= D+C\\
 A feedback system is **input-output stable** if $(e, u, y)$ are bounded whenever $(r, d)$ are bounded.
 
 Since whenever $r$ and $e$ are bounded, so is $y=r-e$, we only need to look at the TFs from $(r,d)$ to $(e,u)$.
+
+#### e.g. 5.2.5
+$$P(s)=\frac{1}{(s+1)(s-1)}, \quad C(s)=\frac{s-1}{s+1}$$
+
+The for transfer functions are:
+$$\begin{align}
+\begin{bmatrix}E\\U\end{bmatrix} &= \begin{bmatrix}
+  \frac{(1+1)^2}{s^2+2s+2} & \frac{s+1}{(s-1)(s^2+2s+2)} \\
+  \frac{(s+1)(s-1)}{s^2+2s+2} & \frac{(s+1)^2}{s^2+2s+2}
+\end{bmatrix}
+\begin{bmatrix}R\\D\end{bmatrix}
+\end{align}$$
+Three of these TFs are BIBO stable; the one from D to E is not. Therefore the feedback system is not input-output stable.
+
+Observe:
+$$\frac{Y(s)}{R(s)}=\frac{1}{s^2+2s+2}$$
+This is BIBO stable, so don't be fooled. The problem is that $C$ cancels an **unstable pole** of the plant. Input-output stability is more than just the stability of one transfer function.
+
+### Characteristic polynomial
+Write:
+$$P(s)=\frac{N_p}{D_p}, \quad C(s)=\frac{N_c}{D_c}$$
+- $N_p$, $D_p$, $D_c$ are polynomials in $s$
+- $\deg(N_p) \lt \deg(D_p)$, $\deg(N_c) \le \deg(D_c)$
+- $(N_p, D_p)$ and $(N_c, D_c)$ are coprime
+
+  The **characteristic polynomial** of the feedback system is:
+  $$\pi(s) := N_p(s)N_c(s) + D_p(s)D_c(s)$$
+
+#### e.g. 5.2.7
+$$P(s)=\frac{1}{(s+1)(s-1)}, \quad C(s)=\frac{s-1}{s+1}$$
+$$\begin{align}
+\pi(s)&=(1)(s-1)+(s+1)(s-1)(s+1)\\
+&= (s-1)(s^2 + 2s + 2)
+\end{align}$$
+
+The characteristic polynomial has an unstable root, the one we cancelled.
+
+**Theorem 5.2.6.** The feedback system is input-output stable if and only if its characteristic polynomial has no roots with $\Re(s) \ge 0$.
+
+Observe:
+$$\begin{align}
+\begin{bmatrix}\frac{1}{1+PC} & \frac{-P}{1_PC} \\ \frac{C}{1+PC} & \frac{1}{1+PC}\end{bmatrix} &= \frac{1}{\pi(s)}\begin{bmatrix}D_pD_c & -N_pD_c \\ D_pN_c & D_pD_c \end{bmatrix}\\
+\end{align}$$
+
+The plant $P(s)$ and the controller $C(s)$ have a **pole-zero cancellation** if there exists a complex number $\lambda \in \mathbb{C}$ such that $N_p(\lambda) = D_c(\lambda)=0$ or $D_p(\lambda)=N_c(\lambda)=0$.
+
+It is an **unstable cancellation** if $\Re(\lambda) \ge 0$.
+
+If there is an unstable pole-zero cancellation, then the feedback system is unstable.
+**Proof:** Assume there isi an unstable pole-zero cancellation at $\lambda \in \mathbb{C}$ with $\Re(\lambda) \ge 0$.
+
+$$\begin{align}
+\pi(\lambda) &= N_p(\lambda)N_c(\lambda) + D_p(\lambda)D_c(\lambda)\\
+&= 0 + 0\\
+\end{align}$$
+So $\lambda$ is a root of $\pi$, so by Theorem 5.2.6, the system is unstable.
+
+### Comparing Internal and Input-Output Stability
+It can be shown that the roots of $\pi$ are a subset of the eigenvalues of $A_{\text{closed loop}}$. So, internal stability implies input-output stability.
+- usually the two concepts are the same (but not always)
+- in this course we generally assume they are the same unless asked specifically to check
+
+### The Routh-Hurwitz Criterion
+Consider an $n$th order polynomial:
+$$\pi(s) = s^n + a_{n-1}s^{n-1} + ... + a_1s + a_0$$
+
+$\pi(s)$ is **Hurwitz** if all its roots have $\Re(s) \lt 0$.
+
+The Routh-Hurwitz Criterion is a test to determine if a polynomial is Hurwitz without actually computing the roots. It is a necessary condition for a polynomial to be Hurwitz.
+
+Let $\{\lambda_1, ..., \lambda_r\}$ be the real roots of $\pi$.
+
+Let $\{\mu_1, \bar{\mu_1}, ..., \mu_s, \bar{\mu_s}\}$ be the complex conjugate roots of $\pi$.
+
+$$r+2s=n$$
+
+Then, we can write:
+$$\pi(s) = (s - \lambda_1)...(s - \lambda_r)(s-\mu_1)(s-\bar{\mu_1})...(s-\mu_s)(s-\bar{\mu_s})$$
+
+If $\pi$ is Hurwitz, then all the roots have $\Re(s) \lt 0$, so the real roots have to be negative. Then $-\lambda_i \gt 0$.
+
+For the complex conjugate roots:
+$$\begin{align}
+(s-\mu_i)(s-\bar{\mu_i}) &= s^2 + (-\mu_i - \bar{\mu_i})s + \mu_i\bar{\mu_i}\\
+&= s^2 - 2\Re(\mu_i)s + |\mu_i|^2\\
+\end{align}$$
+If $\pi$ is Hurwitz, then $-\Re(\mu_i)\gt 0$ and $|\mu_i| \ne 0$. If we expand $\pi(s)$ out again, all the coefficients $a_i$ will be **positive**.
+
+#### e.g. 5.3.1
+$$s^4+3s^3-2s^2+5s+6$$
+We have a coefficient with a negative sign, so we immediately know it is not Hurwitz.
+
+$$s^3+4s+6$$
+We have a coefficient of 0, and since we need all to be positive, we know it is not Hurwitz.
+
+$$s^3+5s^2+9s+1$$
+We are not sure whether or not this is Hurwitz.
