@@ -247,3 +247,120 @@ We have a coefficient of 0, and since we need all to be positive, we know it is 
 
 $$s^3+5s^2+9s+1$$
 We are not sure whether or not this is Hurwitz.
+
+### Routh's Algorithm
+Input to the algorithm is a polynomial:
+$$\pi(s) = s^2 + a_{n-1}s^{n-1}+...+a_1s+a_s$$
+
+We create a **Routh Array**:
+
+| | | | | | |
+|-|-|-
+|$s^n$| $1 = r_{0,0}$ | $a_{n-2} = r_{0,1}$ | $a_{n-4} = r_{0,2}$ | $a_{n-6} = r_{0,3}$ | ...
+|$s^{n-1}$| $a_{n-1} = r_{1,0}$ | $a_{n-3} = r_{1,1}$ | $a_{n-5} = r_{1,2}$ | $a_{n-7} = r_{1,3}$ | ...
+|$s^{n-2}$| $r_{2,0}$ | $r_{2,1}$ | $r_{2,2}$ | $r_{2,3}$ | ... 
+|$s^{n-3}$| $r_{3,0}$ | $r_{3,1}$ | $r_{3,2}$ | $r_{3,3}$ | ... 
+| ...| ... | ... | ... | ... | ...
+|$s^{1}$| $r_{n-1,0}$ | $r_{n-1,1}$ | $r_{n-1,2}$ | $r_{n-1,3}$ | ... 
+|$s^{0}$| $r_{n,0}$ | $r_{n,1}$ | $r_{n,2}$ | $r_{n,3}$ | ... 
+
+$$\begin{align}
+r_{2,0} &= \frac{a_{n-1}a_{n-2} - (1)a_{n-3}}{a_{n-1}}\\
+r_{2,1} &= \frac{a_{n-1}a_{n-4} - (1)a_{n-3}}{a_{n-1}}\\
+r_{2,2} &= \frac{a_{n-1}a_{n-6} - (1)a_{n-3}}{a_{n-1}}\\
+&...\\
+\\
+\end{align}$$
+
+The fourth row is computed from the second and third using the same pattern:
+$$\begin{align}
+r_{3,0} &= \frac{r_{2,0}r_{1,1} - r_{1,0}r_{2,1}}{r_{2,0}}\\
+\end{align}$$
+
+- Continue along each row until you get zeroes
+- Terminate if we get a zero in the first column
+
+#### Routh-Hurwitz Criterion
+- $\pi$ is Hurwitz if and only if all the elements in the first column have the same sign
+- If there are no zeroes in the first column, then:
+  - The number of sign changes equals the number of bad roots (not in the open left half plane)
+  - There are no roots on the imaginary axis
+
+e.g.
+$\pi(s) = a_2s^2 + a_1s + a_0$
+
+| | | |
+|-|-|-|
+| $s^2$ | $a_2$ | $a_0$
+| $s^1$ | $a_1$ | 0
+| $s^0$ | $\frac{a_1a_0-a_2(0)}{a_1} = a_0$ | |
+
+$\pi$ is Hurwitz if and only if $\text{sgn}(a_2) = \text{sgn}(a_1) = \text{sgn}(a_0)$
+
+e.g.
+$\pi(s) = 2s^4 + s^3 + 3s^2 + 5s + 10$
+
+| | | | |
+|-|-|-|-|
+|$s^4$|2|3|10|
+|$s^3$|1|5|0|
+|$s^2$|$\frac{(1)(3)-(2)(5)}{1}=7$|10| |
+|$s^1$|$\frac{(-7)(5)-(1)(10)}{-7}=\frac{45}{7}$| | |
+|$s^0$|10| | |
+
+There are two sign changes: $\{+, +, -, +, +\}$
+
+Therefore $\pi$ has two roots in $\mathbb{C}$.
+
+#### e.g. 5.3.4
+
+<img src="img/routheg.png" />
+
+$$P(s) = \frac{1}{s^4+6s^3+11s^2+6s}$$
+$$\pi(s) = s^4 + 6s^3 + 11s^2 + 6s + K_p$$
+
+| | | | |
+|-|-|-|-|
+|$s^4$|1|11|$K_p$|
+|$s^3$|6|6|0|
+|$s^2$|10|$K_p$|0|
+|$s^1$|$\frac{60-6K_p}{10}$| | |
+|$s^0$|$K_p$| | | |
+
+System is IO stable if and only if $0 \lt K_p \lt 10$.
+
+## Steady-state performance
+
+Typical specs for control design:
+- stability (mandatory)
+- transient behaviour (see Chapter 4)
+- steady-state (tracking and disturbance rejection)
+
+### Tracking reference signals
+#### e.g. 5.4.1
+<img src="img/eg541.png" />
+
+$$\begin{align}
+r(t)&=1(t)\\
+C(s)&=\frac{1}{s} \text{ (integrator) }\\
+P(s) &= \frac{1}{s+1}\\
+\end{align}$$
+
+Tracking error $:= r-y$
+
+$$\begin{align}
+E(s) &= \frac{1}{1+C(s)P(s)}R(s)\\
+&= \frac{s(s+1)}{s^2 + s + 1}R(s)\\
+\end{align}$$
+
+The transfer function is BEBO stable, so we can use Final Value Theorem
+$$\begin{align}
+e_{ss} &:= \lim_{t\rightarrow\infty}e(t)\\
+&=\lim_{s\rightarrow 0} sE(s)\\
+&=\lim_{s\rightarrow 0} s\frac{s(s+1)}{s^2 + s + 1}\frac{1}{s}\\
+&= 0\\
+\end{align}$$
+
+So we get perfect asymptotic step tracking.
+
+Why does it work? The pole in the controller turns into a zero in the numerator of the transfer function. In general, $C(s)$ has an **"internal model"** of $R(s)$ (an integrator). This puts a zero at $s=0$ in the transfer function.
