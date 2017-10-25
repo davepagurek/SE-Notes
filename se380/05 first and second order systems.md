@@ -79,7 +79,7 @@ Zeroes: none
 
 ## Underdamped Systems
 
-- Poles are complex conjugate: $s = -\zeta \omega_n \pm j\omega_n \sqrt{q - \zeta^2} = \omega_n e^{\pm j (\pi - \theta)}, \theta = \arccos(\zeta)$
+- Poles are complex conjugate: $s = -\zeta \omega_n \pm j\omega_n \sqrt{1 - \zeta^2} = \omega_n e^{\pm j (\pi - \theta)}, \theta = \arccos(\zeta)$
 
 <img src="img/underdampedpolar.png" />
 
