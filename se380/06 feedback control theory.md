@@ -364,3 +364,90 @@ e_{ss} &:= \lim_{t\rightarrow\infty}e(t)\\
 So we get perfect asymptotic step tracking.
 
 Why does it work? The pole in the controller turns into a zero in the numerator of the transfer function. In general, $C(s)$ has an **"internal model"** of $R(s)$ (an integrator). This puts a zero at $s=0$ in the transfer function.
+
+#### e.g.
+$$P(s)=\frac{1}{s+1}, \quad C(s) = \frac{1}{s}, \quad R(s) = \frac{1}{s} \quad (r(t)=1(t))$$
+
+The controller contains a "copy" of $R$ in it and $e(t) \rightarrow 0$.
+
+Other interpretations of why this controller gives perfect step tracking:
+**Frequency domain**: $P(s)C(s)$ has a pole at $s=0$. So, as $\omega \rightarrow 0$:
+$$\frac{E(j\omega)}{R(j\omega)} = \frac{1}{1 + C(j\omega)P(j\omega)} \rightarrow 0$$
+
+Pole at $s=0 \Rightarrow$ infinite gain. Line is $20\log|P(j\omega)C(j\omega)|$
+<img src="img/trackingfreqdomain.png" />
+**Time domain**: If the system is IO stable, then in steady-state, all signals in the loop approach a constant value for constant input.
+
+<img src="img/trackingtime.png" />
+
+Let $v(t)$ be the output of the integrator.
+
+$$\begin{align}
+v(t) &= \int_0^t e(\tau)d\tau\\
+\dot{v}&=e\\
+\end{align}$$
+
+So for $v$ to be constant in steady-state, $e$ must approach zero.
+
+More generally, if $C(s)$ provides internal stability, then FVT can be applied and:
+$$\begin{align}
+\lim_{t \rightarrow \infty} e(t) &= \lim_{s \rightarrow 0} sE(s)\\
+&= \lim_{s \rightarrow 0} s\frac{1}{1+P(s)C(s)}R(s)\\
+&= \lim_{s \rightarrow 0} s\frac{1}{1+P(s)C(s)}\frac{r_0}{s}\\
+&= \lim_{s \rightarrow 0} \frac{r_0}{1+P(s)C(s)}\\
+\\
+e_{ss} = 0 &\Leftrightarrow \lim_{s \rightarrow 0} P(s)C(s) = \infty\\
+\end{align}$$
+
+Conclusion: Integral control is fundamental for perfect step tracking.
+
+### Design strategy
+If $P(s)$ doesn't have a pole at 0, pick $C(s) = \frac{1}{s} C_1(s)$. Design $C_1(s)$ to give IO stability.
+
+### Internal model principle
+Assume IO stability. If $C(s)P(s)$ contains an internal model of the unstable part of $R(s)$, then $e(t) \rightarrow 0$.
+
+Say $R(s) = \frac{N_r(s)}{D_r(s)} = \frac{N_r(s)}{D_r^-(s)D_r^+(s)}$. Roots of $D_r^+(s)$ have $\Re(s) \gt 0$.
+
+IMP says that if $C(s)P(s) = \frac{N(s)}{D(s)D_r^+(s)}$, then $e_{ss}=0$.
+
+#### e.g. 5.4.3
+$$P(s)=\frac{1}{s+1}, \quad r(t) = r_0\sin(t)$$
+
+$R(s) = \frac{r_0}{s^2+1}$, so $D_r^-(s)=1$ and $D_r^+(s)=s^2+1$
+
+This suggests the controller $C(s) = \frac{1}{s^2+1}C_1(s)$ where $C_1$ is chosen to ensure IO stability.
+
+### Steady-state disturbance rejection
+<img src="img/disturbancerejection.png" />
+
+$$\begin{align}
+Y &= P_2(D+P_1C(-Y))\\
+\frac{Y}{D} &= \frac{P_2}{1+P_1P_2C}\\
+\end{align}$$
+
+Suppose:
+$$\begin{align}
+D(s) &= \frac{N_d(s)}{D_d(s)}\\
+&= \frac{N_d(s)}{D_d^-(s)D_d^+(s)}\\
+\end{align}$$
+
+Roots of $D_d^+(s)$ have $\Re(s) \ge 0$.
+
+Assume IO stability so FVT applies:
+$$\begin{align}
+lim_{t\rightarrow\infty} y(t) &= \lim_{s \rightarrow 0}sY(s)\\
+&= \lim_{s \rightarrow 0}s\frac{P_2(s)}{1+P_1P_2C}\frac{N_d}{D_d^-D_d^+}\\
+&= \lim_{s \rightarrow 0}s\frac{N_{p_2}D_{p_1}D_c}{D_{p_2}D_{p_1}D_c+N_{p_1}N_{p_2}N_c}\frac{N_d}{D_d^-D_d^+}\\
+\\
+\mathcal{L}\{y\} &= Y(s)\\
+\end{align}$$
+
+So we see that to deal simultaneously with input and output disturbances, the *controller* must contain an internal model of $D_d^+(s)$ (can't rely on the plant.) i.e.,
+$$C(s)=\frac{1}{D_d^+(s)}C_1(s)$$
+
+#### e.g.
+$$d(t)=1(t), \quad D(s)=\frac{1}{s}, \quad D_d^+(s)=s, \quad C(s)=\frac{1}{s}C_1(s)$$
+$$D(t)=\sin(\omega t), \quad D(s)=\frac{\omega}{s^2+\omega^2}, \quad D_d^+(s)=s^2+\omega^2, \quad C(s)=\frac{1}{S^2+\omega^2}C_1(s)$$
+
+$$D(t)=e^{-t}, \quad D(s)=\frac{1}{s+1}, \quad D_d^+(s)=1$$
