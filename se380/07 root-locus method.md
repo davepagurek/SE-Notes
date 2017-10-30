@@ -25,7 +25,7 @@ A root-locus diagram is a drawing of how the roots of $\pi$ change as $K$ is cha
 
 Assumptions:
 - $C(s)P(s)$ proper
-- $K \ge 0%
+- $K \ge 0$
 - $D(s)$ and $N(s)$ are monic (leading coefficient is 1)
 
 Let $n:=\deg(D(s))$, $m:=\deg(N(s))$
