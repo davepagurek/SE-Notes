@@ -91,3 +91,90 @@ $m=1$
 $\sigma = \frac{-4 - (-1)}{4-1} = -1$
 
 <img src="img/eg622.png" />
+
+### e.g. Cart pendulum system
+
+<img src="img/rootlocuspendulum.png" />
+
+$$\frac{Y(s)}{U(s)} = P(s)=\frac{\frac{1}{Ml}}{s^2 - \frac{g}{Ml}(m+M)}$$
+
+<img src="img/pendulumblock.png" />
+
+#### 6.2.3 Proportional controller
+Try $C(s)=K_p$. We get:
+$$\begin{align}
+\pi(s)&=D_pD_c+N_pN_c\\
+&=s^2-\frac{g(M+m)}{Ml}+\frac{K_p}{Ml}\\
+\\
+D(s)&:=s^2-\frac{g}{Ml}(m+M)\\
+N(s)&:=1\\
+K&:=\frac{K_p}{Ml}\\
+\end{align}$$
+
+Asymptotes: $\sigma = 0$
+$n-m=2-0=2$
+
+<img src="img/pendulumproportional.png" />
+
+Proportional control won't work.
+
+Matlab: suppose you have a controller $P(s)C(s)=\frac{8(s+2)}{(s+1)(s+5)(s+10)}$. In matlab:
+
+```matlab
+z = -2;
+p = [-1 -5 -10];
+k = 8;
+L = zpk(z, p, k) % Zeroes, Poles, gain
+rlocus(L);
+```
+
+#### 6.2.4 P.D. Control
+$$\begin{align}
+C(s) &= K_p(1+T_ds)\\
+&= K_pT_d\left(s+\frac{1}{T_d}\right)\\
+\\
+\pi(s) &= \underbrace{s^2- \frac{g}{Ml}(M+m)}_{D(s), \quad n=2} + \underbrace{\frac{K_pT_d}{Ml}}_{K}\underbrace{\left(s+\frac{1}{T_d}\right)}_{N(s), \quad m=1}\\
+\end{align}$$
+
+<img src="img/pendulumpd.png" />
+
+#### 6.2.5 P.I. Control
+$$\begin{align}
+C(s)&=K_p\left(1+\frac{1}{T_is}\right)\\
+&= K_p \frac{s+\frac{1}{T_i}}{s}\\
+\\
+\pi(s) &= \underbrace{s\left(s^2-\frac{g}{Ml}(m+M)\right)}_{D(s)} + \underbrace{\frac{K_p}{M_l}}_K \underbrace{\left(s+\frac{1}{T_i}\right)}_{N(s)}\\
+\\
+\sigma &= \frac{1}{2T_i}\\
+\end{align}$$
+
+<img src="img/pendulumpi.png" />
+
+## 6.3 Non-standard problems
+
+### Non-unity feedback
+<img src="img/nonunityfeedback.png" />
+
+In this case, the characteristic polynomial is:
+$$\pi(s)=N_pN_cN_h + D_pD_cD_h$$
+
+Identify $D$, $N$, and $K$, and proceed as before.
+
+### Controller isn't a linear function of the gain
+Even if we can't factor $K$ out from $C(s)$, the characteristic polynomial can still be expressed in the form $\pi(s)=D(s)+KN(s)$, but now, $D \ne D_pD_c$ and $N \ne N_pN_c$
+
+e.g.
+
+$$\begin{align}
+P(s)&=\frac{1}{s(s+2)}\\
+C(s) &= 10(1+T_ds)\\
+\\
+\pi(s)=D_pD_c+N_pN_c\\
+&= \underbrace{s^2+2s+10}_{D(s)} + \underbrace{10T_d}_K \underbrace{s}_N\\
+\\
+\text{Observe:}\\
+D(s)=s^2+2s+10 \ne D_pD_c\\
+N(s)=s \ne N_pN_c\\
+\end{align}$$
+
+Then proceed as before.
