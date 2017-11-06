@@ -178,3 +178,36 @@ N(s)=s \ne N_pN_c\\
 \end{align}$$
 
 Then proceed as before.
+
+### Improper Loop Gain
+$$\pi(s)=D(s)+KN(s)$$
+Normally, $\deg(D) \ge \deg(N)$. In this case, we have the opposite: $\deg(D) \lt \deg(N)$.
+
+
+$$\pi(s) = 0 \Leftrightarrow N(s) + \frac{1}{K}D(s)=0$$
+
+Define:
+$$\hat{D} := N, \quad \hat{N}:=D, \quad \hat{K}:=\frac{1}{K}$$
+
+Do the usual root-locus using $\hat{\pi}(s)=\hat{D}(s)+\hat{K}\hat{N}(s)$. At the end:
+1. Turn each X into an O
+2. Turn each O into an X
+3. Revertse arrows
+
+#### e.g. 6.3.2
+$$\begin{align}
+P(s)&=\frac{1}{s(s+1)}\\
+C(s)&= \frac{s+3}{\tau s+1}\\
+\\
+\pi(s)&=s(s+1)(\tau s+1)+s+3\\
+&= s^2+2s+3+\tau s^2(s+1)\\
+\\
+\hat{D}(s)&=s^2(s+1)\\
+\hat{N}(s)&=s^2+2s+3\\
+\hat{K}&=\frac{1}{\tau}\\
+\\
+\hat{n}&=3, \quad \{0,0,-1\}\\
+\hat{m}&=2, \quad \{-1 \pm \sqrt{2}j\}\\
+\end{align}$$
+
+<img src="img/rootlocusimproperloopgain.png" />
