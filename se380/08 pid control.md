@@ -119,3 +119,29 @@ T_d&=0.1799\\
 \end{align}$$
 
 We can also use pole placement to design PID for first order plants with time delays.
+
+### Padé approximation
+$$P(s) = e^{-sT} \frac{K}{\tau s + 1}$$
+We approximate the irrational term $e^{-sT}$ using a Padé approximation:
+$$e^{-sT} \approx \frac{-s\frac{T}{2} + 1}{s \frac{T}{2} + 1}$$
+
+This is a first order Padé approximation (in matlab: `pade`). Now, we get:
+
+$$P(s) \approx \frac{K}{\tau s + 1} \left(\frac{-sT+2}{sT+2}\right)$$
+
+This is a second order system.
+
+## When can PID be used?
+- When $P(s)$ is approximately second order, we can use PID to place the closed loop poles anywhere in $\mathbb{C}$
+- Also gives step tracking and step disturbance rejection
+
+### e.g.
+$$\begin{align}
+P(s)&=\frac{s+3}{(s^2+2s+2)(s+10)(s+15)}\\
+&\approx \frac{1}{(10)(15)} \cdot \frac{s+3}{s^2+3s+2}
+\end{align}$$
+(See section 4.5)
+
+<img src="img/pidhighorder.png" />
+
+We don't really care about the poles to the far left. If $P(s) \not\approx$ second order, then there are advantages to using more complicated controllers.
