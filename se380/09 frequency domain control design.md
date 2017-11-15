@@ -117,3 +117,51 @@ e_{ss} &= \lim_{t\rightarrow \infty}e(t)\\
 &= \frac{2}{K} \le 0.05 \Leftrightarrow K \ge 40
 \end{align}$$
 Take $K=40$
+
+(Step 2) Next, draw a Bode plot of $KP(j\omega)=\frac{40}{s(s+2)}$. From the plot, we see that the phase margin $\Phi_{pm}=18^\circ$ (not to spec) at $\omega_{gc}=$6.17 rad/s.
+
+Because it is not to spec, we design $C_1(s)=\frac{\alpha Ts+1}{Ts+1}$. We want $\Phi_{pm}^{desired}=45^\circ$, so we'll aim for $50^\circ$ since $\angle C_1(j\omega)$ only approaches zero asymptotically.
+
+From out Bode plot in Step 2, we observe:
+$$\Phi_{pm}^{desired} = 50^\circ = 180^\circ + \angle KP(j\omega) \text{ when } \omega=1.7\text{rad/s}$$
+The idea is to reduce the gain at $\omega=1.7$ rad/s so that this becomes the gain crossover frequency and do so without changing the phase.
+
+The gain of $KP(j\omega)$ at $\omega=1.7$ rad/s is 19dB, so we want to reduce by 19dB to make it the crossover frequency.
+$$20log|\alpha|=-19\text{dB} \Leftrightarrow \alpha=\frac{1}{9}$$
+
+Now pick $T$ so that $\angle C(j\omega)\approx 0$ at $\omega=1.7$rad/s.
+$$\frac{10}{\alpha T} \le 1.7$$
+We'll pick $T=52.7$ to get the final controller:
+$$C(s)=40 \frac{\frac{1}{9} \cdot 52.7s+1}{52.7s=1}=\frac{234.2s+40}{52.7s+1}$$
+
+We verify with a simulation. The Bode plot of $C(s)P(s)$ yields $\Phi_{pm}=44.6^\circ$.
+
+### Procedure for lag design
+
+Specs:
+1. Steady-state tracking/disturbance rejection
+2. $\Phi_{pm}^{desired}$ (may be given as an overshoot spec, so you need to convert)
+
+Procedure:
+1. Use Final Value Theorem to pick $K$ and meet spec 1.
+2. Draw Bode plot of $KP(j\omega)$
+3. If spec 2 is satisfied, stop. Otherwise, find $\omega$ such that $180^\circ + \angle KP(j\omega) = \Phi_{pm}^{desired} + \delta$, where $\delta$ is a buffer to account for $\angle C(j\omega) \ne 0$ at high $\omega$. Usually $5^\circ$.
+4. Shift the gain of $KP$ down at $\omega$ so that $\omega$ becomes $\omega_{gc}$: $\alpha=\frac{1}{KP(j\omega)}$.
+5. Put the controller zero far away from $\omega$ so that ohase isn't affected too much: $\frac{10}{\alpha T} \le \omega$.
+6. Simulate to verify (see PS9 for a root-locus based design)
+
+## Lead controller
+<img src="img/leadcontroller.png" />
+
+$$\begin{align}
+C(s) &= KC_1(s)\\
+&= K\frac{\alpha Ts+1}{Ts+1}, \quad \alpha \gt 1, \quad K,T \gt 0
+\end{align}$$
+
+<img src="img/leadpolar.png" />
+
+<img src="img/leadbode.png" />
+
+Uses
+1. Increase gain crossover frequency to increase closed loop bandwidth
+2. Increase phase margin by adding phase where needed
