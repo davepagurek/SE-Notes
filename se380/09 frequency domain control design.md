@@ -118,7 +118,7 @@ e_{ss} &= \lim_{t\rightarrow \infty}e(t)\\
 \end{align}$$
 Take $K=40$
 
-(Step 2) Next, draw a Bode plot of $KP(j\omega)=\frac{40}{s(s+2)}$. From the plot, we see that the phase margin $\Phi_{pm}=18^\circ$ (not to spec) at $\omega_{gc}=$6.17 rad/s.
+(Step 2) Next, draw a Bode plot of $KP(j\omega)=\frac{40}{s(s+2)}$. From the plot, we see that the phase margin $\Phi_{pm}=18^\circ$ (not to spec) at $\omega_{gc}=6.17$ rad/s.
 
 Because it is not to spec, we design $C_1(s)=\frac{\alpha Ts+1}{Ts+1}$. We want $\Phi_{pm}^{desired}=45^\circ$, so we'll aim for $50^\circ$ since $\angle C_1(j\omega)$ only approaches zero asymptotically.
 
