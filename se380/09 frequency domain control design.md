@@ -165,3 +165,85 @@ C(s) &= KC_1(s)\\
 Uses
 1. Increase gain crossover frequency to increase closed loop bandwidth
 2. Increase phase margin by adding phase where needed
+
+### Lead design equations
+$$\omega_m = \frac{1}{T\sqrt{\alpha}}$$
+This is the frequency at which the lead controller adds max phase.
+
+$$\phi_{max} = \sin^{-1}\left(\frac{\alpha-1}{\alpha+1}\right)$$
+$$\alpha = \frac{1+\sin{\phi_{max}}}{1 - \sin{\phi_{max}}}$$
+This is the max phase added by the lead controller.
+
+### e.g. 9.4.1
+$$P(s) = \frac{1}{s(s+2)}$$
+
+Specs:
+- $|e_{ss}| \le 0.05$ for $r(t)=t1(t)$
+- $\Phi_{pm} = 45^\circ$
+
+We want to explress the lead controller in the form:
+$$C(s)=\frac{\hat{K}}{\sqrt{\alpha}} \frac{\alpha Ts+1}{Ts+1}$$
+
+First, choose $\hat{K}$ to meet the steady-state spec using FVT. In this case, we get $\hat{K} \ge 40$. We then want to boost $\hat{K}$ by around 10dB to account for effective $\alpha$. Our final result is $\hat{K}=40\cdot \sqrt{10}$.
+
+Next, draw a Bode plot of $\hat{K}P(j\omega)$ and observe that we have $\Phi_{pm}=10.2^\circ$ at $\omega_{gc}=11.2$ rad/s. So we set $\omega_m = \omega_{gc}$. We need to add $\Phi_{pm}^{desired} - \Phi_{pm} = 45-10.2 = 34.8^\circ$. Therefore, set $\phi_{max} = 34.8^\circ$. This gives us $\alpha=3.66$.
+
+(This also gives $K=\frac{\hat{K}}{\sqrt{\alpha}}=66.13$.)
+
+Then, make sure we add $\phi_{max}$ at the correct frequency.
+$$T=\frac{1}{\omega_m\sqrt{\alpha}}=0.0467$$
+
+Combining these:
+$$C(s)=66.13 \frac{3.66\cdot 0.0467s+1}{0.0467s+1} = \frac{241.9(s+5.85)}{s+21.43}$$
+
+Finally, verify design. Draw the Bode plot of $C(s)P(s)$ yields $\Phi_{pm}=45^\circ$, $\omega_{gc}=11.1$ rad/s.
+
+### Procedure for lead design
+
+Specs:
+1. $\Phi_{pm}^{desired}$
+2. Either:
+  - steady-state tracking/disturbance rejection
+  - desired closed-loop bandwidth
+
+Procedure:
+1. Let $\hat{K}=K\sqrt{\alpha}$ and choose $\hat{K}$ so that either:
+  - Using FVT, pick $\hat{K}$ $\hat{K}P$ meets steady-state spec. From here, we purposefully boost $\hat{K}$ by 10dB to account for $\alpha$ distortion
+  - Pick $\hat{K}$ so that $\hat{K}P$ has desired gain crossover frequency ($\omega_{gc} = \omega_{BW}$)
+2. Draw Bode plot of $\hat KP$
+3. Find $\omega_{gc}$ and $\Phi_{pm}$. Set $\omega_m = \omega_{gc}$.
+4. Determine the amount of phase to add: set $\phi_{max}=\Phi_{pm}^{desired} - \Phi_{pm}$.
+5. $\alpha = \frac{1+\sin\phi_{max}}{1-\sin\phi_{max}}$. (Determine the value of $K=\frac{\hat K}{\sqrt{\alpha}}$.)
+6. Set $T = \frac{1}{\omega_m \sqrt{\alpha}}$
+7. Simulate to check design
+
+### E.g.
+
+$$P(s)=\frac{10}{s^2-10}$$
+Specs:
+- $\Phi_{pm}=50^\circ$
+- closed-loop bandwidth $\omega_{BW}=10$ rad/s
+
+<img src="img/leadcontrollernode.png" />
+
+1. pick $\hat K$ so that $\omega_{gc}=\omega_{BW}$. From the plot,  we see that we need to boost the gain of $P$ by 20dB. i.e.: $20\log\hat K = 20 \Leftrightarrow \hat K = 10$.
+2. Draw a Bode plot of $\hat K D$. (Or don't if it's an exam and you know how it'll change.)
+3. $\omega_{gc} = 10$ rad/s, $\Phi_{pm} = 0$.
+4. We need to add $\phi_{max}=\Phi_{pm}^{desired} - \Phi_{pm} = 50^\circ$.
+5. $\alpha = \frac{1+\sin\phi_{max}}{1-\sin\phi_{max}} = 7.55^\circ$. This means $K=\frac{\hat K}{\sqrt \alpha} = 3.64$.
+6. Add phase at the right drequency: $T = \frac{1}{\omega_m \sqrt \alpha}=0.0364$.
+
+We get:
+$$C(s)=3.64\frac{7.55\cdot 0.0364s+1}{0.0364s+1} = \frac{27.4 (s+3.65)}{s+27.47}$$
+
+In this case, the closed-loop bandwidth ends up being 11.5 rad/s, so our approximation $\omega_{gc} \approx \omega_{BW}$ worked well.
+
+### Delay tolerance
+How much delay can we tolerate in our system before losing stability?
+
+<img src="img/delayblock.png" />
+This diagram has the transfer function $T(s) = e^{-sT}$.
+
+Bode plot of the delay: $\left|e^{-j\omega T}\right|=1$, $\angle e^{-j\omega T}=-\omega T$. The time delay **only affects phase**.
+
+<img src="img/delayblock2.png" />
