@@ -147,7 +147,7 @@ Procedure:
 2. Draw Bode plot of $KP(j\omega)$
 3. If spec 2 is satisfied, stop. Otherwise, find $\omega$ such that $180^\circ + \angle KP(j\omega) = \Phi_{pm}^{desired} + \delta$, where $\delta$ is a buffer to account for $\angle C(j\omega) \ne 0$ at high $\omega$. Usually $5^\circ$.
 4. Shift the gain of $KP$ down at $\omega$ so that $\omega$ becomes $\omega_{gc}$: $\alpha=\frac{1}{KP(j\omega)}$.
-5. Put the controller zero far away from $\omega$ so that ohase isn't affected too much: $\frac{10}{\alpha T} \le \omega$.
+5. Put the controller zero far away from $\omega$ so that phase isn't affected too much: $\frac{10}{\alpha T} \le \omega$.
 6. Simulate to verify (see PS9 for a root-locus based design)
 
 ## Lead controller
