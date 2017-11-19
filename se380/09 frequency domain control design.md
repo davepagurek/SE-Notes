@@ -70,7 +70,7 @@ This relationship can be found in closed form for second-order systems.
 $$\frac{Y(s)}{R(s)} = \frac{\omega_n^2}{s^2+2\zeta\omega_ns + \omega_n^2}$$
 
 A messy calculation gives:
-$$\Phi_{pm}=\tan^{-1}\left(2\left(\zeta(1+4\zeta^4)^{\frac{1}{2}}-2\zeta^2\right)^{\frac{1}{2}}\right)$$
+$$\Phi_{pm}=\tan^{-1}\left(2\zeta\left((1+4\zeta^4)^{\frac{1}{2}}-2\zeta^2\right)^{\frac{-1}{2}}\right)$$
 
 <img src="img/phasemargingraph.png" />
 
