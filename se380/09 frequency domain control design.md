@@ -247,3 +247,10 @@ This diagram has the transfer function $T(s) = e^{-sT}$.
 Bode plot of the delay: $\left|e^{-j\omega T}\right|=1$, $\angle e^{-j\omega T}=-\omega T$. The time delay **only affects phase**.
 
 <img src="img/delayblock2.png" />
+
+<img src="img/feedbackfunction.png" />
+- Suppose that when $T=0$, the system has a phase margin of $\Phi_{pm}$ degrees at the frequency $\omega_{gc}$.
+- The system will become unstable if we reduce the phase by $-\Phi_{pm}$ at $\omega=\omega_{gc}$.
+- The maximum delay we can tolerate before losing stability is when $\angle e^{-j\omega_{gc}T_{max}} = -\Phi_{pm}$
+  - i.e., $-\omega_{gc}T_{max} = -\Phi_{pm} \Leftrightarrow T_{max} = \frac{\Phi_{pm}}{\omega_{gc}}$
+- Stability if $T \lt T_{max}$
