@@ -47,3 +47,52 @@ So, the net change in $\angle G$ is $m(-2\pi) - n(-2\pi) = (n-m)2\pi$.
 $\Gamma_G$ must encircle the origin $n-m$ times in the counterclockwise direction.
 
 <img src="img/cachyeg.png" />
+
+## Nyquist Contour
+Take $\Gamma_s$ to encircle the whole right-half plane
+
+<img src="img/nyquist.png" />
+
+For this choice of $\Gamma_S$, the corresponding curve $\Gamma_G$ is called the **Nyquist plot** of $G$. If $G$ has no poles or zeroes **on** $\Gamma_s$$, then by the principle of the argument, the Nyquist plot will encircle the origin $n-m$ times in counterclockwise direction.
+
+$n$ is the nulber of poles of $G$ with $\Re(s) \gt 0$, $m$ is the number of zeroes of $G$ with $\Re(s) \gt 0$.
+
+If $G$ has poles on $j\mathbb{R}$, we'll indent around them.
+
+<img src="img/nyquistndent.png" />
+
+## Nyquist stability criterion
+<img src="img/nyquiststabilitysystem.png" />
+
+Assuming $C,P$ are rational:
+1. $P,C$ are proper, $CP$ strictly proper
+2. No unstable pole-zero cancellations
+3. $K \ne 0$
+
+Key idea: if the system is IO stable, then the poles of $\frac{Y(s)}{R(s)} = \frac{KC(s)P(s)}{1+KC(s)P(s)}$ must all be in $\mathbb{C}^-$. So, we'll wirk with the transfer function $G(s)=1+KC(s)P(s)$.
+
+### Theorem
+Let $n$ denote the number of poles of $C(s)P(s)$ in $\mathbb{C}^-$. Construct the Nyquist plot of $C(s)P(s)$ indenting to the right around any poles on the imaginary axis. The feedback system is IO stable if and only if the Nyquist plot doesn't pass through $\frac{-1}{K}$ and encircles $\frac{-1}{K}$ exactly $n$ times counterclockwise.
+
+### Proof
+$$\frac{Y(s)}{R(s)} = \frac{KC(s)P(s)}{G(s)}$$
+Since we've assumed no unstable pole-zero cancellations, IO stability is equivalent to $G(s)$ having no zeroes with $\Re(s) \ge 0$. (See Theorem 5.2.10.)
+
+I.O. stability $\Leftrightarrow \frac{KC(s)P(s)}{G(s)}$ has no poles with $\Re(s) \ge 0 \Leftrightarrow G(s)$ has no **zeroes** with $\Re(s) \ge 0$.
+
+Since $G(s)=1+K\frac{N_c(s)}{D_c(s)} \frac{N_p(s)}{D_p(s)} = \frac{D_cD_p+KN_cN_p}{D_cD_p}$, so $G$ has the same poles as $CP$. Therefore, $G$ has $n$ poles with $\Re(s) \gt 0$.
+
+Since $\Gamma_s$ indents around poles on $j\mathbb{R}$ and since $G$ is proper, $\Gamma_s$ doesn't pass through any poles of $G$. By the principle of the argument, $\Gamma_G$ will encircle the origin $n-m$ times in the counterclockwise direction.
+
+Since we need **no** zeroes with $\Re(s) \gt 0$, we need $m=0$ for stability. Since $C(s)P(s) = \frac{1}{K}G(s) - \frac{1}{K}$, the Nyquist plot of $CP$ is going to be the Nyquist plot of $G$ scaled (possibly by $K$) and then shifted to the left by $\frac{-1}{K}$.
+
+Conclusion: IO stability exists if and only if the Nyquist plot of $CP$ encircles $\frac{-1}{K}$ $n$ times in the counterclockwise direction.
+
+### Remarks
+<img src="img/nyquistremarks.png" />
+
+Since $C(s)P(s)$ is rational, we have:
+- $|C(j\omega)P(j\omega)| = |C(-j\omega)P(-j\omega)|$
+- $\angle C(j\omega)P(j\omega) = -\angle C(-j\omega)P(-j\omega)$
+-
+- So the image of $\Gamma_s$ along the negative imaginary axis is a reflection about the real axis of the positive imaginary axis
