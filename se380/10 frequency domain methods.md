@@ -94,5 +94,54 @@ Conclusion: IO stability exists if and only if the Nyquist plot of $CP$ encircle
 Since $C(s)P(s)$ is rational, we have:
 - $|C(j\omega)P(j\omega)| = |C(-j\omega)P(-j\omega)|$
 - $\angle C(j\omega)P(j\omega) = -\angle C(-j\omega)P(-j\omega)$
--
 - So the image of $\Gamma_s$ along the negative imaginary axis is a reflection about the real axis of the positive imaginary axis
+- We see that a Nyquist plot is (aside from indentations) a polar plot of $C(s)P(s)$. It's a plot of the curve $\omega \rightarrow C(j\omega)P(j\omega)$ as $\omega$ goes from 0 to $\infty$
+- The Bode plot of $C(s)P(s)$ is just $20\log|C(j\omega)P(j\omega)|$ and $\angle C(j\omega)P(j\omega)$ versus $\log\omega$
+
+### Procedure for applying the Nyquist criterion
+**Expect a question on the final asking to apply this**
+
+1. Pick $\Gamma_s$ as the Nyquist contour, indenting to the right if necessary
+2. Draw the image of $\Gamma_s$ under the map $C(s)P(s)$
+3. Observe $N$, the number of counterclockwise encirclements of $\frac{-1}{K}$ made by the Nyquist plot
+4. Apply the Principle of the Argument:
+  - $N = n-m = \text{open loop poles in } \mathbb{C}^+ - \text{closed loop poles in } \mathbb{C}^+$
+  - $n$ is known, $m$ is unknown
+5. We have input-output stability if and only if $N = n$
+
+#### e.g.
+$$C(s)P(s)=\frac{1}{s+10}$$
+
+<img src="img/simplenyquisteg.png" />
+- On segment A, we have $s=j\omega, \omega \in [0, \infty)$
+  - $C(j\omega)P(j\omega)=\frac{1}{j\omega+10}=\frac{10-j\omega}{\omega^2+10^2}=\frac{10}{\omega^2+10}-\frac{j\omega}{\omega^2+10}$
+  - Start by finding the point that 0 translates to, and seeing what direction it goes when you increase $\omega$
+  - Figure out where it crosses the imaginary axis, if at all
+- Segment B: $|s| = \infty$, so $C(s)P(s) = 0$
+- Secment C is just a reflection of segment A
+- Set $K=1$ (for now) and observe the number $N$ of counterclockwise encirclements of $\frac{-1}{K}$ ($N = 0$)
+- $N=n-m$, where in this case $N=0, n=0$
+- Since $N=n$, we have closed loop stability
+
+We can also test for other values of $K$:
+
+| |$\frac{-1}{K} \in (-\infty, 0)$|$\frac{-1}{K} \in [0, 0.1]$|$\frac{-1}{K} \gt 0.1$|
+|-|-|-|-|
+| $N$ | 0 | -1 | 0 |
+
+This implies it is stable for $K \gt -10$.
+
+#### e.g. comparing Nyquist to Bode
+$$C(s)P(s) = \frac{1}{s+10}$$
+
+<img src="img/nyquistbodecomparison.png" />
+
+- From Bode, when $\omega \ll 1$, $20\log|CP| \approx -20$, i.e. $|CP| \approx 0.1$
+  - This is consistent with the Nyquist plot
+- When $\omega \ll 1$, $\angle CP \approx 0^\circ$. Also consistent with Nyquist, which starts along the positive real axis.
+- As $\omega \rightarrow \infty$, $20\log|CP| \rightarrow -\infty$, so $|CP| \rightarrow 0$. This is consistent
+- From Bode, $\angle CP$ is always between $-90^\circ$ and $0^\circ$, which is consistent with the fact that Nyquist plot is always in quadrant 4.
+
+#### e.g. 8.3.2
+$$C(s)P(s) = \frac{s+1}{s(s-1)}$$
+<img src="img/eg832.png" />
