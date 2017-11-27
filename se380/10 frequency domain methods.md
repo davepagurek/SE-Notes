@@ -145,3 +145,47 @@ $$C(s)P(s) = \frac{1}{s+10}$$
 #### e.g. 8.3.2
 $$C(s)P(s) = \frac{s+1}{s(s-1)}$$
 <img src="img/eg832.png" />
+
+Segment A:
+- $s=j\omega$, $\omega \in [\epsilon, \infty)$, $0\lt\epsilon\lt 1$.
+- $C(j\omega)P(j\omega) = \frac{j\omega+1}{j\omega(j\omega-1)}=\frac{j-\omega}{\omega(1-j\omega)}=\frac{(j-\omega)(1+j\omega)}{\omega(1+\omega^2)}=\frac{-2}{1+\omega^2}+j\frac{1-\omega^2}{\omega(1+\omega^2)}$
+- When $s = j\epsilon$, $C(j\epsilon)P(j\epsilon) \approx -2 \underbrace{+}_\text{key!} j\infty$
+- When $\omega=1$ ($s=j$), $C(j)P(j)=-1+0j$
+- For all $\omega \gt 1$, $\Re(CP) \lt 0$ and $\Im(CP) \lt 0$
+
+Segment B:
+- $|s|=\infty$, so $|PC|=0$
+
+Segment C:
+- Reflection of segment $A$ about the real axis
+
+Segment D:
+- $s=\epsilon e^{j\theta}$, $\theta \in [-\frac{\pi}{2}, \frac{\pi}{2}]$
+- It's clear that $|PC|=\infty$ along segment D.
+- We want to know if it moves clockwise or counterclockwise as $\theta$ goes from $-\frac{\pi}{2}$ to $\frac{\pi}{2}$
+- $C(\epsilon e^{j\theta})P(\epsilon e^{j\theta}) = \frac{\epsilon e^{j\theta}+1}{\epsilon e^{j\theta}(\epsilon e^{j\theta}-1)} \approx \frac{1}{\epsilon e^{j\theta}(-1)} = \frac{-1}{\epsilon e^{j\theta}} = \frac{-\epsilon e^{-j\theta}}{\epsilon} = \frac{e^{j\pi} e^{-j\theta}}{\epsilon}=\frac{e^{j(\pi-\epsilon)}}{\epsilon}$
+
+Observe the number of counterclockwise encirclements of $\frac{-1}{K}$:
+
+| |$-\infty \lt \frac{-1}{K} \lt -1$|$-1 \lt \frac{-1}{K} \lt 0$|$0 \lt \frac{-1}{K} \lt \infty$|
+|-|-|-|-|
+|$N$|-1|+1|0|
+
+Since we need $n=1$, we need $N=1$ for input-output stability. Therefore, $K \gt 1$.
+
+## Stability margins, revisited
+If a system is stable, how stable?
+
+### Phase margin
+Nominal model: $\phi=0$, input-output stability
+
+How much phase change $\phi$ can I tolerate before losing IO stability? Recall that $|e^{j\phi}|=1$, $\angle e^{j\phi}=\phi$
+
+### e.g. 8.4.1
+$$L(s) = \frac{1}{(s+1)^2}$$
+
+$n=0$, so we need zero counterclockwise encirclements of -1 to get IO stability.
+
+<img src="img/eg841.png" />
+
+- If we rotate the Nyquist plot by $-\frac{\pi}{2}$, we get $N=1$ and lose IO stability.
