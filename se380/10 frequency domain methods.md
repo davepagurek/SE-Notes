@@ -189,3 +189,51 @@ $n=0$, so we need zero counterclockwise encirclements of -1 to get IO stability.
 <img src="img/eg841.png" />
 
 - If we rotate the Nyquist plot by $-\frac{\pi}{2}$, we get $N=1$ and lose IO stability.
+- Therefore the phase margin is around 90 degrees
+
+<img src="img/eg841bode.png" />
+
+### Gain Margin
+Nominal design: $K=1$, IO stable. How much gain can we change $K$ by before we lose stability?
+
+### e.g. 8.4.3
+$$ L(s)=\frac{2}{(s+1)^2\left(\frac{s}{10}+1\right)}$$
+
+$n=0$ (no open-loop unstable poles), so we need $N=0$ counterclockwise encirclements of -1 for IO stability.
+
+<img src="img/eg843.png" />
+
+From the Nyquist criterion, the nominal model is IO stable. The system remains stable so long as $\frac{-1}{K} \lt \frac{-1}{12.1}$. This means we can increase $K$ up to 12.1 before losing stability. This value of $K$ is called the gain margin.
+
+<img src="img/eg843bode.png" />
+
+### Stability Margin
+Phase margin is related to the distance on the Nyquist plot from to -1, measured as a rotation along the unit circle.
+
+Gain margin is the distance on the Nyquist plot to -1 along the real axis.
+
+More generally, we'll want to use the Euclidean **distance** from the Nyquist plot to -1 as a measure of stability.
+
+### e.g. 8.4.5
+$$L(s) = \frac{0.38(s^2+0.1s+0.55)}{s(s+1)(s^2+0.06s+0.5)}$$
+
+$n=0$ so we need $N=0$ counterclockwise encirclements of -1.
+
+<img src="img/eg845.png" />
+
+- good phase margin ($\approx 70^\circ$)
+- infinite gain margin ($K_{gm}=\infty$)
+- based on the above, we would conclude that the design is robust
+- from the Nyquist plot we see that we're actually pretty close to encircling -1.
+
+Consider for a moment our normal feedback system with no disturbances. The transfer function from $r$ to $e$:
+$$\frac{E(s)}{R(s)} = \frac{1}{1+P(s)C(s)} =: S(s)$$
+
+Assume IO stability. Then the distance from $L=CP$ to -1 is:
+$$\begin{align}
+\min_\omega \left|-1-L(j\omega)\right| &= \min_\omega \left|-1-CP\right|\\
+&= \left(\max_\omega \left|\frac{1}{1+CP}\right|\right)^{-1}\\
+&= \left(\max_\omega \left|S(j\omega)\right|\right)^{-1}\\
+\end{align}$$
+
+So, the distance from the Nyquist plot to -1 is the reciprocal of the peak magnitude of the Bode plot of $S$. We'll call this $S_m$, for **stability margin**.
