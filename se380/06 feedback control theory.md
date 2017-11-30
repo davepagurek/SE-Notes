@@ -353,7 +353,7 @@ E(s) &= \frac{1}{1+C(s)P(s)}R(s)\\
 &= \frac{s(s+1)}{s^2 + s + 1}R(s)\\
 \end{align}$$
 
-The transfer function is BEBO stable, so we can use Final Value Theorem
+The transfer function is BIBO stable, so we can use Final Value Theorem
 $$\begin{align}
 e_{ss} &:= \lim_{t\rightarrow\infty}e(t)\\
 &=\lim_{s\rightarrow 0} sE(s)\\
