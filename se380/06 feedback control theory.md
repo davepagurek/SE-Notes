@@ -135,7 +135,7 @@ This system has 6 transfer functions from $(r, d)$ to $(e, u, y)$. Finding them:
 $$\begin{align}
 Y &= PU\\
 E &= R - PU\\
-U &= D+C\\
+U &= D+CE\\
 \Rightarrow \begin{bmatrix}1&P\\-C&1\end{bmatrix}\begin{bmatrix}E\\U\end{bmatrix}&=\begin{bmatrix}R\\D\end{bmatrix}\\
 \begin{bmatrix}E\\U\end{bmatrix} &= \frac{1}{1+PC}\begin{bmatrix}1&-P\\C&1\end{bmatrix}\begin{bmatrix}R\\D\end{bmatrix}\\
 \\
