@@ -53,7 +53,7 @@ Take $\Gamma_s$ to encircle the whole right-half plane
 
 <img src="img/nyquist.png" />
 
-For this choice of $\Gamma_S$, the corresponding curve $\Gamma_G$ is called the **Nyquist plot** of $G$. If $G$ has no poles or zeroes **on** $\Gamma_s$$, then by the principle of the argument, the Nyquist plot will encircle the origin $n-m$ times in counterclockwise direction.
+For this choice of $\Gamma_S$, the corresponding curve $\Gamma_G$ is called the **Nyquist plot** of $G$. If $G$ has no poles or zeroes **on** $\Gamma_s$, then by the principle of the argument, the Nyquist plot will encircle the origin $n-m$ times in counterclockwise direction.
 
 $n$ is the nulber of poles of $G$ with $\Re(s) \gt 0$, $m$ is the number of zeroes of $G$ with $\Re(s) \gt 0$.
 
