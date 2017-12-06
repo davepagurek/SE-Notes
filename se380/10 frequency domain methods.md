@@ -163,7 +163,7 @@ Segment D:
 - $s=\epsilon e^{j\theta}$, $\theta \in [-\frac{\pi}{2}, \frac{\pi}{2}]$
 - It's clear that $|PC|=\infty$ along segment D.
 - We want to know if it moves clockwise or counterclockwise as $\theta$ goes from $-\frac{\pi}{2}$ to $\frac{\pi}{2}$
-- $C(\epsilon e^{j\theta})P(\epsilon e^{j\theta}) = \frac{\epsilon e^{j\theta}+1}{\epsilon e^{j\theta}(\epsilon e^{j\theta}-1)} \approx \frac{1}{\epsilon e^{j\theta}(-1)} = \frac{-1}{\epsilon e^{j\theta}} = \frac{-\epsilon e^{-j\theta}}{\epsilon} = \frac{e^{j\pi} e^{-j\theta}}{\epsilon}=\frac{e^{j(\pi-\epsilon)}}{\epsilon}$
+- $C(\epsilon e^{j\theta})P(\epsilon e^{j\theta}) = \frac{\epsilon e^{j\theta}+1}{\epsilon e^{j\theta}(\epsilon e^{j\theta}-1)} \approx \frac{1}{\epsilon e^{j\theta}(-1)} = \frac{-1}{\epsilon e^{j\theta}} = \frac{-\epsilon e^{-j\theta}}{\epsilon} = \frac{e^{j\pi} e^{-j\theta}}{\epsilon}=\frac{e^{j(\pi-\theta)}}{\epsilon}$
 
 Observe the number of counterclockwise encirclements of $\frac{-1}{K}$:
 
