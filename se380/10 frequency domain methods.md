@@ -171,7 +171,7 @@ Observe the number of counterclockwise encirclements of $\frac{-1}{K}$:
 |-|-|-|-|
 |$N$|-1|+1|0|
 
-Since we need $n=1$, we need $N=1$ for input-output stability. Therefore, $K \gt 1$.
+Since we have $n=1$, we need $N=1$ for input-output stability. Therefore, $K \gt 1$.
 
 ## Stability margins, revisited
 If a system is stable, how stable?
