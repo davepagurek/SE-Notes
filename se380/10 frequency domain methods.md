@@ -72,7 +72,7 @@ Assuming $C,P$ are rational:
 Key idea: if the system is IO stable, then the poles of $\frac{Y(s)}{R(s)} = \frac{KC(s)P(s)}{1+KC(s)P(s)}$ must all be in $\mathbb{C}^-$. So, we'll work with the transfer function $G(s)=1+KC(s)P(s)$.
 
 ### Theorem
-Let $n$ denote the number of poles of $C(s)P(s)$ in $\mathbb{C}^-$. Construct the Nyquist plot of $C(s)P(s)$ indenting to the right around any poles on the imaginary axis. The feedback system is IO stable if and only if the Nyquist plot doesn't pass through $\frac{-1}{K}$ and encircles $\frac{-1}{K}$ exactly $n$ times counterclockwise.
+Let $n$ denote the number of poles of $C(s)P(s)$ in $\mathbb{C}^+$. Construct the Nyquist plot of $C(s)P(s)$ indenting to the right around any poles on the imaginary axis. The feedback system is IO stable if and only if the Nyquist plot doesn't pass through $\frac{-1}{K}$ and encircles $\frac{-1}{K}$ exactly $n$ times counterclockwise.
 
 ### Proof
 $$\frac{Y(s)}{R(s)} = \frac{KC(s)P(s)}{G(s)}$$
