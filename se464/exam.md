@@ -20,6 +20,10 @@ Benefits
 
 Technologies enabling this
 - Virtualization
+  - Emulation (e.g. QEMO), simulates partial hardware
+  - Paravirtualization (e.g. Xen), software interface to VM
+  - Full (e.g. VMWare), complete simulation of hardware
+  - Network (e.g. VPNs), abstract and virtualize networks
 - APIs
   - REST
 
