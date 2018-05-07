@@ -101,3 +101,34 @@ $$\text{Traffic intensity} = \frac{\underbrace{La}_\text{rate of arriving bits}}
 - Average is over a long period of time
 - The link with the smallest rate will always be the bottleneck for throughput
 - Throughput is always the minimum rate along the link
+
+## Layers
+Each later represents a service
+
+Internet protocol stack:
+- application: supports network applications (e.g. FTP, SMTP, HTTP)
+- transport: Process to process data transfer (TCP, UDP)
+- network: routing from source to destination (IP, routing protocols)
+- link: data transfer between network elements (Ethernet, 802.111 (wifi), PPP)
+- physical: bits "on the wire"
+
+OSI model:
+- application
+- **presentation**: allow applications to interpret meaning of data (e.g. encryption, compression)
+- **session**: synchronization, checkpointing, recovery of data exchange
+- transport
+- network
+- link
+- physical
+
+**Encapsulation** means taking something from another layer, adding a header, and passing it on (not directly modifying data from the previous layer, just extending it)
+- The full, extended message is called a datagram
+- Removing of headers is decapsulation
+
+## Security
+- virus: self replication by receiving and executing
+- worm: self replicating by passively receiving and getting itself executed
+- spyware: records info and uploads
+- botnet: a network of similarly infected hosts
+- packet sniffing: promiscuous network interface reads/records all broadcasted packets
+- IP spoofing: send a message claiming to be from another address
