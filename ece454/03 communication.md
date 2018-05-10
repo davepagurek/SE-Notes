@@ -29,3 +29,31 @@ These work similar to normal procedure calls, but over the network. The argument
 - Similar to pub/sub. Both are examples of **message-oriented middleware.**
 - Used mostly for one way communication where a response is not always expected
 - Middleware needs to be a separate component
+
+## Apache Thrift
+Software stack:
+- Server
+  - Receives incoming connections
+  - single threaded, event driven
+- Processor
+  - reads and writes IO streams
+  - compiler generated
+- Protocol
+  - encodes and decodes data
+  - JSON, compact, etc
+- Transport
+  - reads/writes to network
+  - raw TCP, HTTP, etc
+
+### Defining services in the IDL
+```
+namespace java example1
+
+exception IllegalArgument {
+  1: string message;
+}
+
+service MathService {
+  double sqrt(1:double num) throws (1: IllegalArgument ia)
+}
+```
