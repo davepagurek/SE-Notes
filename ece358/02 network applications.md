@@ -61,3 +61,24 @@ User Datagram Protocol
 - Unreliable data transfer
 - does not provide flow control, congestion control, timing, throughput, security, or connection setup
 - Faster than TCP, no overhead
+
+### Web and HTTP
+- Web is made of objects
+- Web page consists of a base HTML file object which references other objects
+- Each object is addressable by a URL (Uniform Resource Locator)
+- Client: e.g. browser
+- Server: web server sends objects in response to requests
+- Stateless: server maintains no information about past client requests
+- Uses TCP
+- Connection types
+  - Non persistent
+    - At most one object sent over TCP connection, which is then closed
+  - Persistent
+    - Multiple objects sent over single TCP connection between client and server
+- HTTP/1.0:
+  - GET
+  - POST
+  - HEAD (gets header only, no response)
+- HTTP/1.1:
+  - PUT
+  - DELETE
