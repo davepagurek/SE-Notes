@@ -73,8 +73,10 @@ User Datagram Protocol
 - Connection types
   - Non persistent
     - At most one object sent over TCP connection, which is then closed
+    - 2 RTT + transmission time
   - Persistent
     - Multiple objects sent over single TCP connection between client and server
+    - RTT + 1 transmission time per object
 - HTTP/1.0:
   - GET
   - POST
@@ -82,3 +84,40 @@ User Datagram Protocol
 - HTTP/1.1:
   - PUT
   - DELETE
+- Conditional GET: don't send obhect if cache has up-to-date version
+  - Send `If-modified0since: <date>` in header
+  - Server can send a `304 not modified` if the cache is valid
+
+### DNS
+- Provides mapping between address and name
+- Distributed database implemented by hierarchy of many name servers
+- Hosts resolve name (application layer protocol)
+- Services
+  - Hostname to IP translation
+  - Host aliasing
+  - Mail server aliasing
+  - Load distribution
+- Local DNS: acts as a local DNS cache, acting as a proxy
+- Caching
+  - Once a nameserver learns a mapping, it caches it
+  - Caches time out after some time (TTL)
+  - Cached entries may be out of date: won't fully propagate changes until TTL
+- DNS records:
+  - Format: `(name, value, type, ttl)`
+  - A: name is a hostname, value is an IP address
+  - NS: name is a domain (e.g. foo.com), value is hostname of authoritative name server for the domain
+  - CNAME: name is an alias for some real name, value is the real (canonical) name
+  - MX: value is the name of the mailserver associated with the name
+
+Query and reply have the same format:
+
+<table>
+<tr><th>2 bytes</th><th>2 bytes</th></tr>
+<tr><td>identification</td><td>flags</td></tr>
+<tr><td># authority RRs</td><td># additional RRs</td></tr>
+<tr><td colspan=2>questions (variably number of questions)</td></tr>
+<tr><td colspan=2>answers (variable number of RRs)</td></tr>
+<tr><td colspan=2>authority (variable number of RRs)</td></tr>
+<tr><td colspan=2>additional info (variable number of RRs)</td></tr>
+</table>
+
