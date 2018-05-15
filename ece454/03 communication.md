@@ -57,3 +57,7 @@ service MathService {
   double sqrt(1:double num) throws (1: IllegalArgument ia)
 }
 ```
+
+### Asynchronous client
+- Needs to provide a callback handler
+- Pass in a `TNonblockingSocket`
