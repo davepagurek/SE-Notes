@@ -29,6 +29,8 @@ UDP checksum
 - Checksum: 1's complement: Add the two 16-bit integers. If there is a carry, add it to the first bit. Invert the bits for the checksum.
 
 ## Reliable Data Transfer
+
+### Stop-and-wait
 - Reliable Data Transfer (RDT) protocol
 - Sender application calls `rdt_send()`, which make calls to `udt_send()`
   - `udt_send` is unreliable data transfer, used internally by RDT
@@ -41,3 +43,25 @@ UDP checksum
   - If the receiver actually had sent an ACK, it will see that it got sent the same packet again, and can ignore it and send an ACK
   - Sequence number can just be 0 or 1, alternating between them
   - ACK is actually ACK of the current sequence number, and NAK is just an ACK for the other sequence number
+- Packet loss is possible: use a timer. If a response hasn't been received by the time the timer runs out, resend.
+  - This is an example of an **Automatic Repeat Request** (ARQ) protocol
+
+Performance
+- Not good
+- Utilization: $U_{sender} = \frac{L/R}{RTT + L/R}$
+- $D_{trans} = \frac{L}{R}$
+- $L/R$ is the time spend sending actual useful information, but then we also have to wait for a round trip to receive an ACK
+- Do it better with **pipelined protocols**
+
+### Go-back-$N$
+- Sender can have up to $N$ packets in pipeline
+- Receiver only sends cumulative ACK
+- doesn't ACK a packet i there's a gap
+- sender has timer for oldest un-acked packet
+  - when timer expires, ALL are resent
+
+### Stop-and-wait
+- Sender can have up to $N$ un-acked packets in the pipeline
+- receiver sends individual ack for each packet
+- sender maintains timer for each un-acked packet
+  - When timer expires, retransmit only that un-acked packet
