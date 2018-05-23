@@ -15,3 +15,14 @@
 - Each file might be on one server, or each could be striped across multiple servers
   - Striping usually allows higher throughput for large requests issued one at a time
   - Many small requests issued in parallel, one file per server is ok
+
+## Semantics of file sharing
+- **Unix semantics**: In a centralized setting, there is strict time ordering, so applications always read their own writes
+- **Session semantics**: Local version of file is only propagated when the file is closed, and the last client to close the file sets the final version.
+- NFS v4 implements session semantics and byte range file locking
+  - byte range file locking is used to prevent inconsistencies
+  - Requests to read a file will stall until a block is released
+- Immutable files
+  - no updates possible
+  - delete/replace is possible
+  - in reality (GFS, HDFS), append is also supported
