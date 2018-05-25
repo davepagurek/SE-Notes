@@ -26,3 +26,4 @@
   - no updates possible
   - delete/replace is possible
   - in reality (GFS, HDFS), append is also supported
+- Transactions are a thing too

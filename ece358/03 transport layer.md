@@ -46,7 +46,7 @@ UDP checksum
 - Packet loss is possible: use a timer. If a response hasn't been received by the time the timer runs out, resend.
   - This is an example of an **Automatic Repeat Request** (ARQ) protocol
 
-Performance
+#### Performance
 - Not good
 - Utilization: $U_{sender} = \frac{L/R}{RTT + L/R}$
 - $D_{trans} = \frac{L}{R}$
@@ -65,3 +65,128 @@ Performance
 - receiver sends individual ack for each packet
 - sender maintains timer for each un-acked packet
   - When timer expires, retransmit only that un-acked packet
+
+#### Performance (assuming no errors)
+
+Say $T_x$ and $R_x$ have agreed on a window size $W$, and $L$ is the frame size. Then, if $t_T$ is the total elapsed time to send a data frame and receive a corresponding ack, then the sender will send:
+- $W$ frames if $\frac{WL}{C} \le t_T$, or
+- if $\frac{WL}{C} \gt t_T$, the "link" will be full and the number of sent frames will be $\frac{t_T}{t_I}$, where $t_I$ is the time to transmit one frame
+  - $t_I = \frac{L}{C}$
+  - Utilization = $\min\left(1, \frac{W \frac{L}{C}}{t_T}\right)$
+- Best case performance happens when the first ack is received while still sending packets, so we are sending packets all the time.
+
+Maximum window size:
+$$W_{max} = \frac{t_I}{t_t} = \frac{\underbrace{\frac{L}{C} + RTT}_\text{period of time considered}}{\underbrace{\frac{L}{C}}_\text{transmission time of one segment}}$$
+
+Throughput = utilization $*$ link rate
+
+## TCP
+- **connection-oriented**: sender and receiver have to handshake to initialize parameters, but not circuit switching because intermediate nodes don't keep state
+- **point-to-point**: one sender, one receiver
+- **reliable, in-order byte stream**: no message boundaries
+- **full duplex data**: bi-directional data flow in same connection, MSS: maximum segment size
+- **pipelined**: TCP congestion and flow control set window size
+- **flow controlled**: sender will not overwhelm receiver
+
+### Segment structure
+<table>
+<tr><th colspan=4>width: 32 bits</th></tr>
+<tr><td colspan=3>Source port #</td><td>Dest port #</td></tr>
+<tr><td colspan=4>Sequence number</td></tr>
+<tr><td colspan=4>acknowledgement number</td></tr>
+<tr><td>head len</td><td>not used</td><td>`U A P R S F`</td><td>receive window</td></tr>
+<tr><td colspan=3>checksum</td><td>Urg data pointer</td></tr>
+<tr><td colspan=4>options (variable length)</td></tr>
+<tr><td colspan=4>application data (variable length)</td></tr>
+</table>
+
+- URG: urgent data (usually not used)
+- Ack: declares the acked # as valid
+- PSH: push data now (usually not used)
+- RST, SYN, FIN: connection establish (Setup, teardown commands)
+- sequence numbers: byte stream "number" of first byte in segment's data
+- acknowledgements:
+  - sequence number of next byte expected from other side
+  - cumulative ACK
+  - Can ack while sending other data
+
+### Estimating round trip time
+- What to set the timeout value to?
+- Longer than RTT, but RTT varies
+- If it's too short, premature timeout happens, and there can be unnecessary retransmissions
+- if it's too long, it reacts slowly when packets are lost
+
+Round trip time estimate
+- `SampleRTT`: measured time from segment transmission until ACK receipt, ignoring retransmissions
+- `EstimatedRTT` $= (1 - \alpha) *$ `EstimatedRTT` $+ \alpha *$ `SampleRTT`
+  - Exponential weighted moving average (EWMA)
+  - influence of past sample decreases exponentially fast. Recent sample better reflects current congestion in the network
+  - Typical $\alpha$: 0.25
+- Timeout interval: `EstimatedRTT` + safety margin
+  - Large variation in estimation yields a larger safety margin
+  - $DevRTT = (1-\beta)*DevRTT + \beta * |SampleRTT-EstimatedRTT|$
+  - Typically, $\beta=0.25$
+  - $TimeoutInterval = EstimatedRTT + 4*DevRTT$
+
+### RDT
+- Pipelined segments
+- cumulative acks
+- single retransmission timer
+- retransmissions retriggered by timeout events, duplicate acks
+
+#### Sender events
+Initialization:
+- `nextSeqNum = InitialSeqNum`
+- `SendBase = InitialSeqNum`
+
+1. Data received from app
+  - Create segment with sequence number
+  - sequence number is byte stream number of first data byte in segment
+    - `NExtSeqNum = NextSeqNum + length(data)`
+  - start timer if not already running (timer is for oldest unacked segment) with interval `TimeOutInterval`
+2. Timeout
+  - Retransmit segment that caused timeout
+  - Restart timer
+3. Ack received
+  - If ack acknowledges previously unacked segments, update what is known to be acked, start timer if there are still unacked segments
+
+Fast retransmission
+- time out period is often long: delay before resending lost packet
+- detect lost segments via duplicate ACKs
+  - sender often sends many segments back to back
+  - if a segment is lost, there will likely be many duplicate ACKs
+- If sender receives 3 duplicate acks (the fourth ack for that same piece of data), resend unacked segment with smallest sequence number
+
+### Flow control
+- receiver "Advertises" free buffer space by including `rwnd` (receiver window) value in TCP header of receiver-to-sender segments
+  - `RcvBuffer` size set via socket operations (Default 4096 bytes)
+  - many OS autoadjust `RcvBuffer`
+- sender limits amount of unacked data to receiver's `rwnd` value (16 bits, so max value is $2^{16}-1$)
+- guarantees receive buffer will not overflow
+
+### Connection management
+Handshake:
+- agree to establish connection
+- agree on connection params
+
+Simple 2-way handshake won't work:
+- variable delays
+- retransmitted messages due to loss
+- message reordering
+- can't "see" other side
+
+Use a **3-way handshake** instead:
+- Establish connection
+  - client and server start in listening state
+  - Client sends  a request to connect via TCP with `SYN = 1` (synchronized) set in the header, with a random initial sequence number
+  - Server chooses another random sequence number, and then sends a TCP `SYNACK` (`SYN = 1`, `ACK = 1`), acknowledging the `SYN`
+  - Client receives the SYNACK, knowing the server is live. Sends an ACK to acknowledge the SYNACK was received, plus maybe additional data.
+  - Server receives the ack, so it knows the client is live
+- close connection
+  - Client sends `FIN = 1`, with sequence number $x$
+  - Server replies with `ACK = 1`, `ACKNUM` = $x + 1$
+  - Client waits for server to close
+  - Server sends `FIN = 1`, random sequence number $y$
+  - Client replies with `ACK = 1`, `ACKNUM` = $y + 1$
+  - Client waits for $2*$ max segment lifetime as a safeguard
+
