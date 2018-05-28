@@ -190,3 +190,34 @@ Use a **3-way handshake** instead:
   - Client replies with `ACK = 1`, `ACKNUM` = $y + 1$
   - Client waits for $2*$ max segment lifetime as a safeguard
 
+### Congestion Control
+- Congestion is when there are too many sources sending data too fast for the **network** to handle
+- Problems due to congestion:
+  - Queueing delays as the packet arrival rate reaches the link cap (output link capacity is $R$, so maximum per-connection throughput is $\frac{R}{n}$ where there are $n$ "customers" on the link)
+  - Packets can be lost when the router buffers are full and packets are dropped. Sender only resends if the packet is known to be lost.
+  - Sender times out prematurely and sends two copies of a packet, both of which get delivered
+  - more routers between source and destination means more wasted resources
+
+**TCP protocol**
+- Sender increases transmission rate (window size), probing for usable bandwidth, until loss occurs
+  - **additive increase**: increase `cwnd` by 1 MSS (maximum segment size) for every acknowledged segment until loss detected
+  - **multiplicative decrease**: decrease `cwnd` in half after loss
+  - Sender limits transmission: `LastByteSend - LastByteAcked <= min(cwnd, rwnd)`
+  - `rwnd` is usually very large at the receiver
+- Slow Start
+  - When connection begins, increase rate exponentially until first loss event
+    - Initially `cwnd` is 1 MSS
+    - double `cwnd` every RTT
+    - Done by incrementing `cwnd` for every ACK received
+  - Initial rate is slow but ramps up exponentially fast
+- Dealing with packet loss
+  - Loss indicated by timeout:
+    - `cwnd` set to 1 MSS
+    - window then grows exponentially (as in slow start) to threshold, then grows exponentially
+  - Loss indicated by 3 duplicate ACKs: TCP Reno
+    - dup ACKs indicate network capable of delivering some segments
+    - `cwnd` is cut in half window then grows linearly
+  - TCP Tahoe (older version) always sets cwnd to 1 (timeout or 3 duplicate acks)
+  - when `cwnd` gets to one half of its value before timeout, switch from exponential to linear
+  - Above `ssthresh`, growth is linear; below, it is exponential
+  - on a loss event, `ssthresh` is set to one half of `cwnd` just before the loss event
