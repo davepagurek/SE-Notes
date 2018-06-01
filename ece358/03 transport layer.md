@@ -221,3 +221,4 @@ Use a **3-way handshake** instead:
   - when `cwnd` gets to one half of its value before timeout, switch from exponential to linear
   - Above `ssthresh`, growth is linear; below, it is exponential
   - on a loss event, `ssthresh` is set to one half of `cwnd` just before the loss event
+- Avg throughput = $\frac{3}{4}\frac{W}{RTT}$
