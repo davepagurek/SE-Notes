@@ -53,8 +53,93 @@
   - types: memory, bus, crossbar
 - routing processor
   - Runs routing algorithms and protocols
+- Has line termination, link layer protocol receiver, lookup forwarding and queueing
 
+### Input port functions
 Decentralized switching
 - given datagram destination, look up output port using forwarding table in input port memory (match plus action)
 - goal: complete input port processing at "line speed"
 - queueing: if datagrams arrive faster than can be outputted, queue them up
+
+Switching factors
+- transfer packet from input buffer to appropriate output buffer
+- Switching via memory
+  - Traditional computers with switching under direct control of CPU
+  - packet copied to system's memory
+  - spreed limited by memory bandwidth (2 bus crossings per datagram)
+- Switching via bus
+  - datagram from input port memory to output port memory via shared bus
+  - bus contention: switching speed limited by bandwidth
+  - 32 Gbps: sufficient for access and enterprise routers
+- Switching via interconnection network
+  - Overcome bus bandwidth limitation
+  - banyan networks, crossbar, other interconnection nets initially developed to connect processors in multiprocessors
+  - fragments datagram into fixed cell lengths, switch cells through fabric
+  - switches 60 Gbps through the interconnection network
+
+### Output port functions
+- Same as input ports but in opposite order
+- buffering required for datagrams that arrive faster from fabric than transmission rate
+- scheduling discipline chooses among queued datagrams for transmission
+- Avg buffering equal to typical RTT (e.g. 250 msec) times link capacity $C$
+  - e.g. $C$ = 10 Gbps, link is 2.5 Gbit buffer
+  - Recent recommendation: with $N$ flows, buffering is equal to $\frac{RTT \cdot C}{\sqrt{N}}$
+
+### Queueing
+- input queueing happens when transmission rate of input is faster than fabric rate
+- **Head-of-the-line (HOL) blocking**: queued datagram at front of queue prevents other in queue from moving forward
+
+## Internet Protocol
+- IP has addressing conventions, datagram format, and packet handling conventions
+- ICMP (Internet Control Message Protocol) is for error reporting and router signalling
+
+### Datagram format
+<table>
+<tr><th colspan=5>32 bits</th></tr>
+<tr><td>version</td><td>head len</td><td>type of service</td><td colspan=2>length</td></tr>
+<tr><td colspan=3>16-bit identifier</td><td>flags</td><td>fragment offset</td></tr>
+<tr><td colspan=2>time to live</td><td>upper layer</td><td colspan=2>header checksum</td></tr>
+<tr><td colspan=5>32 bit source IP address</td></tr>
+<tr><td colspan=5>32 bit destination IP address</td></tr>
+<tr><td colspan=5>options, if any</td></tr>
+<tr><td colspan=5>data (variable lenfth, typically a TCP or UDP segment)</td></tr>
+</table>
+
+- Time to live is the max number of remaining hops, decremented at each router
+- Overhead: 20 bytes of TCP header + 20 bytes of IP header = 40 bytes, plus app layer overhead
+
+### Fragmentation, reassembly
+- network links have maximum transfer size MTU: largest possible link level frame
+  - different link types have different MTUs
+- large IP datagram becomes divided ("fragmented") within network
+  - one datagram becomes several
+  - reassembled only at final destination
+  - IP header bits used to identify, order related fragments
+- Have length, ID, frag flag, offset
+  - fragments are specified in units of 8 byte offsets
+  - fragflag = 0 implies that it is the last one, so when received, the datagram can be reassembled
+
+### IP Addressing
+- 32 bit identifier for host, router interface
+- interface: connection between router/host and physical link
+  - routers typically have multiple interfaces
+  - host typically has one or two interfaces (e.g. wired ethernet, wireless 802.11)
+- IP addresses associated with each interface
+
+#### Subnets
+- A subnet includes device interfaces with same subnet part of IP address
+  - can physically reach other without a router
+- Address
+  - Subnet part: high order bits
+  - Host part: low order bits
+- subnet mask: e.g. `/24` at end of address means that the most significant 24 bits are the fixed subnet part, and the rest are the host part.
+  - Class A: /8
+  - Class B: /16
+  - Class C: /24
+
+#### CIDR
+- Classless InterDomain Routing
+- Subnet portion of address can be arbitrary length
+- format: `a.b.c.d/x`, where `x` is the number of bits in the subnet portion
+- All ones in the host part is used for broadcast
+- All zeros is used for network identification
