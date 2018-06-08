@@ -143,3 +143,77 @@ Switching factors
 - format: `a.b.c.d/x`, where `x` is the number of bits in the subnet portion
 - All ones in the host part is used for broadcast
 - All zeros is used for network identification
+
+Getting an IP address
+- hard-coded sometimes
+- DHCP
+
+#### DHCP
+- Goal is to allow any computer to automatically get an IP address
+- leases an address, can be renewed
+- allows reuse of addresses (only holds while connected)
+- host broadcasts DHCP discover message
+- DHCP server responds with DHCP offer
+- host requests IP address with DHCP request msg
+- DHCP server replies with DHCP acknowledgement
+- Port 67 reserved for DHCP server, Port 68 reserved for incoming DHCP client
+- Server uses broadcast to reply because the client doesn't have an address yet
+- After receiving a reply from the server, the client knows the server's address, and can reply directly to the server
+
+- How servers pick IPs
+  - network gets allocated a portion of its provider ISP's address space
+  - ISP gets block from ICANN: Internet Corporation for Assigned Names and Numbers
+
+#### Hierarchical Routing
+- "send me anything with addresses beginning (e.g.) 200.23.16.0/20"
+- Gets progressively more specific
+
+#### NAT: Network Address Translation
+- All datagrams *leaving* local network have the same single source NAT IP address, assigned by ISP, different source port numbers
+- Datagrams with source or destination in this network have 10.0.0/24 address for sources, destination
+- Outside IP address can change without affecting local IP addresses and vice versa (e.g. changing an ISP)
+- Router has NAT translation table from WAN side address to LAN side address
+- Talking to computers on another local network:
+  - manual configuration
+  - IGD
+  - both connect to relay
+
+### ICMP: Internet Control Message Protocol
+- used by hosts and routers to communicate network-level information
+- ICMP message: type, code, plus first 8 bytes of datagram causing error
+
+Traceroute
+- Send series of UDP segments to destination
+  - First has TTL=1, second with TTL=2, etc
+  - unlikely port number
+- When nth set of datagrams arrives to nth router:
+  - router discards datagrams
+  - sends source ICMP message for TTL expired (Type 11, code 0)
+  - ICMP messages include name of router and IP address
+- When ICMP messages arrive, source records RTTs
+- Stops when:
+  - UDP segment eventually arrives at destination host
+  - destination returns ICMP "port unreachable" (type 3, code 3), because it arrived, but can't do anything with the port specified
+  - source stops
+
+### IPv6
+- 32-bit address space completely allocated
+- In IPv6, there is a fixed 40 byte header, with no fragmentation allowed
+
+#### Header
+<table>
+<tr><td>ver</td><td>pri</td><td colspan=3>flow label</td></tr>
+<tr><td colspan=3>payload len</td><td>next hdr</td><td>hop limit</td></tr>
+<tr><td colspan=5>source address (128 bits)</td></tr>
+<tr><td colspan=5>destination address (128 bits)</td></tr>
+<tr><td colspan=5>data</td></tr>
+</table>
+
+- No checksum
+- No options field, but is allowed outside of header, indicated by "next header" field
+- ICMPv6
+  - additional types like "packet too big"
+
+#### Transition from IPv4
+- not all routers can be upgraded simultaneously
+- **Tunneling**: IPv6 datagram carried as a payload in IPv4 datagram among IPv4 routers
