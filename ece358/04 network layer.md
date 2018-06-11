@@ -217,3 +217,64 @@ Traceroute
 #### Transition from IPv4
 - not all routers can be upgraded simultaneously
 - **Tunneling**: IPv6 datagram carried as a payload in IPv4 datagram among IPv4 routers
+
+## Routing algorithms
+### Graph abstraction
+A graph $G = (N, E)$. $c(x, x')$ is the cost of the link $(x, x')$.
+
+Question: **what is the least cost path from the source to the destination?**
+- global:
+  - all routers have complete info on topology
+  - "link state" algorithms
+- decentralized
+  - router knows physically connected neighbours, link costs to neughbours
+  - iterative process of computation, exchange of info with neighbours
+  - "distance vector" algorithms
+- static
+  - routes change slowly over time
+- dynamic
+  - routes change more quickly
+  - periodic update
+  - in response to link cost changes
+
+### Link State
+- e.g. Dijkstra's algorithm
+- $c(x, x')$ edge weights
+- $D(v)$ current value of cost path from source to dest $v$
+- $p(v)$: predecessor
+- $N'$ set of routers who we know the least cost path for
+
+### Distance vector
+Bellman-Ford equation (DP)
+Let $d_x(y) :=$ cost of least cost path from $x$ to $y$
+Then, $d_x(y) = \min\{c(x,v) + d_v(y)\}$
+
+- $D_x(y)$ is the estimate of least cost from $x$ to $y$
+- $x$ maintains the distance vector $D_x = [D_x(y): y \in N]$
+- For each node $x$ it knows the distance to each of its neighbours
+- From time to time, each node sends its own distance bector estimate to neghbours
+- when $x$ receives new DV estimate from neighbour, it updates its own DV using B-F equation:
+  - $D_x(y) \leftarrow \min_v\{x(x,v) + D_v(y)\} \quad \forall y \in N$
+- poisoned reverse:
+  - if Z routes through Y to get to X:
+    - X tells Y its distance to X is infinite
+- message complexity
+  - LS: with n nodes, E links, $O(nE)$
+  - DV: exchange between neighbours only. Convergence time varies
+- Speed of convergence
+  - LS: $O(n^2)$, requires $O(nE)$ messages. May have oscillations
+  - DV: convergence time varies. May be routing loops, count-to-infinity problem
+- Robustness
+  - LS: node can advertise incorrect link cost, each node computes only its own table
+  - DV: DV node can advertise incorrect path cost
+  - each node's table is used by others so the error propagates through the network
+
+### Hierarchical Routing
+- aggregate routers into regions, "autonomous systems"
+- routers in same AS run same routing protocol
+  - intra-AS routing protocol
+  - routers in different AS can run different intra-AS routing protocols
+- gateway router:
+  - at edge of its own AS
+  - has link to router in another AS
+- forwarding table configured by both intra- and inter-AS routing algorithms
