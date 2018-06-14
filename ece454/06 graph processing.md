@@ -95,3 +95,7 @@ Done
     output("combined_source", minDist);
   }
   ```
+
+## Aggregators
+- Act like mapreduce reducers
+- Final value is broadcast by the master to all vertices in the next superstep
