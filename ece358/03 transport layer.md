@@ -60,7 +60,7 @@ UDP checksum
 - sender has timer for oldest un-acked packet
   - when timer expires, ALL are resent
 
-### Stop-and-wait
+### Selective Repeat
 - Sender can have up to $N$ un-acked packets in the pipeline
 - receiver sends individual ack for each packet
 - sender maintains timer for each un-acked packet
