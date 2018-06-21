@@ -130,3 +130,48 @@ e.g. This **does not** have eventual consistency
 - Sequential consistency is a subset of causal consistency (it is a stronger definition)
 - Linearizability is a subset of sequential consistency
 - linearizable $\Rightarrow$ sequentially consistent $\Rightarrow$ causally consistent
+
+#### Guarantees: Monotonicity
+Every time you do a read, it should either be the same value as before, or a newer version
+
+Negative example:
+
+Process|time| | |
+-------|----|-|-
+P1|w(x)a|     |
+P2|w(x)b|     |
+P3|     |r(x)a|r(x)b
+P4|     |r(x)b|r(x)a
+
+Positive example:
+
+Process|time| | | | |
+-------|----|-|-|-|-
+P1|w(x)a|     | | |
+P2|w(x)b|     | | |
+P3|     |r(x)a|r(x)b| |
+P4|     |     |     |r(x)b|r(x)a
+
+#### Guarantees: Read your own writes
+If you write a value and then do a read, you should get the value you just wrote, not an older one
+
+## Protocols
+### Primary backup
+A server has the true copy
+
+### Quorum
+There is a maximum number of servers $f$ that are allowed to fail, and a value is considered written after a majority have written.
+
+Let $N$, $N_R$, and $N_W$ be total number of replicas for a data object $x$, the size of the read quorum, and the size of the write quorum.
+
+In distributed databases, RW quorums must satisfy:
+1. $N_R + N_W \gt N$ (read and write quorums overlap)
+2. $N_W + N_W \gt N$ (two write quorums overlap)
+
+#### Partial quorums
+Partial quorums lack overlap
+
+1. $N_R + N_W \gt N$ (strong consistency)
+2. $N_R + N_W \le N$ (weak consistency)
+
+Use last-timestamp-wins to deal with conflicts
