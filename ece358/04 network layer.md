@@ -278,3 +278,67 @@ Then, $d_x(y) = \min\{c(x,v) + d_v(y)\}$
   - at edge of its own AS
   - has link to router in another AS
 - forwarding table configured by both intra- and inter-AS routing algorithms
+
+Inter-AS tasks
+- Router in AS1 receives datagram destined for outside AS1
+- AS1 must learn which dests are reachable through AS2, and which through AS3
+- AS1 must propagate this reachability info to all routers in AS1
+- Use internal routing to find shortest path to exit nodes in AS1, add those to forwarding table
+- At output nodes, the connecting nodes in other ASes give info to AS1 that they can both reach the final destination
+  - Hot potato routing: pick closest one to forward to that will still get to the destination
+
+## Internet Intra-AS Routing
+- AKA **interior gateway protocols (IGP)**
+
+### RIP: Routing Information Protocol
+- included in BSD-UNIX since 1982
+- distance vector algorithm
+  - distance metric: number of hops (up to 15 max), each link has cost 1
+  - DVs exchanged with neighbours every 30 seconds in response message (this is **advertisement**)
+  - each advertisement: list of up to 25 destination subnets and the hops to get there
+- Link failure
+  - If no advertisement heard after 180s, neighbour/link declared dead
+  - routes via neighbour invalidated
+  - new advertisements sent to neighbours
+  - neighbours in turn send out new advertisements
+  - poison reverse used to stop infinite loops: max 16 hops
+- RIP routing tables managed by application level process called `routed`
+  - Advertisements sent as UDP packets
+
+### OSPF: Open Shortest Path First
+- uses link state
+  - topology map at each node, route computation using Dijkstra's
+- advertisement carries one entry per neighbour
+  - broadcast link state every 30 minutes even if there is no change
+- advertisements flooded to entire AS
+  - carried in OSPF messages directly over IP, not TCP or UDP
+- IS-IS routing protocol is nearly identical to OSPF
+- Adds security: messages authenticated
+- multiple same-cost paths allowed (compared to only one in RIP)
+- for each link, multiple cost metrics for different types of service (e.g. satellite link cost set to "low" for best effort ToS, high for real time ToS)
+- integrated uni- and multi-cast support: Multicast OSPF (MOSPF) uses same topology data base as OSPF
+- hierarchical OSPF in large domains
+
+### BGP: Border Gateway Protocol
+- the de facto inter-domain routing protocol
+- BGP provides each AS as a means to:
+  - eBGP: (external) obtain subnet reachability information form neighbour ASes
+  - iBGP: (internal) propagate reachability info to all AS-internal routers
+  - determine good routes to other networks based on reachability info and policy
+- Allows subnet to advertise its existence on internet
+- Messages, sent over TCP:
+  - **OPEN**: opens TCP connection to peer and authenticates sender
+  - **UPDATE**: advertises new path or withdraws old
+  - **KEEPALIVE**: keeps connection open in apsence of UPDATEs, also ACKs OPEN request
+  - **NOTIFICATION**: reports errors in previous msg, also used to close connections
+- BGP session: two BGP peers echange BGP messages:
+  - advertising paths to different destination network prefices ("path vector" protocol)
+  - exchanged over semi permanent TCP connections
+- Advertised prefix includes BGP attributes:
+  - **AS-PATH**: contains ASes through which prefix advertisement has passed
+  - **NEXT-HOP**: indicates internal-AS router to next-hop AS
+- Route selection
+  - local preference value attribute: policy decision
+  - shortest AS-PATH
+  - closest NEXT-HOP router
+  - additional criteria
