@@ -342,3 +342,36 @@ Inter-AS tasks
   - shortest AS-PATH
   - closest NEXT-HOP router
   - additional criteria
+- Routing policies
+  - inter-AS: admin wants control over how its traffic is routed, who routes through its network
+  - intra-AS: single admin, so no policy decisions needed
+- Scale
+  - hierarchical routing saves table size, reduced update traffic
+- Performance
+  - intra-AS: can focus on performance
+  - inter-AS: policy may dominate over performance
+
+### Broadcast Routing
+- Deliver packets from source to all other nodes
+- Source transmit $n$ copies to the $n$ destinations using unicast routing. **$n$-way-unicast (source duplication)**
+  - Simple but inefficient
+  - how does source determine recipient addresses?
+    - need additional protocol mechanisms (e.g. broadcast membership.) Adds overhead
+- Uncontrolled flooding
+  - When node receives broadcast, it sends to all neighbours except from the source it came from
+    - Problem: cycles lead to endless flooding
+    - Problem: broadcast storm. When a node is connected to more than two other nodes, it will create and forward multiple copies of the broadcast, resulting in endless multiplication of packets
+- Controlled flooding
+  - Only broadcast if it hasn't broadcast the same packet before
+  - Sequence number controlled flooding: source puts its address and a sequence number into the packet, and sends that to all neighbours
+  - Each node maintains a list of source address and sequence number of each broadcast packed it has received and forwarded
+  - When a node receives a broadcast packet, it first checks whether the packed is in the list. If so, it is dropped. Otherwise, it is duplicated and forwarded and added to the list
+- Reverse path forwarding (RPF)
+  - only forward packet if it arrived on the shortest path between node and source
+  - RPF does not require that a router knows the complete shortest path. Only needs to know the next neighbour on its unicast shortest path to the sender
+- Spanning tree
+  - No redundant packets received by any node
+  - first, construct spanning tree
+    - Each node sends unicast join message to centre node
+    - message forwarded until it arrives at a node already in tree
+  - nodes then forward or make copies along spanning tree
