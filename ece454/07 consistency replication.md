@@ -175,3 +175,32 @@ Partial quorums lack overlap
 2. $N_R + N_W \le N$ (weak consistency)
 
 Use last-timestamp-wins to deal with conflicts
+
+## Fault Tolerance
+
+Dependability
+- Availability (e.g. 99.99...%)
+- Reliability
+- Safety
+- Maintainability
+
+Fault types
+- Transient: goes away on its own
+- Intermittent: fault that happens only some of the time, often related to electrical contacts
+- Permanent: much easier to diagnose
+
+Masking failures
+- Have redundant, identical processes
+  - Arranged in a flat group: all have equal weight
+  - Arranged hierarchically: has a leader/coordinator
+- How many backups?
+  - If you need to tolerate $f$ failures, you need at least $2f+1$ processes to be able to have a majority
+  - If you have primary backups, you need $f+1$, but with the assumption that you will fix the broken ones soon
+
+### Consensus Problem
+- Has interfaces `propose(x)`, `decide()`
+- Each process calls `propose()` at most once, and `decide()` at most once
+- Safety properties
+  - Agreement: two calls to `decide()` never return different values
+  - Validity: If `decide()` returns `v`, then some process called `propose(v)`
+- Liveness/Termination policy: calls to `propose(x)` and `decide()` eventually terminate
