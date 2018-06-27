@@ -204,3 +204,26 @@ Masking failures
   - Agreement: two calls to `decide()` never return different values
   - Validity: If `decide()` returns `v`, then some process called `propose(v)`
 - Liveness/Termination policy: calls to `propose(x)` and `decide()` eventually terminate
+
+## Zookeeper
+Coordination
+- group membership
+- leader election
+- dynamic configuration
+- status monitoring
+- queueing
+- barriers
+- critical sections
+- sequentially consistent writes
+- serializable reads (may be stale)
+- client FIFO ordering
+
+Events
+- clients request change notifications
+- service does timely notifications
+- do not block write requests
+- clients get notification of a change before they see the result of a change
+
+Znodes
+- Can be ephemeral
+- Can be sequence (used for symmetry breaking)
