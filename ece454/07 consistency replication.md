@@ -227,3 +227,11 @@ Events
 Znodes
 - Can be ephemeral
 - Can be sequence (used for symmetry breaking)
+
+## Fault-tolerant RPCs
+Semantics under failures:
+1. client is unable to locate the server
+2. request message from the client to server is lost
+3. server crashes after receiving a request
+4. reply message from server to client is lost
+5. client crashes after sending a request
