@@ -235,3 +235,38 @@ Semantics under failures:
 3. server crashes after receiving a request
 4. reply message from server to client is lost
 5. client crashes after sending a request
+
+### Primary backup
+Update:
+1. Client sends to primary
+2. Primary locks exclusive lock
+3. Primary sends to backup
+4. Backup sends acknowledgement to primary
+5. Primary unlocks
+6. Primary sends an acknowledgement to client
+
+Read:
+1. client sends to primary
+2. Primary locks shared lock
+3. Primary gets data
+4. Primary unlocks
+5. Primary sends data to client
+
+### Quorum (ACID)
+1. Client to server to send data and acquire locks
+2. Server sends data to client
+3. Client to server to release locks
+4. Server sends acknowledgement
+
+To get linearizability:
+- For read quorum, we want $N_R + N_w \gt N$
+- For write quorum, $N_W + N_R \gt N$
+
+### Quorum (NoSQL key-value store)
+- No locking
+- Operations have timestamps, which are used to break ties (look at the fresher timestamp)
+
+## Anti Entropy
+Entropy is when servers have different values for the same key.
+
+Solution: use a Merkle tree, hashing the hashes of its child node values
