@@ -270,3 +270,23 @@ To get linearizability:
 Entropy is when servers have different values for the same key.
 
 Solution: use a Merkle tree, hashing the hashes of its child node values
+
+## Checkpoints
+2-phase commit is the A in ACID. 2-phase locking is the I in ACID.
+
+A **distributed checkpoint** is a collection of checkpoints (one per process).
+- If receive event of some message $m$ is recorded, then the send for $m$ is also recorded.
+
+The **recovery line** is the most recent distributed snapshot.
+
+### Coordinated checkpointing algorithm
+- Phase 1
+  - Coordinator sends `CHECKPOINT_REQUEST`
+  - Upon receiving the above message:
+    - Pause processing incoming messages
+    - Take local checkpoint
+    - Return ack to coordinator
+- Phase 2
+  - Coordinator waits for all processes to send ack
+  - Coordinator sends `CHECKPOINT_DONE` to all processes
+  - Upon receiving the above message, processes resume processing messages
