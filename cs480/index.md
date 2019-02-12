@@ -2,15 +2,13 @@
 
 ## Core concepts
 
-Concept | Description
---------|------------
-Supervised learning | Learning given a set of training data and expected results (labels)
-Unsupervised learning | Given training data but no labels, cluster the samples based on their contained data
-Reinforcement learning | Learning by rewarding favourable results or punishing unfavourable results
-Inductive bias | The implicit biases different techniques come in with, e.g. $K$NNs assume new examples should probably behave similarly to similar past data
-Bias | How close to the truth a model can actually get (more bias implies farther mean distance from the ideal)
-Variance | Regardless of how close to the truth a model gets, how consistent the predictions are
-Cross-validation | Average performance by splitting the data into $K$ groups, and for each $K$, using that group as validation data and the rest as training data
+- **Supervised learning**: Learning given a set of training data and expected results (labels)
+- **Unsupervised learning**: Given training data but no labels, cluster the samples based on their contained data
+- **Reinforcement learning**: Learning by rewarding favourable results or punishing unfavourable results
+- **Inductive bias**: The implicit biases different techniques come in with, e.g. $K$NNs assume new examples should probably behave similarly to similar past data
+- **Bias**: How close to the truth a model can actually get (more bias implies farther mean distance from the ideal)
+- **Variance**: Regardless of how close to the truth a model gets, how consistent the predictions are
+- **Cross-validation**: Average performance by splitting the data into $K$ groups, and for each $K$, using that group as validation data and the rest as training data
 
 ## Performance
 - **True positive**: Class 1 predicted as 1
@@ -95,6 +93,24 @@ $$h_{ML} = \operatorname*{argmax}_{h_i} P(e | h_i)$$
 
 If you pick two probability distribution families for the likelihood and the prior and arrive at a posterior in the same family as the prior, then we call the prior family a **conjugate prior** for the likelihood family.
 
+## Margins
+
+**Functional margin**:
+
+$$\hat{\gamma}_i = y_i(w^T x_i + b)$$
+
+If $y_i$ and our prediction $w^T x_i + b$ have the same sign, the functional margin $\hat{\gamma}_i$ will be positive. A large functional margin means a confident and correct prediction.
+
+The functional margin of a training set is the minimum functional margin of individual training examples.
+
+**Geometric margin**:
+
+$$\gamma_i = y_i \left(\frac{w^Tx_i + b}{||w||}\right)$$
+
+This refers to the distance between the hyperplane and a point.
+
+The geometric margin of a training set is the minimum distance between the hyperplane and any point in the training set.
+
 ## Decision trees
 
 ### Training
@@ -122,7 +138,7 @@ $$H(y | x) = \sum_v P(x = v) H(y | x = v)$$
 
 Given an example $x$, step through the decision tree until a leaf node with a prediction is reached.
 
-## $K$ Nearest Neighbours ($K$NN)
+## K Nearest Neighbours (KNN)
 
 ### Training
 
@@ -226,3 +242,67 @@ Calculate the probabilities of $P(y=c)$ for each class $c$.
 The decision boundary can be found by checking where $\frac{P(y=1|x)}{P(y=0|x)} = 1$, or for easier computation, $\ln \frac{P(y=1|x)}{P(y=0|x)} = 0$.
 
 **Laplace smoothing**: add an addition of a constant into the numerator and the denominator of the maximum likelihood estimator to avoid a probability ever going to zero, acting as hallucinated examples.
+
+## Support Vector Machines (SVNs)
+
+### Training
+
+We are attempting to maximize the geometric margin of a data set. We look for:
+
+$$\max_{w, b} \frac{1}{||w||}, \quad y_i(w^Tx_i+b) \ge 1 \quad \forall i \in \{1, ..., n\}$$
+
+We use **Lagrangian optimization**. In general, we want:
+
+$$\min_w f(w), \quad g_i(w) \le 0 \forall i, \quad h_i(w) = 0 \forall i$$
+
+Then, we define the **generalized Lagrangian**:
+
+$$L(w, \alpha, \beta) = f(w) + \sum_{i=1}^k \alpha_i g_i(w) + \sum_{i=1}^k \beta_i h_i(w)$$
+
+The **primal problem** is defined:
+
+$$\begin{aligned}
+\theta_P(w) &= \max_{\alpha,\beta: \alpha_i \ge 0} L(w, \alpha, \beta)\\
+&= \begin{cases}f(w),&w\text{ satisfies all constraints}\\\infty,&\text{otherwise}\end{cases}\\
+\end{aligned}$$
+
+We are concerned with finding:
+
+$$p^* = \min_w \theta_P(w) = \min_w \max_{\alpha,\beta: \alpha_i \ge 0} L(w, \alpha, \beta)$$
+
+Instead of minimizing $w$ first, we can minimize with respect to $w$:
+
+$$d^* = \max_{\alpha,\beta: \alpha_i \ge 0} \theta_D (\alpha,\beta) = \max_{\alpha,\beta: \alpha_i \ge 0} \min_w L(w, \alpha, \beta)$$
+
+The max min of a function is always less than the min max of the function, so $d^* \le p^*$. Under the following conditions, the **Karush-Kuhn-Tucker (KKT) conditions**, we can determine that they are equal:
+- $\frac{\partial}{\partial w_i} L(w^*, \alpha^*, \beta^*) = 0, \quad i = 1,...,n$
+- $\frac{\partial}{\partial \beta_i} L(w^*, \alpha^*, \beta^*) = 0, \quad i = 1,...,l$
+- $\alpha_i^* g_i(w^*) = 0, \quad i = 1,...,k$ (dual complementarity)
+- $g_i(w^*) \le 0, \quad i = 1,...,k$ (primal feasibility)
+- $\alpha^* \ge 0, \quad i = 1,...,k$ (dual feasibility)
+
+e.g. to minimize $x^2$ subject to $(x-2)^2 \le 1$:
+- $L(x, \lambda) = x^2 + \lambda((x-2)^2 - 1)$
+- To solve the primal problem:
+  - Take $\frac{\partial}{\partial \lambda} L(x, \lambda) = 0$
+  - Take $\frac{\partial}{\partial x} L(x, \lambda) = 0$
+  - Solve system of equations for $x^*$ and $\lambda^*$
+- To solve the dual problem:
+  - Solve $\frac{\partial}{\partial \lambda} L(x, \lambda) = 0$ for $x^*$
+  - Solve for $\frac{\partial g(\lambda)}{\partial \lambda} = 0$ after substituting $x = x^*$
+  - Take solutions where $\lambda \ge 0$
+
+To solve an optimal margin classifier, we want to solve $\min_{w,b}\frac{1}{2}||w||^2$, subject to $y_i(w^Tx_i+b) \ge 1$, $i=1,...,n$. We can rewrite the constraints as $g_i(w) = 1 - y_i(w^Tx_i+b) \le 0$ and solve the Lagrangian problem.
+
+The dual formulation:
+
+$$\max_\alpha \underbrace{\sum_{i=1}^n \alpha_i}_{\text{Depends only on}\\\text{dual variable}} - \underbrace{\frac{1}{2} \sum_{i,j=1}^n y_iy_j\alpha_i\alpha_j(x_i^T x_j)}_\text{Depends only on data}$$
+
+We replace $x_i^T x_j$ with a kernel $K(x_i, x_j)$ so that different kinds of nonlinearities can be represented. The kernel function is equivalent to $\phi(x_i)^T\phi(\hat x)$, for some feature mapping $\phi$. The dot product form is useful because it can be many less operations than actually computing the full multiplication. Some kernels:
+- **Linear**: $K(x,z) = x \cdot z$
+- **Polynomial**: $K(x,z) = (1 + x \cdot z)^d$
+- **Gaussian**: $K(x,z) = \exp\left(-\frac{||x-z||^2}{2\sigma^2}\right)$
+
+Due to the dual complementarity condition, we either have $\alpha_i = 0$ or $1 - y_i(w^Tx_i+b) = 0$. Only constraints where the latter is true are "active" constraints, and these are the **support vectors**. They are points lying on the edge of the margin.
+
+To allow for not all constraints to be met, soften the primal problem by using non-infinite values in the loss function, such as quadratic loss or hinge loss.
