@@ -49,7 +49,7 @@ If we are learning weights $w$ subject to loss function $f$:
 - Compute the gradient $g = \left.\frac{\partial f}{\partial w} \right\rvert_{w}$
 - Step down the gradient by setting $w' = w - \eta g$
 
-## Closed-form solution
+### Closed-form solution
 
 e.g. for squared loss with a 2-norm regularizer with no bias:
 
@@ -110,6 +110,14 @@ $$\gamma_i = y_i \left(\frac{w^Tx_i + b}{||w||}\right)$$
 This refers to the distance between the hyperplane and a point.
 
 The geometric margin of a training set is the minimum distance between the hyperplane and any point in the training set.
+
+## Kernalizing
+
+- Replace instances of $x$ with the feature mapping $\phi(x)$
+- Rewrite to depend on a dot product of the mapped features.
+  - For Perceptrons, since $w$ can always be written as a linear combination of $\phi(x_i)$ for all $i$, we can make the prediction depend on dot products between mapped features and not an explicit weight vector:
+  - $w\cdot\phi(x)+b = \left(\sum_{i=1}^n \alpha_i \phi(x_i)\right)\cdot \phi(x)+b = \sum_{i=1}^n \alpha_i(\phi(x_i) \cdot \alpha(x)) + b$
+- Then, the dot product can be replaced with a kernel $K$
 
 ## Decision trees
 
@@ -285,12 +293,13 @@ e.g. to minimize $x^2$ subject to $(x-2)^2 \le 1$:
 - $L(x, \lambda) = x^2 + \lambda((x-2)^2 - 1)$
 - To solve the primal problem:
   - Take $\frac{\partial}{\partial \lambda} L(x, \lambda) = 0$
-  - Take $\frac{\partial}{\partial x} L(x, \lambda) = 0$
-  - Solve system of equations for $x^*$ and $\lambda^*$
+  - Solve for where $x = 0$
+  - Plug $x$ back in to get the optimal value $p^*$
 - To solve the dual problem:
-  - Solve $\frac{\partial}{\partial \lambda} L(x, \lambda) = 0$ for $x^*$
-  - Solve for $\frac{\partial g(\lambda)}{\partial \lambda} = 0$ after substituting $x = x^*$
-  - Take solutions where $\lambda \ge 0$
+  - Solve $\frac{\partial}{\partial x} L(x, \lambda) = 0$ for $x^*$ in terms of $\lambda$
+  - Plug $x^*$ back into $L$ to get the dual formula $g$
+  - Solve $0 = \frac{\partial L}{\partial \lambda}$ for $\lambda$
+  - Plug that value back into $g$ to get the optimal value $d^*$
 
 To solve an optimal margin classifier, we want to solve $\min_{w,b}\frac{1}{2}||w||^2$, subject to $y_i(w^Tx_i+b) \ge 1$, $i=1,...,n$. We can rewrite the constraints as $g_i(w) = 1 - y_i(w^Tx_i+b) \le 0$ and solve the Lagrangian problem.
 
