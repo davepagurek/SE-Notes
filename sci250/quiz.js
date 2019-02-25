@@ -36,6 +36,7 @@ const allMatches = (str, regexp, callback) => {
 };
 
 allMatches(data, /\*\*(.+)\*\*: (.+)$/mg, (match) => questions.push({q: match[1], a: match[2]}));
+allMatches(data, /(?:^|- )([^-\n]*)\*\*(.+)\*\*([^:\n]+)$/mg, (match) => questions.push({q: match[2], a: (match[1] + match[2] + match[3]).replace(/\*\*/g, '')}));
 allMatches(data, /(?:^|- )([^\*\n-]+): (.+)$/mg, (match) => questions.push({q: match[1], a: match[2]}));
 allMatches(data, /\n([^-\*\n:]+)\n((?:[^\n]+\n)+)/g, (match) => {
   q = match[1];
