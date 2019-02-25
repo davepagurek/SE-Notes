@@ -121,7 +121,7 @@ Scales:
   - Smaller events are much more common than larger events
 - **Modified Mercalli**: qualitative measure of the destructive effect of the earthquake
 
-**Liquification** is the transformation of a cohesionleses material from a solid state into a liquefied state as a consequence of increased pore-pressures
+**Liquification** is the transformation of a cohesionless material from a solid state into a liquefied state as a consequence of increased pore-pressures
 - Happens with prolonged shear shaking of soils that aren't entirely stable
 
 ## 5. Volcanoes
@@ -189,7 +189,7 @@ Hydrological cycle:
 - Infiltration
 - Percolation
 
-The **drainage basic** of a water body is the area of land whose water eventually leads into that body of water. 
+The **drainage basin** of a water body is the area of land whose water eventually leads into that body of water. 
 
 Measuring stream discharge ($Q$): $Q = V \cdot A$
 - As you go downstream:
@@ -299,7 +299,7 @@ Stabilization methods:
 - Add frame supports to slope
 - Reduce load on slope (material removal, water drainage)
 
-**Angle of response**: maximum slope angle at which a material is stable, for loose "cohesionless" materials
+**Angle of repose**: maximum slope angle at which a material is stable, for loose "cohesionless" materials
 
 Clays
 - Quick
