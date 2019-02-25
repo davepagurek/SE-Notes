@@ -36,7 +36,7 @@ const allMatches = (str, regexp, callback) => {
 };
 
 allMatches(data, /\*\*(.+)\*\*: (.+)$/mg, (match) => questions.push({q: match[1], a: match[2]}));
-allMatches(data, /(?:^|- )([^-\n]*)\*\*(.+)\*\*([^:\n]+)$/mg, (match) => questions.push({q: match[2], a: (match[1] + match[2] + match[3]).replace(/\*\*/g, '')}));
+allMatches(data, /(?:^|- )([^-\n]*)\*\*(.{,25})\*\*([^:\n]+)$/mg, (match) => questions.push({q: match[2], a: (match[1] + match[2] + match[3]).replace(/\*\*/g, '')}));
 allMatches(data, /(?:^|- )([^\*\n-]+): (.+)$/mg, (match) => questions.push({q: match[1], a: match[2]}));
 allMatches(data, /\n([^-\*\n:]+)\n((?:[^\n]+\n)+)/g, (match) => {
   q = match[1];
@@ -44,7 +44,7 @@ allMatches(data, /\n([^-\*\n:]+)\n((?:[^\n]+\n)+)/g, (match) => {
   answers = [];
   allMatches(match[2], /^- ([^:\n]+)/mg, (match) => answers.push(match[1].replace(/\*\*/g, '')));
 
-  if (answers.length > 0) {
+  if (answers.length > 1) {
     questions.push({ q, a: answers.map(a => `- ${a}`).join("\n") });
   }
 
@@ -54,7 +54,7 @@ allMatches(data, /\n([^-\*\n:]+)\n((?:[^\n]+\n)+)/g, (match) => {
     subanswers = [];
     allMatches(match[2], /^  - ([^:\n]+)/mg, (match) => subanswers.push(match[1].replace(/\*\*/g, '')));
 
-    if (answers.length > 0) {
+    if (answers.length > 1) {
       questions.push({ q: subq, a: subanswers.map(a => `- ${a}`).join("\n") });
     }
   });
