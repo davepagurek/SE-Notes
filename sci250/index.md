@@ -153,9 +153,9 @@ Lava flow
   - Gradually cooled basalt forms columns
 
 Pyroclastic materials (emitted by eruptions)
-- Small: dust, ash
-- Medium: Lapilli
-- Large: Bombs, blocks
+- Small pyroclastics: dust, ash
+- Medium pyroclastics: Lapilli
+- Large pyroclastics: Bombs, blocks
 
 Volcano types
 - Fissure
