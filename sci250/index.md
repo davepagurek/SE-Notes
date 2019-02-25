@@ -347,13 +347,13 @@ Effects from glaciers
 - Rock moving
   - Plucking: ice freezes to rock and pulls it loose from glacial movement
   - Abrasion: polish or striations from glacial movement, producing rock flour
-  - Erosion types
-    - U-shaped valleys
-    - Hanging valleys, where small tributary glacial valleys are left stranded high above more quickly eroded central trunk valleys
-    - Cirques, where steep, half-bowl-shaped recesses are carved into mountains at the head of glacial valleys
-    - Arêtes: sharp ridges separating glacial valleys
-    - Horns: sharp peaks remaining after cirques have cut back into mountains on several sides
   - Drumlins: smooth, elongated hills formed under glaciers
+- Erosion types
+  - U-shaped valleys
+  - Hanging valleys, where small tributary glacial valleys are left stranded high above more quickly eroded central trunk valleys
+  - Cirques, where steep, half-bowl-shaped recesses are carved into mountains at the head of glacial valleys
+  - Arêtes: sharp ridges separating glacial valleys
+  - Horns: sharp peaks remaining after cirques have cut back into mountains on several sides
 
 Glacial deposits
 - **Till**: sediment deposited directly by glacial ice, unsorted
@@ -397,4 +397,4 @@ Important greenhouse gases:
 - Carbon dioxide ($CO_2$)
 - Methane ($CH_4$)
 - Nitrous oxide ($N_2O$)
-- Water ($H_2O)
+- Water ($H_2O$)
