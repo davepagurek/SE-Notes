@@ -398,3 +398,84 @@ Important greenhouse gases:
 - Methane ($CH_4$)
 - Nitrous oxide ($N_2O$)
 - Water ($H_2O$)
+
+## Mineral and Rock Resources
+
+Canada is in the top five countries for global production of:
+- Potash
+- Uranium
+- Nickel
+- Indium and sulphur
+- Diamonds, titanium, and gold
+
+Canada's top 5 mineral exports by value
+- Gold
+- Coal
+- Copper
+- Potash
+- Iron Ore
+
+**Reserves** are assets that could be obtained and then sold
+- **Sub-economic or conditional resources**: identified but low grade or dispersed, can't be mined profitably
+- **Undiscovered resources**: Hypothetical, speculative
+
+**Ore**: a rock that has a mineable mineral in it
+- **Concentration factor**: $CF = C_m/C_{mc}$
+  - $C_m$ is the concentration factor of the metal in the ore
+  - $C_{mc}$ is the concentration ofo the metal in average continental crust
+
+**Pegmatites**: course grained igneous rock
+- Slow cooling promotes crystal growth
+
+**Pluton** defines a body of intrusive igneous rock that formed from cooled magma in the earth
+-  Batholith: large area of intrusive rock
+-  Dike: vertical sheet of intrusive rock
+-  Sill: horizontal sheets of intrusive rock
+-  Stock: relatively small plutons
+
+**Kimberlite** is an ultramafic igneous rock containing crystallized carbon
+- Emplaced by gaseous explosions that quickly drive magma to the mantle and into the crust, where crystallization into diamonds occurs
+- If depressurization is allowed to happen, you get graphite
+
+In **hydrothermal vents**, dissolved gases, salts, minerals and gases dissolve in hot magmatic fluids, move into crevasses, and crystallize.
+
+Banded iron formation deposits
+- Iron materials eroded from rocks on land were transported into oceans
+- Oxygen started reacting with iron to produce oxides and precipitate
+- Deposited on the ocean floor
+- **magnetite** is formed when there is lots of oxygen
+- **hermatite** is formed when there is a lack of oxygen
+
+**Evaporite** rocks are formed by evaporation of water in restricted flow basins
+- Halite is an example of this
+- **Diapirs** are salt domes given rise to by thick salt beds
+  - Useful for nuclear waste repositories, natural gas storage
+
+**Placer deposits** formed by sorting dense minerals being transported by water or wind
+
+Secondary enrichment
+- Chemical weathering coupled with downward percolating water to remove undesirable elements, leaving concentrated desirable ones in upper zones
+- Chemical weathering and downward water flow that removes the desirable elements and concentrates them in lower zones
+
+**Astroblemes**: ancient impact craters with high concentrations of minerals locally deposited
+- **Progenetic**: Pre-impact deposits
+- **Syngenetic**: Deposits created by the impact
+- **Epigenetic**: Deposits from impact-induced thermal activity
+
+Mineral and rock resources
+- Metals
+- Nonmetallic minerals
+- Rock resources
+
+Ocean resources
+- Cobalt-rich ferromanganese crusts: formed by precipitation from sea water onto hard surfaces
+- Hydrothermal ore deposits: deposits along seafloor spreading ridges
+- Polymetallic nodules: golf ball to potato sized nodules widely dispersed on ocean floor
+
+Mining methods:
+- Underground
+- Surface (open surface)
+  - Open-pit
+  - Strip mining
+- Placer
+- In situ mining
