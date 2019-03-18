@@ -479,3 +479,78 @@ Mining methods:
   - Strip mining
 - Placer
 - In situ mining
+
+## Energy Resources and Fossil Fuels
+
+Fossil fuels
+- Rich in carbon and hydrogen
+- Produced only when organic materials are produced in environments with little oxygen (anaerobic)
+- **Crude oil**: mixture of hundreds of types of hydrocarbon molecules
+- **Natural gas**: gaseous hydrocarbon compound (most commonly methane)
+
+Oil and gas migration
+- Solid matter converted to liquids and gases
+- Petroleum is less dense than water
+- Migration separates hydrocarbons based on density
+
+## TODO
+
+## Environmental Assessment
+
+- Canadian Environmental Assessment Act, 2012
+  - Federal
+
+What does EA look at?
+- Potential environmental effects from construction, operation, maintenance
+- mitigating measure for adverse effects
+- predict significant effects after mitigation
+- prepare a follow-up program to verify accuracy and effectiveness
+
+Benefits of EA
+- Avoidance of problems
+- chance to communicate with public
+- protection of health
+- reduce project costs and delays
+- increased government accountability
+- appropriate use of natural resources
+
+Risks of:
+- Climate change
+- meteorological hazards (Termperature, humidity, evaporation),
+- surface water hazards
+- groundwater hazards
+- geotechnical hazards (landslides, mudslides)
+- geophysical hazards (earthquakes)
+- biological hazards (populations)
+- natural fire hazards
+
+Type of technical studies
+- atmospheric and meteorological
+  - air quality, hurricanes, wind speed, humidity, etc
+- geotechnical (slope stability, liquefaction potential, slope stability)
+- geological (seismo-technical data, faults, sinkholes, landforms)
+- hydrological (deterministic and stochastic modelling, interaction between surface and groundwater, sedimentation, currents)
+- hydro-geologic (groundwater quality and distribution, contamination risks)
+- biological (non-human biota, valued ecological components)
+  - VECs used as a means of representing a sensitive or representative species or significant element in an ecosystem
+
+BC dam
+- Adverse
+  - Aboriginal issues - they fish on the river
+  - Fish opportunities increase
+  - migratory birds
+  - fish and habitat
+- Benefits
+  - 40% electrical demand over next 20 years due to LNG sector growth and electric vehicle demand
+  - thousands of jobs during construction and from spinoff industries
+
+Pipeline
+- Adverse
+  - killer whale population
+  - increased air emissions
+  - indigenous traditional resources impacted
+- Benefits
+  - Longer term increased economic value to alverta, BC, canada
+  - market diversity (opportunity to sell to larger markets)
+  - less greenhouse gases than rail tankers
+  - Canada is a resource-based economy
