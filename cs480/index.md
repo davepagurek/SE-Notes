@@ -315,3 +315,100 @@ We replace $x_i^T x_j$ with a kernel $K(x_i, x_j)$ so that different kinds of no
 Due to the dual complementarity condition, we either have $\alpha_i = 0$ or $1 - y_i(w^Tx_i+b) = 0$. Only constraints where the latter is true are "active" constraints, and these are the **support vectors**. They are points lying on the edge of the margin.
 
 To allow for not all constraints to be met, soften the primal problem by using non-infinite values in the loss function, such as quadratic loss or hinge loss.
+
+## Ensemble Learning
+
+### Bagging
+
+Multiple versions of the same model are trained on different datasets. Given an initial dataset $D$, sample from it with replacement to create a bootstrapped dataset $D_*$ for each model instance. Take the average or majority prediction.
+
+Tends to reduce variance but increase bias.
+
+### Random Forests
+
+- Create $K$ different bootstrapped datasets to create $K$ decision trees
+  - At each node, pick $m$ features to possible switch on, and pick the one that yields highest information gain
+- Combine majority or average vote from all trees
+
+### Boosting (AdaBoost)
+
+- Create a bunch of weak learners (ever so slightly better than random)
+- Weight the misclassified examples more when training the next weak learner
+- Decide in aggregate from all Weighted weak learners
+
+For $m$ samples:
+- Initialize weights $D_1(i) = \frac{1}{m}$
+- For $t = 1, ..., T$:
+  - Train weak learner with weights $D_t$
+  - Get error $\epsilon_t = \sum_{i: h_t(x_i) \ne y_i} D_t(i)$ (the sum of the weights for the misclassified examples)
+  - Get $\alpha_t = \frac{1}{2} \ln \left(\frac{1-\epsilon_t}{\epsilon_t}\right)$
+  - Set $D_{t+1}(i) = \frac{D_t(i)}{Z_t} \times \begin{cases}e^{-\alpha_t}, &h_t(x_i) = y_i \\ e^{\alpha_t}, &h_t(x_i) \ne y_i \end{cases}$
+    - $Z_t$ is picked so $\sum_i D_t(i) = 1$
+- Assuming classes are $\{1, -1\}$, then the final output is the sign of the sum of the predictions of every weak learner
+
+## Active Learning
+
+Learning how to take samples to achieve the best results
+
+### Pool-based Uncertainty Sampling
+
+Given a pool of unlabelled samples, ask the oracle for a label on the most uncertain one.
+
+When using **version spaces**, pick samples that will eliminate half of the possible model parameters.
+
+### Query by Committee
+
+Train multiple models, and query instances for which committee members disagree.
+
+Disagreement metrics:
+- Vote Entropy: $x_{VE}^* = \operatorname*{argmax}_x - \sum_y \frac{\text{vote}_C(y,x)}{|C|} \log \frac{\text{vote}_C(y,x)}{|C|}$
+  - $\text{vote}_C(y,x)$ is the number of times $x$ is classified as $y$ by committee members
+- Soft Vote Entropy: $x_{SVE}^* = \operatorname*{argmax}_x - \sum_y P_C(y|x) \log P_C(y|x)$
+  - $P_C(y|x)$ is the probability of $x$ being labelled $y$ by committee members
+- KL divergence: $x_{KL}^* = \operatorname*{argmax}_x \frac{1}{C} \sum_{\theta \in C} \sum_y P_\theta(y|x) \log \frac{P_\theta(y|x)}{P_C(y|x)}$
+  - Average divergence of each committee member's $\theta$ prediction from the consensus
+
+Dealing with outliers
+- Density weighting: $x^* = \operatorname*{argmax} H_\theta(Y|x) \left(\frac{1}{U} \sum_{x' \in U} \text{sim}(x, x')\right)^\beta$
+  - $\text{sim}(x, x')$ is the average similarity of $x$ to all other instances in the pool $U$
+  - $\beta$ is the importance of the density term
+- Estimated error reduction: $\operatorname*{argmax}_x \sum_{x' \in U} \left(H_\theta(Y|x') - E_{Y|\theta,x}[H_{\theta^+}(Y|x')]\right)$
+  - $H_\theta(Y|x')$ is the uncertainty before the query
+  - $E_{Y|\theta,x}[H_{\theta^+}(Y|x')]$ is the expected uncertainty after querying for $x$
+
+## Unsupervised Learning
+
+### K-Means Clustering
+- Pick desired number of clusters $K$
+- Assume a distribution for each class (e.g. Gaussian)
+- Randomly assign parameters for each distribution
+- Iterate until Convergence:
+  - Assign instances to the most likely class given current parameters (expectation)
+  - Estimate new parameters given the elements last assigned to each class (maximization)
+
+Picking $K$:
+
+$$\begin{aligned}
+W(K) &= \sum^K_{k=1}\sum_{i \in I_k} ||x_i-\bar{x}_k||^2\\
+B(K) &= \sum_{k=1}^K n_k ||\bar{x}_k - \bar{x}||^2\\
+CH(K) &= \frac{B(K)/(K-1)}{W(K)/(N-K)}\\
+K^* &= \operatorname*{argmax}_{K \in \{2, ..., K_{max}\}} CH(K)\\
+\end{aligned}$$
+
+### Hierarchical Clustering
+
+Linkage (dissimilarity) functions:
+- Single: $d(G,H) = \min_{i\in G, j\in H} d_{i,j}$
+- Complete: $d(G,H) = \max_{i\in G, j\in H} d_{i,j}$
+- Average: $d(G,H) = \frac{1}{n_G \cdot n_H} \sum_{i\in G, j\in H} d_{i,j}
+
+Algorithm:
+- Until there are only two classes left:
+  - Create a matrix of linkages between each pair
+  - Take the argmin element and combine the classes for its row and column into a bigger class
+
+### Principal Component Analysis (PCA)
+- Normalize features (so each has zero mean)
+- Compute covariance matrix
+- Compute eigenvectors
+- Keep first $k$ eigenvectors and project onto them to get new features $z$
