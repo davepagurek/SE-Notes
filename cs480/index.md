@@ -470,3 +470,19 @@ Graph-based
 Semi-supervised SVM
 - $\min_{w,b} \sum_{i=1}^l \max(1-y_i(w^T x_i + b), 0) + \lambda_1 ||w||^2 + \lambda_2 \sum_{j=l+1}^{l+u} \max(1 - |w^T x_j + b|, 0)$
 - Prefer unlabelled points outside the margin
+
+## Neural Networks
+
+$\sigma(x) = \frac{1}{1 + e^x}$
+
+$\frac{\partial \sigma(x)}{\partial x} = \sigma(x)(1-\sigma(x))$
+
+Gradient descent:
+
+$$\begin{aligned}
+E &= \frac{1}{2} \sum_{m \in M} (y^{(m)} - o^{(m)})^2\\
+\frac{\partial E}{\partial w_i} = \frac{1}{2} \sum_{m \in M} \frac{\partial E \partial o^m}{\partial o^m \partial w_i}\\
+&= \frac{1}{2}\sum_{m \in M} \frac{\partial E}{\partial o^m}\left(\frac{\partial o^m \partial z}{\partial z \partial w_i}\right)\\
+&= -\sum_{m \in M} x_1^{(m)} o^{(m)} (1 - o^{(m)})(y^{(m)} - o^{(m)})\\
+\Delta w_i &= -\epsilon \frac{\partial E}{\partial w_i}\\
+\end{aligned}$$
