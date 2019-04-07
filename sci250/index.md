@@ -493,7 +493,41 @@ Oil and gas migration
 - Petroleum is less dense than water
 - Migration separates hydrocarbons based on density
 
-## TODO
+Hubbert curve: projected oil production bell curve, assuming a fixed amount of usable resources.
+
+**Crude oil**: mixture of hydrocarbon molecule types, formed 1.5-3km underground
+
+**Natural gas**: gaseous hydrocarbon compound (usually methane)
+
+**Coal**: organic matter (peak) that was compressed under high pressure to form dense, solid carbon structures
+
+Coal can be used by:
+- **Gasification**: Low heating of coal creates a gas with 15-30% the heat of methane
+- **Liquefaction**: Turning coal into liquid fuel (not practical yet, maybe in the future)
+
+**Tar sands**: sand deposits with 1-20% bitumen, petroleum rich in carbon and poor in hydrogen. Removed by strip mining.
+
+Ways to increase petroleum supplies:
+- Oil shales: sedimentary rock with kerogen that can be processed to produce liquid petroleum
+- Methane hydrates: methane molecules trapped in water or ice
+- Alternate natural gas sources: Natural gas found by looking in water trapped in deeper rocks
+- Enhanced oil recovery: Water injection, gas injection, thermal injection, chemical injection to get remaining oil out of the ground
+
+**Tight oil**: light crude oil in petroleum bearing regions with low permeability (e.g. shale or sandstone). Extracted by fracking.
+
+## Alternative Energy
+
+Nuclear fission
+- **Burner reactors** use up fuel (fissionable uranium)
+- **Breeder reactors** can give a neutron to Uranium-238 to make it fissionable Plutonium-239, or turn Thorium-232 into Uranium-233
+
+Nuclear fusion
+- Cleaner, more abundant fuel
+- Requires too much energy to start right now to be economically useful
+
+Solar
+- Heating: Passive, with no mechanical assistance, or active, where solar heated water is circulated
+- Electricity: Photovoltaic cells
 
 ## Environmental Assessment
 
@@ -554,3 +588,125 @@ Pipeline
   - market diversity (opportunity to sell to larger markets)
   - less greenhouse gases than rail tankers
   - Canada is a resource-based economy
+
+## Waste Disposal
+
+Types of waste
+- Municipal solid waste: non-liquid waste from homes, institutions, small businesses
+  - In Canada, mostly paper, organics, plastics
+  - In developing countries, mostly food scraps
+- Industrial solid waste: waste from consumer goods, mining, extracting, etc
+- Hazardous waste: toxic, chemically reactive
+- Wastewater: water from households, businesses, runoff
+
+**Leachate**: water passed through landfill reguse and contains dissolved materials from it
+
+- Industrial ecology: redesigning systems so it is more economically efficient to be physically efficient
+- Life cycle analysis: examine life cycle of a product and look for ways to make the process more ecologically efficient
+- Pollution prevention strategies: aimed at reducing waste and pollution at its source
+
+Sewage treatment:
+- Septic systems: solids separated, bacterial breakdown begins
+- Municipal sewage treatment
+  - Primary: removal of solids from organic liquid waste
+  - Secondary: bacteria, fungi dissolve and break down organic matter
+  - Tertiary: filtration, chlorination, other chemical treatment
+
+Hazardous waste treatment
+- Secure landfills: impervious liners, leachate removal systems
+- Surface impoundments: lined "ponds" that store liquid hazardous waste
+- Deep-well injection: a well drilled deep beneath the water table to inject waste into
+
+## Water pollution
+Agricultural pollution
+- Runoff from livestock
+- Fertilizers and organic waste
+- Herbicides and pesticides
+
+Thermal pollution
+- Warmer water (e.g. from power generation) holds less oxygen
+- Colder water (e.g. from reservoirs) can kill aquatic organisms
+
+Sediment pollution
+- From clear-cutting, mining
+- Can kill fish and fish eggs
+
+Water treatment processing steps
+- Coagulation
+- Flocculation (clumping)
+- Sedimentation
+- Ozonation
+- Filtration
+- Disinfection (UV and chlorination)
+
+Walkerton crisis
+- E. Coli breakout happened
+- One particular well was contaminated
+- Came from nearby farm
+
+Emerging contaminants
+- Pharmaceuticals
+- (Per|Poly)fluoralkyl substances (PFAS): soluble, persistent, bioaccumulative, toxic
+- Shale gas leakage
+
+## Air pollution
+
+Atmosphere layers (from the ground up):
+- Troposphere (0-10km)
+- Stratosphere (10-50km)
+- Mesosphere (50-80km)
+- Thermosphere (80+km)
+
+Time for materials to cycle through the atmosphere (residence time)
+- Carbon dioxide: 4 years
+- Oxygen gas: 7 million years
+- Nitrogen gas: 44 million years
+
+Ozone
+- Nitrogen dioxide in sunlight breaks down into nitrogen monoxide, which reacts with oxygen gas to make ozone
+- Ozone inhibits photosynthesis and causes medical problems in humans
+- Ozone layer in stratosphere blocks UV radiation
+- Chlorofluorocarbons (CFCs) attack ozone
+  - Montreal Protocol in 1987 limits CFC production
+
+CEPA identified harmful airborne substances
+- Criteria pollutants: judged to pose especially great threats to human health
+- Persistent organic pollutants: can last in the environment for a while, can enter food supplies, evaporate easily
+- Heavy metals
+- Toxic air pollutants
+
+## Policy and Law
+
+**Riparian rights**: A system for allocating water rights among those who possess land along a waterway or shoreline.
+
+Economic instruments
+- Property rights and taxes
+- Fees
+- Liability and assurance regimes
+- Tradeable permits
+
+**"Wicked" problems**: Poor match between bearers of costs and bearers of benefits.
+
+Canadian resource law
+- Surface water
+  - Shared resource managed by provinces or territories
+  - Transboundary waterways require federal intervention
+  - Surface water law: navigable streams treated as community property
+  - Riparian doctrine: whoever owns land next to a stream has the right to use that water
+  - Doctrine of prior appropriation: first user of the water has top priority
+- Groundwater
+  - Generally provincial if not inter-boundary
+- Non-renewable resource development
+  - Provincial jurisdiction
+  - Federal jurisdiction if there is potential for air pollution, transboundary water issues, harm to fisheries, etc
+- Mine reclamation
+
+**Exclusive Economic Zones (EEZs)**: 200 nautical mile from coast exclusive mineral rights use zone
+
+Division of maritime areas
+- Internal waters
+- Territorial waters: up to 12 miles
+- Contiguous zone: up to 24 miles adjacent zone
+- Exclusive Economic Zone: up to 200 miles
+- Continental shelf: Up to 350 miles or 100 miles from a depth of 2500m
+- International waters
