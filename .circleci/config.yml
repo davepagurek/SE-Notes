@@ -50,4 +50,14 @@ jobs: # a collection of steps
       - run:
           name: Deployment script
           command: ./deploy.sh
-
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - build
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              only: develop
