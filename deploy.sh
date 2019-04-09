@@ -10,5 +10,5 @@ rm .gitignore # We want all compiled assets! ALL OF THEM
 mv .gitignore.deploy .gitignore
 git add --all
 git commit -m "$message"
-git push --force "https://github.com/davepagurek/SE-Notes.git" develop:master
+git push --force "git@github.com:davepagurek/SE-Notes.git" develop:master
 echo "Deployed! Going to sleep..."
