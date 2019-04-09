@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
-const data = "" + fs.readFileSync('index.md');
+const data = "" + fs.readFileSync('notes.md');
 
 const questions = [];
 
