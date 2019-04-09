@@ -173,6 +173,7 @@ For **distance-weighted** $K$NN, compute a weight $w$ where $0 \le w \le 1$ for 
   - If we incorrectly predicted a 0 when the correct label was 1, add the input vector to the weight vector: $w' = w + \eta x$
   - If we incorrectly predicted a 1 when the correct label was 0, subtract the input vector to the weight vector: $w' = w - \eta x$
   - If we were correct, do nothing
+  - For multi-class, if incorrect $\hat{y}$ predicted: $w' = w + \phi(x,y) - \phi(x, \hat{y})$
 - Repeat until stable
 
 Intuitively, the non-bias terms of $w$ make a vector pointing toward the positive examples, normal to the decision plane. If an example was misclassified, it is because it was on the wrong side of the plane. The vector from the origin to the example should is in the opposite direction of $w$. So, adding it to $w$ makes the resulting $w'$ point slightly closer to that example than it did before.
@@ -486,3 +487,171 @@ E &= \frac{1}{2} \sum_{m \in M} (y^{(m)} - o^{(m)})^2\\
 &= -\sum_{m \in M} x_1^{(m)} o^{(m)} (1 - o^{(m)})(y^{(m)} - o^{(m)})\\
 \Delta w_i &= -\epsilon \frac{\partial E}{\partial w_i}\\
 \end{aligned}$$
+
+For RNNs, since weights are constrained to be the same over time, compute $\frac{\partial E}{\partial w_1}$ and $\frac{\partial E}{\partial w_2}$. Update $w_1$ and $w_2$ both by $\frac{\partial E}{\partial w_1} + \frac{\partial E}{\partial w_2}$ to enforce $w_1 = w_2$.
+
+GANs try to find:
+
+$$\begin{aligned}
+&\min_{W_g} \max_{W_d} \sum_n \log P(x_n \text{ is real; } W_d) + \log P(g(z_n; W_g) \text{ is fake; } W_d)\\
+\equiv &\min_{W_g} \max_{W_d} \sum_n \log d(x_n; W_d) + \log(1 - d(f(z_n; W_g); W-d))\\
+\end{aligned}$$
+
+To train, repeat until convergence:
+- For $k$ steps:
+  - Sample $z_1, ..., z_m$ from $P(z)$
+  - Sample $x_1, ..., x_m$ from training set
+  - Update the discriminator by ascending its stochastic gradient:
+    - $\Delta_{w_d}\left(\frac{1}{m} \sum_{n=1}^m[\log d(x_n; W_d) + \log(1 - d(g(z_n; W_g); W_d))]\right)$
+- Sample $z_1, ..., z_m$ from $P(z)$
+- Update the generator by ascending its stochastic gradient:
+  - $\Delta_{w_g}\left(\log(1 - d(g(z_n; W_g); W_d))\right)$
+
+## Structured prediction
+
+### Structured SVM
+
+Goal: learn a scoring function $s(x,y) \gt s(x, \hat y) \forall \hat y \ne y$ where $y$ is the true label and $\hat y$ is an impostor label. In general, $s(x, y)$ takes the form $w^T \phi(x, y)$, weights over a feature function.
+
+We try to find $\hat y = \operatorname*{argmax}_y w \cdot \phi(x, y)$.
+
+### Conditional Random Fields
+
+A log linear model is used to give the probability of a label sequence $y$ given an observation sequence $x$:
+
+$$p(y|x,w) = \frac{\exp\left(\sum_{j=1}^F w_j \phi_j(x,y)\right)}{\sum_{y'}\exp\left(\sum_{j=1}^F w_j \phi_j(x,y')\right)}$$
+
+Where $\phi_j(x,y) = \sum_{i=1}^N f_i (y_{i-1}, y_i, x_{1:N}, i)$. $x$ is a sequence of words, $y_i$ is the label for the current word, and $y_{i-1}$ is the label of the previous word.
+
+## Reinforcement Learning
+
+### Markov System of Rewards
+
+Given a state transition matrix $P$, a discount factor $\gamma$, and the reward for being in state $s_i$ is $r_i$, we want to find a vector $U^*(s_i)$, the expected discounted sum of future rewards starting at state $s_i$.
+
+Can solve by value iteration:
+
+$$\begin{aligned}
+U^1(s_i) &= r_i\\
+U^2(s_i) &= r_i + \gamma \sum_{j=1}^n P_{i,j} U^1 (s_j)\\
+&...\\
+U^{k+1}(s_i) &= r_i + \gamma \sum_{j=1}^n P_{i,j} U^k (s_j)\\
+\end{aligned}$$
+
+When there are actions that have probabilities of outcomes (e.g. in a Markov Decision Process):
+
+$$V^{t+1}(s_i) = \max_k \left[ r_i + \gamma \sum_{j=1}^n P^{(k)}_{i,j}V^t(s_j)\right]$$
+
+The best action $k$ in state $s_i$ is the argmax over $k$ of the previous equation.
+
+### Temporal difference
+
+$$V^\pi(s) = V^\pi(s) + \underbrace\alpha_\text{Learning rate} \underbrace{(\underbrace{r(s) + \gamma V^\pi(s')}_\text{target} - V^\pi(s))}_\text{Temporal difference}$$
+
+Basically, this is a running average of samples:
+
+$$\begin{aligned}
+x &\leftarrow R(s) + \gamma V^\pi (s')\\
+V^\pi (s) &\leftarrow (1-\alpha)V^\pi(s) + \alpha x\\
+\end{aligned}$$
+
+### Q Learning
+
+Make a table $Q: S \times A \rightarrow R$ representing the value of a state-action pair. The optimal policy is then:
+$$\pi^*(s) = \operatorname*{argmax}_a Q(s,a)$$
+
+Bellman's equation:
+
+$$Q(s,a) \leftarrow r(s) + \gamma \sum_{s'} P(s' | s,a) \max_{a'} Q(s', a')$$
+
+That is to say, for each possible state $s'$ you could end up in by performing $a$ at state $s$, take the sum the maximum expected reward you can get from performing some action from $s'$ multiplied by the probability of landing in $s'$. Scale this sum by $\gamma$ and add it to the received reward.
+
+#### Learning policy = behaviour policy (SARSA)
+
+- Take an action $a$ and observe $r$ and $s'$
+- Choose $a'$ from $s'$ according to policy
+- $Q(s,a) \leftarrow Q(s,a) + \alpha(r + \gamma Q(s', a') - Q(s,a))$
+
+#### Learning policy &ne; behaviour policy
+
+- Take an action $a$ and observe $r$ and $s'$
+- $Q(s,a) \leftarrow Q(s,a) + \alpha(r + \gamma \max_{a'} Q(s', a') - Q(s,a))$
+
+## Learning by Demonstration
+
+The goal here is to learn a policy that mimics expert actions.
+
+### Sequential Decision Making
+
+Learn a policy $\pi$ that maps sensory readings to action.
+
+$$\hat\pi = \operatorname*{argmin}_\pi E_{s \sim d_\pi}[l(s, \pi)]$$
+
+Here, $E$ is expected loss, $d_\pi$ is the distribution of states given that the policy is followed.
+
+### Forward Training
+
+For each policy $\pi_i$:
+- Sample $t$ steps of trajectory following $\pi_{i-1}$
+- For each of the steps, ask the expert what action would have been taken
+- Train policy $\pi_i$ by on the trajectory-action pairs
+
+### Stochastic Mixing Iterative Learning (SMILE)
+
+For each policy $\pi_i$:
+- Sample $t$ steps of trajectory following $\hat\pi_{i-1}$
+- For each of the steps, ask the expert what action would have been taken
+- Train policy $\hat\pi_i$ by adding those trajectory-action pairs to the training set
+- $\pi_i = (1-\alpha)^i \pi^* + \alpha\sum_{j=1}^i (1-\alpha)^{j-1} \hat\pi^{*j}$
+
+### Dataset Aggregation (Dagger)
+
+For each policy $\pi_i$:
+- Sample $t$ steps of trajectory following $\pi_{i-1}$
+- For each of the steps, ask the expert what action would have been taken
+- Add these trajectory-action pairs to the training set and train policy $\pi_i$ on it
+
+### Inverse Reinforcement Learning
+
+Given traces from an expert and a probability transition matrix $T$, create a reward function $R$ such that:
+
+$$E\left[\sum_{t=0}^\infty \gamma^t R^*(s_t) | \pi^*\right] \le E\left[\sum_{t=0}^\infty \gamma^t R^*(s_t) | \pi\right] \forall \pi$$
+
+#### Feature based reward function
+
+$$\begin{aligned}
+&E\left[\sum_{t=0}^\infty \gamma^t R^*(s_t) | \pi\right]\\
+=& E\left[\sum_{t=0}^\infty \gamma^t w^T \phi(s_t) | \pi\right]\\
+=& w^T E\left[\sum_{t=0}^\infty \gamma^t \phi(s_t) | \pi\right]\\
+=& w^T \mu(\pi)\\
+\end{aligned}$$
+
+$\mu$ is the expected cumulative discounted sum of feature values. Given $\phi: S \rightarrow \mathbb{R}^n$, find $w^*$ such that $w^{*T}\mu(\pi^*) \ge w^{*T}\mu(\pi) \forall \pi$.
+
+It suffices that $||\mu(\pi) - \mu(\pi^*)||_1 \le \epsilon$.
+
+#### Apprenticeship Learning
+
+- Pick a controller $\pi_0$
+- Iterate $n$ steps
+- Find a reward function such that the teacher maximally outperforms all previously found controllers
+- Find an optimal control policy $\pi_i$ for the current guess of the reward function
+
+## Independence criterion
+$$\frac{P(R=1|A=a)}{P(R=1|A=b)} \ge 1 - \epsilon$$
+
+This expresses the belief that traits relevant for classification are independent of certain attributes.
+
+## Interpretability
+
+### Local Surrogate
+- Choose an instance you want to have an explanation for
+- Perturb your dataset and get black box predictions for the new points
+- Weight new samples by their proximity to the region of interest
+- Fit a weighted, interpretable model (e.g. decision tree) on the dataset
+
+### Examples
+- Pick examples representative of different classifications from the dataset
+
+### Counterfactuals
+- Example of the smallest change to feature values that changes the prediction of the output
