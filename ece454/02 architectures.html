@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+<title>Architectures</title>
+</head>
+<body>
+
+<h1 id="architectures">Architectures</h1>
+<a href="index.html">Back to ece454</a>
+<div id="TOC">
+
+<ul><li>
+<a href="#multi-tiered-architectures">Multi-tiered architectures</a><ul><li><a href="#horizontal-vs-vertical-distribution">Horizontal vs Vertical distribution</a></li></ul>
+</li></ul>
+</div>
+<ul>
+<li>Component: modular unit with an interface</li>
+<li>Connector: mediates communication between components</li>
+<li>Software architecture: organization of components</li>
+<li>System architecture: instantiation of software architecture on real machines</li>
+<li>Autonomic system: adapts to environment by monitoring behaviour and adapting</li>
+</ul>
+<p>Styles:</p>
+<ul>
+<li>Layered<ul><li>communicating between layers takes one round trip (two message delays to send and receive)</li></ul>
+</li>
+<li>Object-based<ul><li>e.g. Java remote method invocation (RMI)</li></ul>
+</li>
+<li>data-centred</li>
+<li>event-based<ul><li>e.g. pub sub</li></ul>
+</li>
+</ul>
+<h2 id="multi-tiered-architectures">Multi-tiered architectures</h2>
+<p>Logical layers need to be mapped onto physical tiers. In a two tiered system (client/server), you can decide which parts to put on which tier.</p>
+<h3 id="horizontal-vs-vertical-distribution">Horizontal vs Vertical distribution</h3>
+<ul>
+<li>Vertical: logical layers of a system are separate physical tiers. (e.g. separate machines for application server, database)</li>
+<li>Horizontal: one logical layer is split across multiple machines (e.g. hash partitioned data sets, known as sharding)</li>
+</ul>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

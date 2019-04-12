@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+<title>Exam Review</title>
+</head>
+<body>
+
+<h1 id="exam-review">Exam Review</h1>
+<a href="index.html">Back to se464</a>
+<div id="TOC">
+
+<ul>
+<li><a href="#dependency-injection">Dependency injection</a></li>
+<li><a href="#cloud-computing">Cloud computing</a></li>
+<li><a href="#static-analysis">Static Analysis</a></li>
+</ul>
+</div>
+<h2 id="dependency-injection">Dependency injection</h2>
+<ul><li>Adheres to principles of programming to interfaces and not implementations.</li></ul>
+<h2 id="cloud-computing">Cloud computing</h2>
+<p>Characteristics</p>
+<ul>
+<li>On-demand service</li>
+<li>Broad network access</li>
+<li>Resource pooling</li>
+<li>Rapid elasticity (easily add/remove resources)</li>
+<li>Measured service (Metered storage, processing, bandwidth, etc)</li>
+</ul>
+<p>Benefits</p>
+<ul>
+<li>Agility</li>
+<li>Scalability</li>
+<li>Cost</li>
+<li>Reliability</li>
+<li>Security</li>
+</ul>
+<p>Technologies enabling this</p>
+<ul>
+<li>Virtualization<ul>
+<li>Emulation (e.g. QEMO), simulates partial hardware</li>
+<li>Paravirtualization (e.g. Xen), software interface to VM</li>
+<li>Full (e.g. VMWare), complete simulation of hardware</li>
+<li>Network (e.g. VPNs), abstract and virtualize networks</li>
+</ul>
+</li>
+<li>APIs<ul><li>REST</li></ul>
+</li>
+</ul>
+<p>What people look for in cloud security</p>
+<ul>
+<li>Confidentiality</li>
+<li>Integrity</li>
+<li>Authenticity</li>
+<li>Anonymity</li>
+<li>Privacy</li>
+</ul>
+<h2 id="static-analysis">Static Analysis</h2>
+<p>Optional type checking (annotations in Java)</p>
+<ul>
+<li>Adds type qualifiers into code (e.g. <code>@Immutable</code>, <code>@Nullable</code>)</li>
+<li>Compiler checks additional properties, guaranteeing additional behaviours</li>
+<li>Uses: String typing (e.g. regex format), command injection vulnerabilities</li>
+</ul>
+<p>Formalizations</p>
+<ul>
+<li>Stronger guarantees</li>
+<li>Less practical to implement</li>
+</ul>
+<p>e.g. dealing with null</p>
+<ul>
+<li>Make variables non null by default, making the dangerous case explicit</li>
+<li>One null check might not be enough if a method's side effects change state, so we can introduce annotations like <code>@Pure</code>, <code>@Deterministic</code>, <code>@SideEffectFree</code> to know when we have to re-check</li>
+</ul>
+<p>Typesystems need:</p>
+<ul>
+<li>Qualifier hierarchy</li>
+<li>Type introduction rules (make types for expressions)</li>
+<li>Type rules (define checker specific errors)</li>
+<li>Flow refinement (better types than the programmer wrote)</li>
+</ul>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

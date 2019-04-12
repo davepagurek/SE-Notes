@@ -1,0 +1,253 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<title>Midterm Review</title>
+</head>
+<body>
+
+<h1 id="midterm-review">Midterm Review</h1>
+<a href="index.html">Back to se464</a>
+<div id="TOC">
+
+<ul>
+<li>
+<a href="#architectural-styles">Architectural Styles</a><ul>
+<li><a href="#layered">Layered</a></li>
+<li><a href="#data-flow">Data Flow</a></li>
+<li><a href="#shared-memory">Shared memory</a></li>
+<li><a href="#interpreter">Interpreter</a></li>
+<li><a href="#implicit-invocation">Implicit invocation</a></li>
+<li><a href="#peer-to-peer">Peer-to-peer</a></li>
+</ul>
+</li>
+<li>
+<a href="#modelling">Modelling</a><ul>
+<li><a href="#uml">UML</a></li>
+<li><a href="#architectural-view">4+1 architectural view</a></li>
+</ul>
+</li>
+<li>
+<a href="#security">Security</a><ul>
+<li><a href="#principles">Principles</a></li>
+<li><a href="#access-control-methods">Access control methods</a></li>
+<li><a href="#trust-issues">Trust issues</a></li>
+</ul>
+</li>
+<li>
+<a href="#design">Design</a><ul>
+<li><a href="#principles-1">Principles</a></li>
+<li><a href="#patterns">Patterns</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="architectural-styles">Architectural Styles</h2>
+<h3 id="layered">Layered</h3>
+<ul>
+<li>Divide architecture into layers</li>
+<li>Each layer serves an API for the layers above it to consume</li>
+</ul>
+<h4 id="client-server">Client-server</h4>
+<ul>
+<li>Clients are a layer, server is a layer</li>
+<li>Use remote procedure call to communicate</li>
+</ul>
+<h3 id="data-flow">Data Flow</h3>
+<h4 id="batch-sequential">Batch sequential</h4>
+<ul><li>Data flows outputted from one program is inputted into another program, in order</li></ul>
+<h4 id="pipe-and-filter">Pipe and Filter</h4>
+<ul>
+<li>Components are filters; connections are pipes</li>
+<li>No shared state</li>
+</ul>
+<h3 id="shared-memory">Shared memory</h3>
+<h4 id="blackboard">Blackboard</h4>
+<ul><li>Shared data structure is the "blackboard", all components operate on it</li></ul>
+<h4 id="rule-based">Rule-based</h4>
+<ul><li>Interface: either add a fact/rule to the database, or run a query on the database</li></ul>
+<h3 id="interpreter">Interpreter</h3>
+<ul><li>Commands are entered, which are interpreted and executed and update the interpreter state</li></ul>
+<h3 id="implicit-invocation">Implicit invocation</h3>
+<ul>
+<li>Involve registering a listener for when an event occurs</li>
+<li>Event emitters are unaware of who they are publishing to</li>
+</ul>
+<h4 id="pub-sub">Pub-Sub</h4>
+<ul><li>There are different streams from a source for different kinds of data that listeners can subscribe to</li></ul>
+<h4 id="event-based">Event-based</h4>
+<ul><li>Listeners register to handle events from a source, where events can be of different types</li></ul>
+<h3 id="peer-to-peer">Peer-to-peer</h3>
+<ul>
+<li>State and behaviour are shared across peers</li>
+<li>Communication/synchronization occurs over the network</li>
+</ul>
+<h2 id="modelling">Modelling</h2>
+<ul><li>How to evaluate modelling approaches:<ul>
+<li>What is the scope/purpose?</li>
+<li>What basic elements are being modelled?</li>
+<li>Does it help determine the architectural style?</li>
+<li>Does it model static or dynamic aspects?</li>
+<li>Does it model non-functional or functional aspects?</li>
+<li>How ambiguous or accurate or precise is it?</li>
+<li>What viewpoints are supported?</li>
+<li>Are viewpoints consistent with each other?</li>
+</ul>
+</li></ul>
+<h3 id="uml">UML</h3>
+<ul><li>Types we need to know:<ul>
+<li>Static structure<ul>
+<li><a href="http://www.uml-diagrams.org/component-diagrams.html">Component diagrams</a></li>
+<li><a href="http://www.uml-diagrams.org/deployment-diagrams.html">Deployment diagrams</a></li>
+<li><a href="http://www.uml-diagrams.org/class.html">Class diagrams</a></li>
+</ul>
+</li>
+<li>Dynamic behaviour<ul>
+<li><a href="http://www.uml-diagrams.org/sequence-diagrams.html">Sequence diagrams</a></li>
+<li><a href="http://www.uml-diagrams.org/use-case-diagrams.html">Use case diagrams</a></li>
+<li><a href="http://www.uml-diagrams.org/state-machine-diagrams.html">State machine diagrams</a></li>
+</ul>
+</li>
+</ul>
+</li></ul>
+<h3 id="architectural-view">4+1 architectural view</h3>
+<ul>
+<li>Describes a system from the points of view of different stakeholders</li>
+<li>4 views:<ul>
+<li>
+<strong>Development view</strong>: From a programmer's point of view, the classes involved</li>
+<li>
+<strong>Logical view</strong>: Functionality provided to end users</li>
+<li>
+<strong>Physical view</strong>: Engineer's point of view of the interacting components doing the tasks</li>
+<li>
+<strong>Process view</strong>: Explains the dynamic parts of the system and the system's behaviour (what logic does it follow?)</li>
+</ul>
+</li>
+<li>+1 view:<ul><li>
+<strong>Scenarios</strong>: explaining how the system works for various user case studies</li></ul>
+</li>
+</ul>
+<h2 id="security">Security</h2>
+<h3 id="principles">Principles</h3>
+<ul>
+<li>
+<strong>Least privilege</strong>: give each component as little knowledge as you can to have it work</li>
+<li>
+<strong>Fail-safe defaults</strong>: default to no access unless explicitly given</li>
+<li>
+<strong>Economy of mechanism</strong>: keep security mechanisms simple</li>
+<li>
+<strong>Complete mediation</strong>: Do an access check for every request, in case a cached permission becomes out of date</li>
+<li>
+<strong>Open design</strong>: do not rely on secrecy to make your system secure</li>
+<li>
+<strong>Separation of privilege</strong>: create distinct tiers of privilege for different parties so one can't abuse extra privileges</li>
+<li>
+<strong>Least common mechanism</strong>: Try to have as few as possible types of parties communicating using the same mechanisms because it is easier to stay secure when tailoring a communication mechanism for one use case than trying to handle a bunch at once</li>
+<li>
+<strong>Psychological acceptability</strong>: security should not make the system harder to use, because then it's easier for users to skip it or do it wrong</li>
+<li>
+<strong>Defense in depth</strong>: have multiple layers of security mechanisms so it's harder to breach your system</li>
+</ul>
+<h3 id="access-control-methods">Access control methods</h3>
+<ul>
+<li>
+<strong>Discretionary</strong>: determine access based on the identity of the requestor. There may be a table mapping users to the permissions they have (such as ability to write to a database)</li>
+<li>
+<strong>Mandatory</strong>: Use policies to determine access. For example, given a security level for each user, use logic to figure out which level should be able to have access (e.g. if a file is in directory <span class="math inline">\(x\)</span>, only users in security class <span class="math inline">\(y\)</span> and above should be able to see it)</li>
+</ul>
+<h3 id="trust-issues">Trust issues</h3>
+<ul>
+<li>
+<strong>Impersonation</strong>: A malicious user impersonates a trusted user</li>
+<li>
+<strong>Fraud</strong>: A malicious user does not do what they agreed to do (e.g. not shipping a product after receiving payment)</li>
+<li>
+<strong>Misrepresentation</strong>: Spreading false information about a party</li>
+<li>
+<strong>Collusion</strong>: Using multiple malicious users to shift trust toward/away from someone to give the appearance of being the majority opinion</li>
+<li>
+<strong>Addition of unknowns</strong>: When a new user is added to the system and everyone is unsure if they can be trusted and the new user is unsure of they can trust everyone</li>
+</ul>
+<h2 id="design">Design</h2>
+<h3 id="principles-1">Principles</h3>
+<h4 id="stupid">STUPID</h4>
+<ul><li>Avoid:<ul>
+<li>singleton</li>
+<li>tight coupling</li>
+<li>untestable</li>
+<li>premature optimization</li>
+<li>indescriptive naming</li>
+<li>duplication</li>
+</ul>
+</li></ul>
+<h4 id="solid">SOLID</h4>
+<ul><li>Aim for:<ul>
+<li>Single responsibility</li>
+<li>open for extension, closed for modification</li>
+<li>(Liskov) If <span class="math inline">\(S\)</span> is a subtype of <span class="math inline">\(T\)</span>, then you should be able to pass an <span class="math inline">\(S\)</span> anywhere a <span class="math inline">\(T\)</span> is accepted without breaking the correctness of the program<ul>
+<li>Method <strong>arguments</strong> on the subtype need to be <strong>as specific or less specific</strong> than the supertype: the arguments for the method in <span class="math inline">\(S\)</span> <span class="math inline">\(\supseteq\)</span> the arguments allowed for <span class="math inline">\(T\)</span>
+</li>
+<li>Method <strong>return codes</strong> on the subtype need to be <strong>as specific or more specific</strong> than the supertype: the return value for the method in <span class="math inline">\(S\)</span> <span class="math inline">\(\subseteq\)</span> the return value for <span class="math inline">\(T\)</span>
+</li>
+<li>The only <strong>exceptions</strong> that can be thrown in <span class="math inline">\(S\)</span> are <strong>as specific or more specific</strong> than in the supertype: the exceptions in <span class="math inline">\(S\)</span> <span class="math inline">\(\subseteq\)</span> the exceptions in <span class="math inline">\(T\)</span>
+</li>
+</ul>
+</li>
+<li>Interface segregation: only show key methods, do not support methods irrelevant to behaviour</li>
+<li>Dependency inversion: high level things shouldn't depend on low level ones (e.g. try to depend on an interface instead of a concrete class)</li>
+</ul>
+</li></ul>
+<h4 id="low-level-principles">Low level principles</h4>
+<ul>
+<li>Encapsulate what varies</li>
+<li>Program to interfaces, not implementations</li>
+<li>favour composition over inheritance</li>
+<li>strive for loose coupling<ul><li>Kinds of coupling, from tight to loose:<ul>
+<li>Content: modules depend on the inner workings of each other</li>
+<li>Global: data is shared globally, can be changed by anything</li>
+<li>Control: one module controls the flow of another by passing in things like flags</li>
+<li>Data: common data is shared, e.g. through parameters</li>
+<li>Message: any kind of communication happens through messages</li>
+<li>None: no communication</li>
+</ul>
+</li></ul>
+</li>
+</ul>
+<h3 id="patterns">Patterns</h3>
+<h4 id="factory">Factory</h4>
+<h4 id="adapter">Adapter</h4>
+<h4 id="interpreter-1">Interpreter</h4>
+<h4 id="template-method">Template method</h4>
+<h4 id="abstract-factory">Abstract factory</h4>
+<h4 id="builder">Builder</h4>
+<h4 id="prototype">Prototype</h4>
+<h4 id="singleton">Singleton</h4>
+<h4 id="adapter-1">Adapter</h4>
+<h4 id="bridge">Bridge</h4>
+<h4 id="composite">Composite</h4>
+<h4 id="decorator">Decorator</h4>
+<h4 id="facade">Façade</h4>
+<h4 id="flyweight">Flyweight</h4>
+<h4 id="proxy">Proxy</h4>
+<h4 id="chain-of-responsibility">Chain of responsibility</h4>
+<h4 id="command">Command</h4>
+<h4 id="iterator">Iterator</h4>
+<h4 id="mediator">Mediator</h4>
+<h4 id="memento">Memento</h4>
+<h4 id="observer">Observer</h4>
+<h4 id="state">State</h4>
+<h4 id="strategy">Strategy</h4>
+<h4 id="visitor">Visitor</h4>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+<title>Introduction</title>
+</head>
+<body>
+
+<h1 id="introduction">Introduction</h1>
+<a href="index.html">Back to ece454</a>
+<div id="TOC">
+
+<ul>
+<li>
+<a href="#distributed-system-theory">Distributed system theory</a><ul>
+<li><a href="#hiding-latencies">Hiding latencies</a></li>
+<li><a href="#bad-assumptions">Bad assumptions</a></li>
+<li><a href="#types-of-distributed-systems">Types of distributed systems</a></li>
+<li><a href="#shared-memory-vs-message-passing">Shared memory vs message passing</a></li>
+</ul>
+</li>
+<li><a href="#cluster-computing-systems">Cluster computing systems</a></li>
+</ul>
+</div>
+<h2 id="distributed-system-theory">Distributed system theory</h2>
+<p>What are they?</p>
+<ul>
+<li>Appear as a single coherent system</li>
+<li>Communicate and coordinate actions with message passing</li>
+</ul>
+<p>Why?</p>
+<ul>
+<li>Resource sharing saves money</li>
+<li>Integrating multiple systems can simplify business processes</li>
+<li>A centralized system may not be powerful or dependable enough to solve a given problem</li>
+<li>In some scenarios, users are mobile and distributed around the world</li>
+</ul>
+<p>Distributed systems are usually used as <strong>middleware</strong>: a layer of software separating applications from underlying systems. Used for communication, transactions, service composition, reliability, etc</p>
+<p>Goals:</p>
+<ul>
+<li>support resource sharing</li>
+<li>make distribution transparent</li>
+<li>open</li>
+<li>scalable</li>
+</ul>
+<p>Things we want to hide when distributing resources:</p>
+<ul>
+<li>access</li>
+<li>location</li>
+<li>migration</li>
+<li>relocation</li>
+<li>replication</li>
+<li>concurrency</li>
+<li>failure</li>
+</ul>
+<p>Openness</p>
+<ul>
+<li>Interoperability</li>
+<li>Composability</li>
+<li>Extension</li>
+<li>Separation of policy from mechanism</li>
+</ul>
+<p>Scalability expands along these axes:</p>
+<ul>
+<li>size</li>
+<li>geography</li>
+<li>administration</li>
+</ul>
+<h3 id="hiding-latencies">Hiding latencies</h3>
+<ul>
+<li>Batch messages</li>
+<li>Partition data or computation</li>
+<li>Replication<ul><li>e.g. use distributed memory cache to speed up web apps</li></ul>
+</li>
+</ul>
+<h3 id="bad-assumptions">Bad assumptions</h3>
+<ul>
+<li>Network is reliable</li>
+<li>Network is secure</li>
+<li>Network is homogeneous</li>
+<li>Topology does not change</li>
+<li>Latency is zero</li>
+<li>Bandwidth is infinite</li>
+<li>Transport cost is zero</li>
+<li>There is one administrator</li>
+</ul>
+<h3 id="types-of-distributed-systems">Types of distributed systems</h3>
+<ul>
+<li>web sites and web services</li>
+<li>high performance computing</li>
+<li>cluster computing</li>
+<li>cloud and grid computing</li>
+<li>transaction processing</li>
+<li>enterprise application integration</li>
+<li>distributed pervasive systems / IoT</li>
+<li>sensor networks</li>
+</ul>
+<h3 id="shared-memory-vs-message-passing">Shared memory vs message passing</h3>
+<p>Shared memory:</p>
+<ul>
+<li>communication uses shared variables</li>
+<li>usually a cleaner abstraction, but limited to what can fit on one computer</li>
+<li>often called "parallel computing"</li>
+</ul>
+<p>Message passing</p>
+<ul>
+<li>Processes communicate with messages over a network</li>
+<li>More scalable, but now has to explicitly deal with messages</li>
+<li>often called "distributed computing"</li>
+</ul>
+<h2 id="cluster-computing-systems">Cluster computing systems</h2>
+<p>These systems distribute CPU or IO intensive jobs across multiple servers (e.g. Hadoop)</p>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

@@ -1,0 +1,164 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<title>Divide and Conquer algorithms</title>
+</head>
+<body>
+
+<h1 id="divide-and-conquer-algorithms">Divide and Conquer algorithms</h1>
+<a href="index.html">Back to cs341</a>
+<div id="TOC">
+
+<ul><li>
+<a href="#sloppy-and-exact-recurrence-relations">Sloppy and Exact Recurrence Relations</a><ul>
+<li><a href="#e.g.-max-min-problem">e.g. Max-Min Problem</a></li>
+<li><a href="#e.g.-non-dominated-pairs">e.g. Non-dominated pairs</a></li>
+<li><a href="#e.g.-closest-pair">e.g. Closest pair</a></li>
+<li><a href="#e.g.-multiprocessor-multiplication">e.g. Multiprocessor Multiplication</a></li>
+<li><a href="#e.g.-matrix-multiplication">e.g. Matrix multiplication</a></li>
+<li><a href="#e.g.-selection-problem-quickselect">e.g. Selection problem (QuickSelect)</a></li>
+</ul>
+</li></ul>
+</div>
+<ol>
+<li>
+<strong>Divide</strong>: Split the problem up into subproblems</li>
+<li>
+<strong>Conquer</strong>: Solve subproblems recursively</li>
+<li>
+<strong>Combine</strong>: Merge subproblem solutions into the whole problem solution</li>
+</ol>
+<h2 id="sloppy-and-exact-recurrence-relations">Sloppy and Exact Recurrence Relations</h2>
+<p>Exact recurrence for mergesort:<br>
+<span class="math display">\[T(n) = \begin{cases}
+T(\lceil\frac{n}{2}\rceil) + T(\lfloor\frac{n}{2}\rfloor) + cn, &amp;n \gt 1\\
+d, &amp;n = 1\\
+\end{cases}\]</span></p>
+<p>Sloppy recurrence for mergesort, removing floors and ceils:<br>
+<span class="math display">\[T(n) = \begin{cases}
+2T(\frac{n}{2}) + cn, &amp;n \gt 1\\
+d, &amp;n = 1\\
+\end{cases}\]</span></p>
+<p>These are identical for when <span class="math inline">\(\exists i \in \mathbb{Z} \mid n = 2^i\)</span>, and the sloppy recurrence only makes sense in this case.</p>
+<p><strong>Master Theorem</strong> provides the exact solution for <span class="math inline">\(n=2^i\)</span>. The <strong>complexity</strong> of this can be extrapolated for all values of <span class="math inline">\(n\)</span>, which will have the same growth rate.</p>
+<h3 id="e.g.-max-min-problem">e.g. Max-Min Problem</h3>
+<ul>
+<li>
+<strong>Divide</strong>: Split <span class="math inline">\(A\)</span> into two equal sized subarrays <span class="math inline">\(A_L\)</span> and <span class="math inline">\(A_R\)</span>
+</li>
+<li>
+<strong>Conquer</strong>: Find the max and min elements of each subarray recursively, returning <span class="math inline">\(max_L, min_L, max_R, min_R\)</span>
+</li>
+<li>
+<strong>Combine</strong>: Find the total max and min, as the respective max and min of the results from <span class="math inline">\(A_L\)</span> and <span class="math inline">\(A_R\)</span>
+</li>
+</ul>
+<p>Recurrence relation:<br>
+<span class="math display">\[T(n) = 2T\left(\frac{n}{2}\right) + \Theta(1)\]</span></p>
+<p><span class="math inline">\(T(n) \in Theta(n)\)</span>, according to Master Theorem, but we can count exact comparisons, obtaining the sloppy recurrence:<br>
+<span class="math display">\[C(n) = 2C\left(\frac{n}{2}\right)+2, \quad C(2) = 1\]</span></p>
+<p>When <span class="math inline">\(n\)</span> is a power of 2, the solution is <span class="math inline">\(C(n)=\frac{3n}{2}-2\)</span>, so it is optimal for these values of <span class="math inline">\(n\)</span>.</p>
+<h3 id="e.g.-non-dominated-pairs">e.g. Non-dominated pairs</h3>
+<p>Given two points <span class="math inline">\((x_1, y_1), (x_2, y_2)\)</span>, we say <span class="math inline">\((x_1, y_1)\)</span> dominates <span class="math inline">\((x_2, y_2)\)</span> if <span class="math inline">\(x_1 \ge x_2 \land y_1 \ge y_2\)</span>. Given a set of points, find all the points that are not dominated by any other point in the set.</p>
+<ul>
+<li>Pre-sort the points in <span class="math inline">\(S\)</span> by <span class="math inline">\(x\)</span> coordinate.</li>
+<li>
+<strong>Divide</strong>: Let the first <span class="math inline">\(n/2\)</span> points be <span class="math inline">\(S_1\)</span>, and the last be <span class="math inline">\(S_2\)</span>.</li>
+<li>
+<strong>Conquer</strong>: Recursively solve the subproblem defined by the two sets <span class="math inline">\(S_1\)</span> and <span class="math inline">\(S_2\)</span>.</li>
+<li>
+<strong>Combine</strong>: No point in <span class="math inline">\(S_1\)</span> will dominate a point in <span class="math inline">\(S_2\)</span> because of the <span class="math inline">\(x\)</span>-sorting. Therefore, we can remove the points in <span class="math inline">\(S_1\)</span> that are dominated by a point in <span class="math inline">\(S_2\)</span>, which can be done in <span class="math inline">\(O(n)\)</span> time.</li>
+</ul>
+<p><img src="img/nondominated.png"></p>
+<h3 id="e.g.-closest-pair">e.g. Closest pair</h3>
+<p>Given a set of <span class="math inline">\(Q\)</span> distinct points, find two points <span class="math inline">\(Q[i] = (x,y)\)</span> and <span class="math inline">\(Q[j] = (x', y')\)</span> such that the distance <span class="math inline">\(\sqrt{(x'-x)^2+(y'-y)^2)}\)</span> is minimized.</p>
+<ul>
+<li>Presort the points by <span class="math inline">\(x\)</span> value</li>
+<li>We can then easily divide the points into two groups with the line <span class="math inline">\(x=Q[n/2].x\)</span>
+</li>
+<li>Find the min distances from each of the two groups, take the min of those</li>
+<li>Find candidates from the right of the first group and the left of the second group that might be closer together than this. Sort them by Y value</li>
+<li>If any of those are closer together than the previous min, use that min instead</li>
+</ul>
+<h4 id="time-complexity">Time complexity</h4>
+<ul>
+<li>Construct critical strip: <span class="math inline">\(O(n)\)</span>
+</li>
+<li>sort: <span class="math inline">\(\Theta(n\log n)\)</span>
+</li>
+<li>check pairs of points: <span class="math inline">\(\Theta(n)\)</span>
+</li>
+</ul>
+<p>Recurrence relation:<br>
+<span class="math display">\[\begin{align*}
+T(n)&amp;=2T\left(\frac{n}{2}\right)+\Theta(n\log n)\\
+\therefore T(n) &amp;\in \Theta(n\log^2 n)
+\end{align*}\]</span></p>
+<h3 id="e.g.-multiprocessor-multiplication">e.g. Multiprocessor Multiplication</h3>
+<p>Given two <span class="math inline">\(k\)</span>-bit integers <span class="math inline">\(x\)</span> and <span class="math inline">\(Y\)</span>, find the <span class="math inline">\(2k\)</span>-bit positive integer <span class="math inline">\(Z\)</span> = <span class="math inline">\(XY\)</span>.<br>
+<img src="img/multiplication_slow.png"></p>
+<p><strong>Karatsuba's algorithm</strong>: reduce the number of subproblems from 4 to 3<br>
+<img src="img/multiplication.png"></p>
+<p>In practice, we actually want <span class="math inline">\(k\)</span> to be a power of 2, so it's more than just a convenient assumption. If <span class="math inline">\(k\)</span> is not a power of two, we can pad with zeroes to the left size so that the number of bits is a power of 2. This does not affect complexity.</p>
+<h3 id="e.g.-matrix-multiplication">e.g. Matrix multiplication</h3>
+<p>Compute the <span class="math inline">\(n\)</span> by <span class="math inline">\(n\)</span> matrix product of two <span class="math inline">\(n\)</span> by <span class="math inline">\(n\)</span> matrices <span class="math inline">\(C=AB\)</span></p>
+<p><span class="math display">\[A=\begin{bmatrix}
+a &amp; b\\
+c &amp; d
+\end{bmatrix}, \quad B=\begin{bmatrix}
+e &amp; f\\
+g &amp; h
+\end{bmatrix}, \quad C=\begin{bmatrix}
+r &amp; s\\
+t &amp; u
+\end{bmatrix}\]</span></p>
+<p><span class="math display">\[\begin{align*}
+r &amp;= ae+bg\\
+t&amp;=ce+dg\\
+s&amp;=af+bh\\
+u&amp;=cf+dh\\
+\end{align*}\]</span></p>
+<p>We require 8 multiplications of <span class="math inline">\(\frac{n}{2}\)</span> by <span class="math inline">\(\frac{n}{2}\)</span> matrices in order to compute <span class="math inline">\(C=AB\)</span>.</p>
+<p>Recurrence relation:<br>
+<span class="math display">\[\begin{align*}
+T(n)&amp;=8T\left(\frac{n}{2}\right) + \Theta(n^2)\\
+&amp;\in \Theta(n^3)
+\end{align*}\]</span></p>
+<p>The <strong>Strassen Algorithm</strong> makes the improvement:<br>
+<span class="math display">\[T(n)=7T\left(\frac{n}{2}\right)+\Theta(n^2) \in \Theta(n^{\log_2 n})\]</span></p>
+<h3 id="e.g.-selection-problem-quickselect">e.g. Selection problem (QuickSelect)</h3>
+<p>Given an array <span class="math inline">\(A\)</span> of length <span class="math inline">\(n\)</span> of distinct integer values, and an integer <span class="math inline">\(k\)</span> where <span class="math inline">\(1\le k \le n\)</span>, find the <span class="math inline">\(k\)</span>th smallest integer in <span class="math inline">\(A\)</span>.</p>
+<p>The <strong>median</strong> is a special case of <strong>Selection</strong> where <span class="math inline">\(k=\left\lceil \frac{n}{2} \right\rceil\)</span>.</p>
+<p>Pick a <strong>pivot</strong> element <span class="math inline">\(y\)</span> in the array <span class="math inline">\(A\)</span>, and restructure <span class="math inline">\(A\)</span> so that all elements less than <span class="math inline">\(y\)</span> precede <span class="math inline">\(y\)</span> in <span class="math inline">\(A\)</span>, and all elements greater occur after it. This is <span class="math inline">\(\Theta(n)\)</span>.</p>
+<p>Suppose <span class="math inline">\(A[i] = y\)</span> after restructuring. Let <span class="math inline">\(A_L\)</span> be the subarray <span class="math inline">\(A[1..i]\)</span> and let <span class="math inline">\(A_R\)</span> be the subarray <span class="math inline">\(A[i+1..n]\)</span>. Then, the <span class="math inline">\(k\)</span>th smallest element of <span class="math inline">\(A\)</span> is:</p>
+<p><span class="math display">\[\begin{cases}
+y, &amp;k = i\\
+\text{the } k\text{th smallest element of } A_L, &amp;k \lt i\\
+\text{the } (k-i)\text{th smallest element of } A_R, &amp;k \gt i\\
+\end{cases}\]</span></p>
+<p>We say the pivot is <strong>good</strong> if <span class="math inline">\(i\)</span> is in the middle half of <span class="math inline">\(A\)</span>. The probability that a pivot is good is <span class="math inline">\(\frac{1}{2}\)</span>. On average, we will encounter a good pivot after 2 iterations. If the pivot is good, then <span class="math inline">\(|A_L| \le \frac{3n}{4}\)</span> and <span class="math inline">\(|A_R| \le \frac{3n}{4}\)</span>.</p>
+<p>With an expected linear amount of work, the size of the subproblem is reduced by at least 25%. It follows that the average case complexity of QuickSelect is linear.</p>
+<h4 id="achieving-on-worst-case-complexity">Achieving <span class="math inline">\(O(n)\)</span> worst case complexity</h4>
+<ol>
+<li>Given <span class="math inline">\(n\ge 15\)</span>, write <span class="math inline">\(n=10r+5+\theta\)</span>, where <span class="math inline">\(r\ge 1\)</span> and <span class="math inline">\(0\le \theta \le 9\)</span>
+</li>
+<li>Divide <span class="math inline">\(A\)</span> into <span class="math inline">\(2r+1\)</span> disjoin subarrays of 5 elements, called <span class="math inline">\(B_1,...,B_{2r+1}\)</span>.</li>
+<li>For <span class="math inline">\(1\le i \le 2r+1\)</span>, find the median <span class="math inline">\(B_i\)</span> nonrecursively, and call it <span class="math inline">\(m_i\)</span>.</li>
+<li>Define <span class="math inline">\(M\)</span> as the array of the medians <span class="math inline">\(m_1, ..., m_{2r+1}\)</span>.</li>
+<li>Find the median <span class="math inline">\(y\)</span> of the array <span class="math inline">\(M\)</span> recursively</li>
+<li>Use the element <span class="math inline">\(y\)</span> as the pivot for <span class="math inline">\(A\)</span>.</li>
+</ol>
+<p>This method has a running time of <span class="math inline">\(O(n)\)</span>, including selecting a pivot, and the recursive call given that the pivot ensures best-case performance in QuickSelect.</p>
+<p>The algorithm iterates through a list 5 elements at a time finding the medians of these 5-part groups using regular <span class="math inline">\(n^2\)</span> sort (because it always has 5 elements, it is <span class="math inline">\(O(5^2)\)</span>, which is a constant <span class="math inline">\(c\)</span>.) That piece has a runtime of <span class="math inline">\(O(c\frac{n}{5})=O(n)\)</span>. Then it uses this version of QuickSelect recursively to find the median of the <span class="math inline">\(\frac{n}{5}\)</span> medians, which is <span class="math inline">\(T(\frac{n}{5})\)</span> to get the median of the medians, plus <span class="math inline">\(T(\frac{7n}{10})\)</span> to QuickSelect the at most <span class="math inline">\(\frac{7n}{10}\)</span> remaining elements by the median that was found. This recurrence relation yields a runtime of <span class="math inline">\(O(n)\)</span>.</p>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

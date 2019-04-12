@@ -1,0 +1,240 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<title>Intractability and Decidability</title>
+</head>
+<body>
+
+<h1 id="intractability-and-decidability">Intractability and Decidability</h1>
+<a href="index.html">Back to cs341</a>
+<div id="TOC">
+
+<ul>
+<li><a href="#decision-problems">Decision Problems</a></li>
+<li>
+<a href="#complexity-class-p">Complexity class P</a><ul><li><a href="#e.g.-cycles-in-graphs">e.g. Cycles in graphs</a></li></ul>
+</li>
+<li><a href="#polynomial-time-turing-reductions">Polynomial-time Turing Reductions</a></li>
+<li>
+<a href="#travelling-salesman-problem">Travelling Salesman Problem</a><ul>
+<li><a href="#trivial-reductions">Trivial reductions</a></li>
+<li><a href="#less-trivial-reductions">Less trivial reductions</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="decision-problems">Decision Problems</h2>
+<ul>
+<li>Problems where the answer is "yes" or "no"</li>
+<li>The size of an instance <span class="math inline">\(Size(I)\)</span> is the number of bits required to specify or encode the instance <span class="math inline">\(I\)</span>
+</li>
+</ul>
+<h2 id="complexity-class-p">Complexity class P</h2>
+<ul>
+<li>An algorithm <span class="math inline">\(A\)</span> solves a decision problem <span class="math inline">\(\Pi\)</span> if <span class="math inline">\(A\)</span> finds the correct answer for <span class="math inline">\(\Pi\)</span> in finite time</li>
+<li>A <strong>polynomial time algorithm</strong> has the complexity <span class="math inline">\(O(n^k)\)</span> where <span class="math inline">\(k\)</span> is a positive integer and <span class="math inline">\(n = Size(I)\)</span>
+</li>
+<li>Complexity class P denotes the set of alld ecision problems that have polynomial time algorithms solving them</li>
+</ul>
+<h3 id="e.g.-cycles-in-graphs">e.g. Cycles in graphs</h3>
+<p><strong>Cycle</strong>: <span class="math inline">\(G\)</span> is an undirected graph. Does <span class="math inline">\(G\)</span> contain a cycle?</p>
+<ul><li>Cycle problem <span class="math inline">\(\in\)</span> P:<ul><li>
+<span class="math inline">\(G\)</span> has a cycle iff a BFS or DFS has a non-tree edge</li></ul>
+</li></ul>
+<p><strong>Hamiltonian cycle</strong>: <span class="math inline">\(G\)</span> is an undirected graph. Does <span class="math inline">\(G\)</span> contain a cycle that passes through every vertex in <span class="math inline">\(V(G)\)</span> exactly once?</p>
+<ul><li>Hamiltonian cycle problem is NP-complete: there is no polynomial time algorithms to solve this problem</li></ul>
+<p><strong>0-1 Knapsack Decision</strong>: Given a list of profits <span class="math inline">\(P\)</span>, a list of weights <span class="math inline">\(W\)</span>, a capacity <span class="math inline">\(M\)</span> and a target profit <span class="math inline">\(T\)</span>, is there an <span class="math inline">\(n\)</span>-tuple <span class="math inline">\([x_1,x_2,...,x_n] \in \{0,1\}^n\)</span> such that <span class="math inline">\(\sum w_ix_i \le M\)</span> and <span class="math inline">\(\sum p_ix_i \ge T\)</span>?</p>
+<ul><li>0-1 Knapsack Decision is NP-complete</li></ul>
+<p><strong>Rational Knapsack Decision</strong>: Given a list of profits <span class="math inline">\(P\)</span>, a list of weights <span class="math inline">\(W\)</span>, a capacity <span class="math inline">\(M\)</span> and a target profit <span class="math inline">\(T\)</span>, is there an <span class="math inline">\(n\)</span>-tuple <span class="math inline">\([x_1,x_2,...,x_n] \in [0,1]^n\)</span> such that <span class="math inline">\(\sum w_ix_i \le M\)</span> and <span class="math inline">\(\sum p_ix_i \ge T\)</span>?</p>
+<ul><li>Rational Knapsack Decision <span class="math inline">\(\in\)</span> P</li></ul>
+<h2 id="polynomial-time-turing-reductions">Polynomial-time Turing Reductions</h2>
+<p>Suppose <span class="math inline">\(\Pi_1\)</span> and <span class="math inline">\(\Pi_2\)</span> are problems (not necessarily decision problems.) A hypothetical algorithm of <span class="math inline">\(A_2\)</span> to solve <span class="math inline">\(\Pi_2\)</span> is called an <strong>oracle</strong> for <span class="math inline">\(\Pi_2\)</span>.</p>
+<p>Suppose <span class="math inline">\(A_1\)</span> is an algorithm that solves <span class="math inline">\(\Pi_1\)</span>, assuming an existence of an oracle <span class="math inline">\(A_2\)</span> for <span class="math inline">\(\Pi_2\)</span>. Then we say that <span class="math inline">\(A_1\)</span> is a <strong>Turing reduction</strong> from <span class="math inline">\(\Pi_1\)</span> to <span class="math inline">\(\Pi_2\)</span>, denoted:<br>
+<span class="math display">\[\Pi_1 \le^T \Pi_2\]</span></p>
+<p>A turing reduction <span class="math inline">\(A\)</span> is a polynomial time Turing reduction if the running time for <span class="math inline">\(A\)</span> is polynomial under the assumption that the oracle <span class="math inline">\(A_2\)</span> has <strong>unit cost</strong> running time.</p>
+<p>If there is a polynomial time Turing reduction from <span class="math inline">\(\Pi_1\)</span> to <span class="math inline">\(\Pi_2\)</span>, we write:<br>
+<span class="math display">\[\Pi_1 \le^T_P \Pi_2\]</span></p>
+<p>The complecity of a reduction takes into account:</p>
+<ul>
+<li>The complexity of <span class="math inline">\(A_1\)</span>
+</li>
+<li>The number of calls to the oracle <span class="math inline">\(A_2\)</span>
+</li>
+</ul>
+<h2 id="travelling-salesman-problem">Travelling Salesman Problem</h2>
+<p><strong>TSP-Optimization</strong>: Given a graph <span class="math inline">\(G\)</span> and edge weights <span class="math inline">\(w : E \rightarrow \mathbb{Z}^+\)</span>, find a Hamiltonian cycle <span class="math inline">\(H\)</span> in <span class="math inline">\(G\)</span> such that <span class="math inline">\(w(H) = \sum_{e \in H}w(e)\)</span> is minimized</p>
+<p><strong>TSP-Optimal Value</strong>: Given a graph <span class="math inline">\(G\)</span> and edge weights <span class="math inline">\(w : E \rightarrow \mathbb{Z}^+\)</span>, find the minimum <span class="math inline">\(T\)</span> such that there exists a Hamiltonian cycle <span class="math inline">\(H\)</span> in <span class="math inline">\(G\)</span> with <span class="math inline">\(w(H)=T\)</span>.</p>
+<p><strong>TSP-Decision</strong>: Given a graph <span class="math inline">\(G\)</span> and edge weights <span class="math inline">\(w : E \rightarrow \mathbb{Z}^+\)</span> and a target <span class="math inline">\(T\)</span>, does there exist a Hamiltonian cycle <span class="math inline">\(H\)</span> in <span class="math inline">\(G\)</span> with <span class="math inline">\(w(H) \le T\)</span>?</p>
+<h3 id="trivial-reductions">Trivial reductions</h3>
+<ul>
+<li>TSP decision <span class="math inline">\(\le^T_P\)</span> TSP optimization</li>
+<li>TSP decision <span class="math inline">\(\le^T_P\)</span> TSP optimal value</li>
+</ul>
+<h3 id="less-trivial-reductions">Less trivial reductions</h3>
+<p>TSP optimal value <span class="math inline">\(\le^T_P\)</span> TSP decision. This can be done using <strong>binary search</strong>: use the oracle to see if it's possible to reach a target halfway through the search space. Depending on the response, we can then cut the search space in half by 2.</p>
+<p>This means we need to have upper and lower bounds computed to start with.</p>
+<ul>
+<li>If we know there are no negative value cycles, we can select 0 as the lower bound</li>
+<li>We can make the high value <span class="math inline">\(\sum_{e \in G} w(e)\)</span>
+</li>
+</ul>
+<h1 id="certificates">Certificates</h1>
+<ul>
+<li>A <strong>certificate</strong>: for a yes-instance <span class="math inline">\(I\)</span> is some exxtra information <span class="math inline">\(C\)</span> which makes it easy to verify that <span class="math inline">\(I\)</span> is a yes-instance</li>
+<li>Suppose <span class="math inline">\(Ver\)</span> is a <strong>certificate validation algorithm</strong>. Then it is an algorithm that verifies certificates for yes-instances. Then <span class="math inline">\(Ver(I,C)\)</span> outputs "yes" if <span class="math inline">\(I\)</span> is a yes-instance and <span class="math inline">\(C\)</span> is a valid certificate for <span class="math inline">\(I\)</span>. If the output is "no", then either <span class="math inline">\(I\)</span> is a no-instance, or <span class="math inline">\(I\)</span> is a yes-instance and <span class="math inline">\(C\)</span> is an invalid certificate.</li>
+<li>A certificate verification algorithm <span class="math inline">\(Ver\)</span> is a <strong>polynomial time</strong> certificate verification algorithm if the complexity of <span class="math inline">\(Ver\)</span> is <span class="math inline">\(O(n^k), k \in \mathbb{N}, n = Size(I)\)</span>
+</li>
+</ul>
+<h2 id="np">NP</h2>
+<ul>
+<li>Certificate verification algorithm: Solves a decision problem <span class="math inline">\(\Pi\)</span> provided:<ul>
+<li>for every yes-instance <span class="math inline">\(I\)</span>, there must exist a <span class="math inline">\(C\)</span> such that <span class="math inline">\(Ver(I,C)\)</span> outputs "yes"</li>
+<li>For every no instance <span class="math inline">\(I\)</span> and every certificate <span class="math inline">\(C\)</span>, <span class="math inline">\(Ver(I,C)\)</span> outputs "no"</li>
+</ul>
+</li>
+<li>NP denotes the set of all decision problems that have polynomial time certificate verification algorithms solving them.</li>
+</ul>
+<h3 id="p-is-in-np">P is in NP</h3>
+<p>Let <span class="math inline">\(A\)</span> be a polynomial-time algorithm to solve <span class="math inline">\(\Pi \in P\)</span>. Define a certificate verification algorithm <span class="math inline">\(Ver\)</span> for <span class="math inline">\(\Pi\)</span>:</p>
+<pre><code>Ver(I,C):
+  run A(I) (ignore C)</code></pre>
+<h3 id="polynomial-time-reductions">Polynomial-time Reductions</h3>
+<p>For a decision problem <span class="math inline">\(\Pi\)</span>, let <span class="math inline">\(I(\Pi)\)</span> denote the set of all instances of <span class="math inline">\(\Pi\)</span>. Let <span class="math inline">\(I_{yes}\Pi\)</span> and <span class="math inline">\(I_{no}\Pi\)</span> be all the yes- and no-instances.</p>
+<p>Let <span class="math inline">\(\Pi_1, \Pi_2\)</span> be decision problems. Transformation from <span class="math inline">\(\Pi_1\)</span> to <span class="math inline">\(\Pi_2\)</span> exists if there exists a function <span class="math inline">\(f : I(\Pi_1) \rightarrow I(\Pi_2)\)</span> such that:</p>
+<ul>
+<li>
+<span class="math inline">\(f(I)\)</span> is computable in polynomial time</li>
+<li>if <span class="math inline">\(I \in I_{yes}(\Pi_1)\)</span>, then <span class="math inline">\(f(I) \in I_{yes}(\Pi_2)\)</span>
+</li>
+<li>if <span class="math inline">\(I \in I_{no}(\Pi_1)\)</span>, then <span class="math inline">\(f(I) \in I_{no}(\Pi_2)\)</span> (basically always prove this with contrapositive so that you are dealing with yes-instances)</li>
+</ul>
+<p>Properties</p>
+<ul>
+<li>If <span class="math inline">\(\Pi_1 \le_P \Pi_2\)</span> and <span class="math inline">\(\Pi_2 \in P\)</span>, then <span class="math inline">\(\Pi_1 \in P\)</span>
+</li>
+<li>If <span class="math inline">\(\Pi_1 \le_P \Pi_2\)</span> and <span class="math inline">\(\Pi_2 \le_P \Pi_3\)</span>, then <span class="math inline">\(\Pi_1 \le_P \Pi_3\)</span>
+</li>
+</ul>
+<h2 id="np-completeness">NP-Completeness</h2>
+<p>NPC denotes the set of all decision problems <span class="math inline">\(\Pi\)</span> that satisfy:</p>
+<ul>
+<li><span class="math inline">\(\Pi \in NP\)</span></li>
+<li>For all <span class="math inline">\(\Pi' \in NP, \Pi' \le_P \Pi\)</span>
+</li>
+</ul>
+<p>If <span class="math inline">\(P \cup NPC \ne \emptyset\)</span>, then <span class="math inline">\(P = NP\)</span>.</p>
+<h3 id="cnf-sat-to-clique">3-CNF-SAT to Clique</h3>
+<p>Let <span class="math inline">\(I\)</span> be the instance of 3-CNF-SAT consisting of <span class="math inline">\(n\)</span> variables, <span class="math inline">\(x_1, ..., x_n\)</span> and <span class="math inline">\(m\)</span> clauses <span class="math inline">\(C_1, ..., C_n\)</span>. Let <span class="math inline">\(C_i = {z_1^i, z_2^i, z_3^i}\)</span>, <span class="math inline">\(1 \le i \le m\)</span>.</p>
+<p>Define <span class="math inline">\(f(I) = (G,k), G=(V,E)\)</span>, where:</p>
+<ul>
+<li><span class="math inline">\(V = \{v_j^i: 1 \le i \le m, 1 \le j \le 3\}\)</span></li>
+<li>
+<span class="math inline">\(v_j^i v_{j'}^{i'} \in E\)</span> iff <span class="math inline">\(i \ne i' \land z^i_j \ne \bar{z_{j'}^{i'}}\)</span>
+</li>
+</ul>
+<p>e.g.<br>
+<span class="math inline">\(C_1 = \{x_1, \bar{x_2}, \bar{x_3}\}\)</span><br>
+<span class="math inline">\(C_2 = \{\bar{x_1}, x_2, x_3\}\)</span><br>
+<span class="math inline">\(C_3 = \{x_1, x_2, \bar{x_3}\}\)</span><br>
+We use this to create a clique by taking the non-edges (complementing the graph). There is a triangle on each level. Connect two vertices if the corresponding literals are negations of each other.</p>
+<h4 id="yes-mapping-to-yes">Yes mapping to yes</h4>
+<p><span class="math inline">\(x_1 = T, x_2 = T, x_3 = F\)</span>. Choose a true literal from each clause, and take the corresponding vertices in the graph. There are <span class="math inline">\(m\)</span> different levels, so no two of these literals are negatives of each other. This means that there are no edges in the complementary graph, which forms a clique in the real graph. Therefore yes in 3-CNF-SAT maps to yes in Clique.</p>
+<p>In the reverse direction, suppose <span class="math inline">\(f(I)\)</span> is a yes instance. We will prove that <span class="math inline">\(I\)</span> is a yes instance.</p>
+<ul>
+<li>A clique of size <span class="math inline">\(m\)</span> implies there is one vertex on each level</li>
+<li>Assign the corresponding literals to be true</li>
+<li>The truth assignment is consistent: A clique in the graph means the vertices are connected. If the vertices are connected, then they are not negations of each other, so we will not be assigning a variable and also its negation to be true.</li>
+<li>There is now a literal in each clause.</li>
+</ul>
+<h3 id="vertex-cover-to-subset-sum">Vertex cover to Subset sum</h3>
+<p>Subset sum: Given a list of sizes <span class="math inline">\(S=[s_1, ..., s_n]\)</span> and a target sum <span class="math inline">\(T\)</span>, does there exist a subset of these sizes <span class="math inline">\(J \subseteq \{1,...,n\} \mid \sum_{i \in J} s_i = T\)</span>?</p>
+<p>Suppose <span class="math inline">\(I = (G,k)\)</span> where <span class="math inline">\(G=(V,E), |V|=n, |E|=m\)</span> and <span class="math inline">\(1 \le k \le n\)</span>. Suppose <span class="math inline">\(V=\{v_1,...,v_n\}\)</span> and <span class="math inline">\(E=\{e_0,...,e_{m-1}\)</span>. For <span class="math inline">\(1 \le i \le n, 0 \le j \le m-1\)</span>, let:<br>
+<span class="math display">\[c_{ij}=\begin{cases}
+1, &amp;e_j \text{ is incident with } v_i\\
+0, &amp;\text{otherwise}
+\end{cases}\]</span></p>
+<p>Define <span class="math inline">\(n+m\)</span> sizes and a target sum <span class="math inline">\(W\)</span> as follows:<br>
+<span class="math display">\[\begin{align*}
+a_i &amp;= 10^m + \sum_{j=10}^{m-1}{c_{ij} 10^j}, &amp;1 \le i \le n\\
+b_j &amp;= 10^j, &amp;0 \le j \le m-1\\
+W &amp;= k \cdot 10^m + \sum_{j=0}^{m-1}{2\cdot 10^j}
+\end{align*}\]</span><br>
+Then define <span class="math inline">\(f(I)=(a_1, ..., a_n, b_0, ..., b_{m-1}, W)\)</span>.</p>
+<p>e.g.<br>
+Start with a vertex cover and <span class="math inline">\(k=2\)</span>.<br>
+<img src="img/cover.png"></p>
+<p>We then can make the subset sum:</p>
+<pre><code>W = k  2  2  2  2  2
+       e4 e3 e2 e1 e0
+v1: 1  0  0  0  1  1 = a1
+v2: 1  1  0  1  1  0 = a2
+v3: 1  0  1  1  0  1 = a3
+v4: 1  0  1  0  0  0 = a4
+v5: 1  1  0  0  0  0 = a5
+                   1 = b0
+                1  0 = b1
+             1  0  0 = b2
+          1  0  0  0 = b3
+       1  0  0  0  0 = b4
+
+
+W  = 2 2 2 2 2 2
+a2 = 1 1 0 1 1 0
+a3 = 1 0 1 1 0 1
+   + ___________
+     2 1 1 2 1 1 (a2 + a3)
+b0 =           1 (choose these b values)
+b1 =         1 0
+b3 =     1 0 0 0
+b4 =   1 0 0 0 0
+   + ___________
+     2 2 2 2 2 2</code></pre>
+<p>In general, we have <span class="math inline">\(k\)</span> vertices in a vertex cover.</p>
+<ol>
+<li>Choose corresponding <span class="math inline">\(a_i\)</span> values. The sum of these is <span class="math inline">\(k\)</span> followed by some sequence of 1s and 2s.<ul>
+<li>1 means the vertex is incident with one vertex in the cover</li>
+<li>2 means the vertex is incident with 2 vertices in the cover</li>
+<li>etc</li>
+</ul>
+</li>
+<li>Choose appropriate <span class="math inline">\(b_j\)</span> values to bring the sum to <span class="math inline">\(k222...2 = W\)</span>
+</li>
+</ol>
+<h4 id="yes-mapping-to-yes-1">Yes mapping to yes</h4>
+<p>Suppose we have a subset of the <span class="math inline">\(a_i\)</span>s and <span class="math inline">\(b_j\)</span>s whose sum is <span class="math inline">\(k222...2\)</span>. We need to show that <span class="math inline">\(G\)</span> has a vertex cover of size <span class="math inline">\(k\)</span>. Because each <span class="math inline">\(a_i\)</span> starts with a 1, exactly <span class="math inline">\(k\)</span> of the <span class="math inline">\(a_i\)</span>s must have been chosen in order to get a <span class="math inline">\(k\)</span> in the first column. Then, consider the corresponding vertices in the graph.</p>
+<ul>
+<li>Suppose the vertices don't make a cover. That means there exists some edge <span class="math inline">\(e_j\)</span> that is not incident with any of these vertices. So, the sum of those chosen <span class="math inline">\(a_i\)</span>s will have a zero in it: <span class="math inline">\(k( ... 0 ... )\)</span>
+</li>
+<li>Even if we include every <span class="math inline">\(b_j\)</span>, we can't change this 0 to a 2, since we can only increase it by 1.</li>
+<li>This is a contradiction, so it must be precisely a vertex cover.</li>
+</ul>
+<h3 id="subset-sum-to-0-1-knapsack">Subset sum to 0-1 Knapsack</h3>
+<p>The instance of subset sum is represented with sizes <span class="math inline">\(s_1, ..., s_n\)</span> and target size <span class="math inline">\(T\)</span>. In 0-1 Knapsack, use the sizes as <strong>both</strong> the item weights and profits, and <span class="math inline">\(T\)</span> as <strong>both</strong> the knapsack capacity and target profit.</p>
+<p>We now know that <span class="math inline">\(\sum x_i s_i \le T\)</span> for the weights, and <span class="math inline">\(\sum x_i s_i \ge T\)</span> for the profits.</p>
+<h4 id="yes-mapping-to-yes-2">Yes mapping to yes</h4>
+<p>Suppose <span class="math inline">\(sum_{i \in J} s_i = T\)</span>.</p>
+<p>Define <span class="math inline">\(X_i = 1\)</span> if <span class="math inline">\(i \in J\)</span> and <span class="math inline">\(X_i = 0\)</span> otherwise.</p>
+<p>Then, <span class="math inline">\(\sum x_i s_i = T\)</span>, so <span class="math inline">\(\sum x_i s_i \le T\)</span> for the weights, and <span class="math inline">\(\sum x_i s_i \ge T\)</span> for the profits.</p>
+<p>In the other direction:</p>
+<p><span class="math inline">\(\sum x_i s_i \le T\)</span> for the weights, and <span class="math inline">\(\sum x_i s_i \ge T\)</span> for the profits. So, <span class="math inline">\(\sum x_i s_i = T\)</span>.</p>
+<p>Define <span class="math inline">\(J = \{i : x_i = 1\}\)</span>. Then, <span class="math inline">\(\sum_{i \in J} s_i = T\)</span>.</p>
+<h3 id="hamiltonian-cycle-to-tsp-dec">Hamiltonian Cycle to TSP-Dec</h3>
+<p>A Hamiltonian cycle instance has a graph <span class="math inline">\(G\)</span> with <span class="math inline">\(n\)</span> vertices. For TSP-Dec, use the complete graph on the same <span class="math inline">\(n\)</span> vertices (Every pair is now joined by an edge.) Then, define:<br>
+<span class="math display">\[w(uv) = \begin{cases}
+1, &amp; uv \in E\\
+2, &amp; uv \notin E
+\end{cases}\]</span></p>
+<p>Our target path length <span class="math inline">\(T\)</span> will be defined as <span class="math inline">\(n\)</span>.</p>
+<p><img src="img/ham.png"></p>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

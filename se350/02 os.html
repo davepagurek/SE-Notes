@@ -1,0 +1,168 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+<title>Operating Systems</title>
+</head>
+<body>
+
+<h1 id="operating-systems">Operating Systems</h1>
+<a href="index.html">Back to se350</a>
+<div id="TOC">
+
+<ul>
+<li><a href="#goals">Goals</a></li>
+<li>
+<a href="#pieces">Pieces</a><ul>
+<li><a href="#kernel">Kernel</a></li>
+<li><a href="#monitor">Monitor</a></li>
+<li><a href="#hardware-features">Hardware features</a></li>
+<li><a href="#time-sharing-systems">Time sharing systems</a></li>
+</ul>
+</li>
+<li><a href="#processes">Processes</a></li>
+<li><a href="#memory-management">Memory management</a></li>
+<li><a href="#info-protection">Info Protection</a></li>
+<li><a href="#scheduling">Scheduling</a></li>
+</ul>
+</div>
+<h2 id="goals">Goals</h2>
+<ul>
+<li>Abstract away hardware knowledge so that programs don't need to worry about them</li>
+<li>can evolve by replacing interals while conforming to the interface</li>
+<li>manage resources available on the computer</li>
+</ul>
+<h2 id="pieces">Pieces</h2>
+<h3 id="kernel">Kernel</h3>
+<ul>
+<li>runs in main memory</li>
+<li>contains most frequently used functions</li>
+</ul>
+<h3 id="monitor">Monitor</h3>
+<ul>
+<li>Runs in Kernel mode, allows access to protected memory and can run privileged functions</li>
+<li>Controls sequence of events</li>
+<li>Batch programs together</li>
+<li>program returns control when finished</li>
+</ul>
+<h3 id="hardware-features">Hardware features</h3>
+<ul>
+<li>Memory protection (disallowing an area to be altered)</li>
+<li>Timer (prevents a job from taking up all the time)</li>
+<li>privileged instructions (certain intructions can only be run by the monitor)</li>
+</ul>
+<h3 id="time-sharing-systems">Time sharing systems</h3>
+<ul><li>Multiple users on terminals, users should see feedback immediately</li></ul>
+<h2 id="processes">Processes</h2>
+<ul>
+<li>Program in execution</li>
+<li>instance of program running</li>
+<li>entity that can be assigned to and executed on a processor</li>
+<li>A single unit of activity characterized by<ul>
+<li>a single sequential thread of execution</li>
+<li>a current state</li>
+<li>an associated set of system resources</li>
+</ul>
+</li>
+<li>Contains three components:<ul>
+<li>executable program</li>
+<li>associated data needed for program</li>
+<li>execution context of program (everything the OS needs to manage the process)</li>
+</ul>
+</li>
+<li>Common problems with designing system software:<ul>
+<li>has to juggle multiple programs, threads, interrupts, IO, shared resources</li>
+<li>improper sync</li>
+<li>failed mutual exclusion</li>
+<li>nondeterministic operation</li>
+<li>deadlocks</li>
+</ul>
+</li>
+</ul>
+<h2 id="memory-management">Memory management</h2>
+<ul>
+<li>process isolation</li>
+<li>automatic allocation and management</li>
+<li>support swapping program code</li>
+<li>protection and access control</li>
+<li>long term storage</li>
+<li>virtual memory<ul>
+<li>allows programmers to address memory logically without worrying about physical memory</li>
+<li>virtual address: page number plus offset in page</li>
+<li>real address: physical address</li>
+</ul>
+</li>
+</ul>
+<h2 id="info-protection">Info Protection</h2>
+<ul>
+<li>Availability: protects against interruption (e.g. RAID, dual power supply)</li>
+<li>Confidentiality: permissions (e.g. <code>chmod</code>)</li>
+<li>data integrity: protect data from unauthorized modification</li>
+<li>authenticity: proper verification of identity of users (e.g. phishing, XSS)</li>
+</ul>
+<h2 id="scheduling">Scheduling</h2>
+<ul>
+<li>Fairness</li>
+<li>Differential responsiveness<ul>
+<li>discriminate among different classes of jobs</li>
+<li>QoS</li>
+</ul>
+</li>
+<li>Efficiency: maximize throughput, minimize response time</li>
+</ul>
+<h1 id="modern-operating-systems">Modern Operating Systems</h1>
+<ul>
+<li>Microkernel architecture (e.g. QNX)<ul>
+<li>assigns only a few essential functions to the kernel<ul>
+<li>address spaces</li>
+<li>interpricess communication (IPC)</li>
+<li>basic scheduling</li>
+</ul>
+</li>
+<li>everything else in user space</li>
+</ul>
+</li>
+<li>Multithreading<ul>
+<li>Process divided into concurrent threads</li>
+<li>Thread: dispatchable unit of work, can be interrupted</li>
+<li>Process is a collection of threads</li>
+</ul>
+</li>
+<li>Symmetric multiprocessing<ul>
+<li>multiple processors</li>
+<li>share memory and IO</li>
+<li>can all do the same things</li>
+</ul>
+</li>
+<li>Distributed<ul><li>illusion of single main memory</li></ul>
+</li>
+<li>asymmetric multiprocessing<ul>
+<li>moderate success of cell processor</li>
+<li>Big-Little architectures</li>
+</ul>
+</li>
+<li>Faults<ul>
+<li>permanent, temporary, transient/intermittent</li>
+<li>redundancy (spacial, temporal, info)</li>
+<li>process isolation, concurrency control, VMs, checkpoints/rollback</li>
+</ul>
+</li>
+<li>Multicore<ul>
+<li>concurrency: reentrant routines, proper kernel structure management</li>
+<li>scheduling: user-level, kernel level</li>
+<li>sync: IO management from single or multiple cores</li>
+<li>memory management: spacial separation of memory</li>
+<li>reliability and fault tolerance: new types of faults</li>
+</ul>
+</li>
+</ul>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

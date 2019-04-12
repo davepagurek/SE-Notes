@@ -1,0 +1,295 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<title>Hadoop MapReduce</title>
+</head>
+<body>
+
+<h1 id="hadoop-mapreduce">Hadoop MapReduce</h1>
+<a href="index.html">Back to ece454</a>
+<div id="TOC">
+
+<ul>
+<li><a href="#fault-tolerance">Fault tolerance</a></li>
+<li><a href="#projection">Projection</a></li>
+<li>
+<a href="#inverted-index">Inverted index</a><ul>
+<li><a href="#sample-input">Sample input:</a></li>
+<li><a href="#sample-output">Sample output:</a></li>
+<li><a href="#sample-code">Sample code:</a></li>
+</ul>
+</li>
+<li>
+<a href="#cross-correlation">Cross-correlation</a><ul>
+<li><a href="#sample-input-1">Sample input:</a></li>
+<li><a href="#sample-output-1">Sample output:</a></li>
+<li><a href="#pairs-approach">Pairs approach</a></li>
+<li><a href="#stripes-approach">Stripes approach</a></li>
+</ul>
+</li>
+<li>
+<a href="#spark">Spark</a><ul>
+<li><a href="#ways-to-partition-rdd">Ways to partition RDD</a></li>
+<li><a href="#word-count">Word count</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<ol>
+<li>Mapper: <span class="math inline">\(x \rightarrow (x, 1)\)</span>
+</li>
+<li>Combine<ul><li>Uses the same lambda as the reducer to combine data before sending over the network</li></ul>
+</li>
+<li>Shuffle<ul><li>Use hash function to pick a server to send each mapped datum to</li></ul>
+</li>
+<li>Sort<ul><li>Uses mergesort</li></ul>
+</li>
+<li>Reduce: <span class="math inline">\((a, b) \rightarrow a + b\)</span><ul><li>Associative, commutative</li></ul>
+</li>
+</ol>
+<h2 id="fault-tolerance">Fault tolerance</h2>
+<ul>
+<li>Since everything is deterministic, if a mapper fails, just give the tasks to someone else</li>
+<li>If a reducer fails, the reduce step can be restarted on another server from after the shuffle phase since the result is saved to disk as a checkpoint</li>
+<li>Slow servers (stragglers) are dealt with by speculatively giving redundant tasks to other servers</li>
+</ul>
+<h2 id="projection">Projection</h2>
+<pre><code>Mapper(key k, tuple t)
+  tuple g = project(t)
+  emit(g, null)
+
+# Only for duplicate elimination
+Reducer(tuple t, array n)
+  emit(t, null)</code></pre>
+<h2 id="inverted-index">Inverted index</h2>
+<h3 id="sample-input">Sample input:</h3>
+<pre><code>url1 {jaguar, fast, v8}
+url2 {jaguar, fast, teeth, tail}</code></pre>
+<h3 id="sample-output">Sample output:</h3>
+<pre><code>jaguar -&gt; {url1, url2}
+fast -&gt; {url1, url2}
+v8 -&gt; {url1}
+tooth -&gt; {url2}
+tail -&gt; {url1}</code></pre>
+<h3 id="sample-code">Sample code:</h3>
+<pre><code>Mapper(docID id, doc d)
+  for each term t in d:
+    emit(t, id)
+
+Reducer(term t, docIDs [id1, id2, ..., idn])
+  emit(t, flattened list of docIDs)</code></pre>
+<h2 id="cross-correlation">Cross-correlation</h2>
+<h3 id="sample-input-1">Sample input:</h3>
+<pre><code>[ketchup, mustard, relish]
+[ketchup, buns]</code></pre>
+<h3 id="sample-output-1">Sample output:</h3>
+<p>N = 4 (number of distinct items)</p>
+<table>
+<thead><tr class="header">
+<th></th>
+<th>k</th>
+<th>m</th>
+<th>r</th>
+<th>b</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>k</td>
+<td>X</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<td>m</td>
+<td>X</td>
+<td>X</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td>r</td>
+<td>X</td>
+<td>X</td>
+<td>X</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td>b</td>
+<td>X</td>
+<td>X</td>
+<td>X</td>
+<td>X</td>
+</tr>
+</tbody>
+</table>
+<pre><code>([k, m], 1)
+([k, r], 1)
+([k, b], 1)
+([m, r], 1)
+([m, b], 0)
+([r, b], 0)</code></pre>
+<p>Number of elements in output:<br>
+<span class="math display">\[\begin{align}
+|output| &amp;= \binom{n}{2}\\
+&amp;= \frac{4!}{2!2!}\\
+&amp;= 6\\
+\end{align}\]</span></p>
+<h3 id="pairs-approach">Pairs approach</h3>
+<pre><code># Each item is one thing in a receipt
+Mapper(null, items [i1, i2, ..., ik])
+  for each item i in [i1, ..., ik]:
+    for each item j in [i1, ..., ik] where j &gt; i:
+      emit([i, j], 1)
+
+Reducer(pair [i, j], counts [c1, ..., cn])
+  s = sum of [c1, ..., cn]
+  emit([i, j], s)</code></pre>
+<h3 id="stripes-approach">Stripes approach</h3>
+<pre><code>Mapper(null, items [i1, i2, ..., ik])
+  for each item i in [i1, ..., ik]:
+    H = new Map from item -&gt; counter, initially zero
+    for  each item j in [i1, ..., ik] where j &gt; i:
+      H{j} = H{j} + 1
+
+    emit(i, H)
+    # H is a stripe, e.g.
+    #   (ketchup, {mustard: 1, relish: 1})
+
+Reducer(item i, stripes [H1, H2, ..., Hm])
+  H = new Map from item -&gt; counter, initially zero
+  H = merge_sum([H1, H2, ..., Hm])
+  for each item j in keys(H):
+    emit([i, j], H{j})</code></pre>
+<h2 id="spark">Spark</h2>
+<h3 id="ways-to-partition-rdd">Ways to partition RDD</h3>
+<ol>
+<li>Arbitrary<ul><li>When loading raw data from file(s)</li></ul>
+</li>
+<li>By key<ul><li>Occurs after a group by or reduce by key</li></ul>
+</li>
+</ol>
+<h4 id="join-with-inputs-co-partitioned">Join with inputs co-partitioned</h4>
+<table>
+<thead><tr class="header">
+<th>RDD 1</th>
+<th>RDD 2</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>
+<code>url1 val1</code> -&gt; executor 1</td>
+<td>
+<code>url1 val1'</code> -&gt; executor 1</td>
+</tr>
+<tr class="even">
+<td>
+<code>url2 val2</code> -&gt; executor 1</td>
+<td>
+<code>url2 val2'</code> -&gt; executor 1</td>
+</tr>
+<tr class="odd">
+<td>
+<code>url3 val3</code> -&gt; executor 2</td>
+<td>
+<code>url3 val3'</code> -&gt; executor 2</td>
+</tr>
+</tbody>
+</table>
+<p>Assuming both are partitioned by key.</p>
+<p><code>rdd1.join(rdd2)</code></p>
+<p>This is a <strong>narrow dependency</strong>:</p>
+<ul>
+<li>Both tables partitioned by the same key</li>
+<li>Local copies of things to join are on the same executor</li>
+</ul>
+<h4 id="join-with-inputs-not-co-partitioned">Join with inputs NOT co-partitioned</h4>
+<table>
+<thead><tr class="header">
+<th>RDD 1</th>
+<th>RDD 2</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>
+<code>url1 val1</code> -&gt; executor 3</td>
+<td>
+<code>url1 val1'</code> -&gt; executor 1</td>
+</tr>
+<tr class="even">
+<td>
+<code>url2 val2</code> -&gt; executor 1</td>
+<td>
+<code>url2 val2'</code> -&gt; executor 1</td>
+</tr>
+<tr class="odd">
+<td>
+<code>url3 val3</code> -&gt; executor 2</td>
+<td>
+<code>url3 val3'</code> -&gt; executor 2</td>
+</tr>
+</tbody>
+</table>
+<p>In this case, the same key is not on the same executor always, assuming arbitrary partitioning for e.g. table 1, but by key for table 2.</p>
+<p><code>rdd1.join(rdd2)</code>: code looks the same as before, it all depends on the state of the data</p>
+<p>This is a <strong>wide dependency</strong> because a shuffle is required before joining.</p>
+<p><code>rdd1.map((x, y) =&gt; (y, x)).join(rdd2)</code> will almost certainly by a wide dependency since it will now be indexed by value.</p>
+<h3 id="word-count">Word count</h3>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">val</span> dat = sc.<span class="fu">textFile</span>(<span class="st">"sample_input"</span>)
+dat
+  .<span class="fu">flatMap</span>(_.<span class="fu">split</span>(<span class="st">"</span><span class="ch">\\</span><span class="st">s+"</span>)) <span class="co">// Tokenize</span>
+  .<span class="fu">filter</span>(_.<span class="fu">length</span>() &gt; <span class="dv">4</span>) <span class="co">// Get rid of small words like "a", "an", etc</span>
+  .<span class="fu">map</span>(x =&gt; (x, <span class="dv">1</span>)) <span class="co">// Initial count per word is 1</span>
+  .<span class="fu">reduceByKey</span>(_+_) <span class="co">// At this point we have word counts by word</span>
+  .<span class="fu">map</span>(x =&gt; (x.<span class="fu">_2</span>, x.<span class="fu">_1</span>)) <span class="co">// Swap key and value</span>
+  .<span class="fu">sortByKey</span>(<span class="kw">false</span>) <span class="co">// false means it will be descending</span>
+  .<span class="fu">take</span>(<span class="dv">15</span>) <span class="co">// Get the first 15 results</span></code></pre></div>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

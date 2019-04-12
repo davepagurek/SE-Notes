@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+<title>SE Notes</title>
+</head>
+<body>
+
+<h1 id="se-notes">SE Notes</h1>
+<a href="index.html">Back to .</a>
+<div id="TOC">
+
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li>
+<a href="#setup">Setup</a><ul>
+<li><a href="#file-structure">File structure</a></li>
+<li><a href="#local-editing">Local editing</a></li>
+<li><a href="#hosting">Hosting</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<p>Notes for UW Software Engineering.</p>
+<h2 id="overview">Overview</h2>
+<p>Write notes in <strong>Markdown</strong> with embedded <strong>LaTeX.</strong> When you push to <code>develop</code>, get CircleCI to render HTML pages using a small Ruby script and Pandoc, and then push the results to a Github Pages branch.</p>
+<h2 id="setup">Setup</h2>
+<h3 id="file-structure">File structure</h3>
+<p>Each folder that contains Markdown files will get its own index in the rendered site. I tend to use one folder per course. Inside a course folder, I also make an <code>img</code> directory that just has images I use in my notes that I then reference with a relative path (e.g. <code>&lt;img src="img/some_image.png" /&gt;</code>).</p>
+<h3 id="local-editing">Local editing</h3>
+<p>I use Vim to edit my files. I use <a href="https://github.com/davepagurek/markdown-preview.vim">my fork of markdown-preview</a> to create a Markdown preview with MathJax support, only refreshed on save. Here's a snippet from my <code>.vimrc</code>:</p>
+<pre class="vim"><code>" In Vundle setup
+Plugin 'iamcco/mathjax-support-for-mkdp'
+Plugin 'davepagurek/markdown-preview.vim'
+Plugin 'drmingdrmer/vim-syntax-markdown'
+
+" Markdown preview config
+
+" Only refresh preview on save (default is every edit, jumps around too much for my liking
+let g:mkdp_refresh_on_save = 1
+
+" Use Safari for preview (feel free to change to Chrome)
+let g:mkdp_path_to_chrome = "open -a Safari"
+
+" Use &lt;Leader&gt;mm to launch preview, &lt;Leader&gt;mn to close
+nmap &lt;silent&gt; &lt;Leader&gt;mm &lt;Plug&gt;MarkdownPreview
+nmap &lt;silent&gt; &lt;Leader&gt;mn &lt;Plug&gt;StopMarkdownPreview
+
+" Enable MathJax
+let g:vim_markdown_math = 1</code></pre>
+<p>For illustrations, I use <a href="https://paintbrush.sourceforge.io">Paintbrush</a>, an mspaint clone for Mac. I have also had to disble BetterTouchTool for Paintbrush in Sierra to prevent it from thinking there are extra clicks happening.</p>
+<h3 id="hosting">Hosting</h3>
+<ol>
+<li>Make a <code>develop</code> branch</li>
+<li>Set up Github Pages for <code>master</code>
+</li>
+<li>Set up CircleCI for the project</li>
+<li>Authorize CircleCI to push to Github on your behalf: <a href="https://circleci.com/docs/2.0/gh-bb-integration/" class="uri">https://circleci.com/docs/2.0/gh-bb-integration/</a>
+</li>
+<li>Add a user key from here: <a href="https://circleci.com/gh/youraccount/yourrepo/edit#checkout" class="uri">https://circleci.com/gh/youraccount/yourrepo/edit#checkout</a>
+</li>
+<li>Change your Github email in <code>deploy.sh</code>
+</li>
+</ol>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

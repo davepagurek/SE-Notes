@@ -1,0 +1,169 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+<title>Graph processing</title>
+</head>
+<body>
+
+<h1 id="graph-processing">Graph processing</h1>
+<a href="index.html">Back to ece454</a>
+<div id="TOC">
+
+<ul>
+<li>
+<a href="#pregel">Pregel</a><ul>
+<li><a href="#e.g.-max">e.g. Max</a></li>
+<li><a href="#e.g.-pagerank">e.g. PageRank</a></li>
+<li><a href="#single-source-shortest-paths">Single source shortest paths</a></li>
+</ul>
+</li>
+<li><a href="#combiners">Combiners</a></li>
+<li><a href="#aggregators">Aggregators</a></li>
+</ul>
+</div>
+<h2 id="pregel">Pregel</h2>
+<ul>
+<li>each worker responsible for a <strong>vertex partition</strong>
+</li>
+<li>Model of computation is vertex-centric</li>
+<li>For each vertex, it comes with this state:<ul>
+<li>a problem-specific value (e.g. the PageRank value of the vertex)</li>
+<li>a list of messages sent to the vertex</li>
+<li>a list of outgoing edges</li>
+<li>a binary active/inactive state</li>
+</ul>
+</li>
+<li>Uses <strong>Bulk Synchronous Parallel (BSP)</strong> model<ul>
+<li>Computation organized into synchronous rounds/iterations, called <strong>supersteps</strong>
+</li>
+<li>workers compute asynchronously during superstep, then communicate between</li>
+</ul>
+</li>
+<li>Master delegates vertices to workers using a partitioner (usually a hash function)</li>
+</ul>
+<h3 id="e.g.-max">e.g. Max</h3>
+<pre><code>3 -&gt; 6
+6 -&gt; 3
+2 -&gt; 6
+2 -&gt; 1
+1 -&gt; 2
+6 -&gt; 1</code></pre>
+<ul>
+<li>Each vertex stores the max it knows about as its state, starting at its own number.</li>
+<li>Each iteration, each vertex sends its current number to its neighbours along its edges.</li>
+<li>The vertex sets its label to the max of the received values and its current value.</li>
+</ul>
+<h3 id="e.g.-pagerank">e.g. PageRank</h3>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">void</span> compute(MessageIterator msgs) {
+  <span class="cf">if</span> (superstep() &gt;= <span class="dv">1</span>) {
+    <span class="dt">double</span> sum = <span class="fl">0.0</span>;
+    <span class="cf">for</span> (; !msgs-&gt;done(); msgs-&gt;next()) {
+      sum += msgs-&gt;value();
+    }
+    mutableValue = <span class="fl">0.15</span> / numVertices + <span class="fl">0.85</span> * sum;
+  }
+  <span class="cf">if</span> (superstep() &lt; <span class="dv">30</span>) {
+    <span class="at">const</span> int64 n = getOutEdgeIterator().size();
+    sendMessageToAllNeighbours(getValue() / n);
+  } <span class="cf">else</span> {
+    voteToHalt();
+  }
+}</code></pre></div>
+<h3 id="single-source-shortest-paths">Single source shortest paths</h3>
+<pre><code>A --1-&gt; C
+A --3-&gt; B
+C --1-&gt; B</code></pre>
+<p>Trace:</p>
+<pre><code>SS0.
+A = 0
+B = infinity
+C = infinity
+A sends 0+3=3 to B
+A sends 0+1=1 to C
+
+SS1.
+A = 0
+B = 3
+C = 1
+A is unchanged, votes to halt
+C sends 1+1=2 to B
+
+SS2.
+A = 0
+B = 2
+C = 1
+A is unchanged, votes to halt
+C is unchanged, votes to halt
+B has no out neighbours, votes to halt
+
+Done</code></pre>
+<h2 id="combiners">Combiners</h2>
+<ul>
+<li>Similar to Hadoop</li>
+<li>Commutative and associative</li>
+<li>If two messages from the same vertex partition are going to the same destination, they can be combined into one message<ul><li>
+<p>e.g. for single source shortest path:</p>
+<div class="sourceCode"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span class="dt">void</span> combine(MessageIterator msgs) {
+<span class="dt">float</span> minDist = infinity;
+<span class="cf">for</span> (; !msgs-&gt;done(); msgs-&gt;next()) {
+  minDist = min(minDist, msgs-&gt;value());
+}
+<span class="co">// output(source_name, value)</span>
+output(<span class="st">"combined_source"</span>, minDist);
+}</code></pre></div>
+</li></ul>
+</li>
+</ul>
+<h2 id="aggregators">Aggregators</h2>
+<ul>
+<li>Act like mapreduce reducers</li>
+<li>Final value is broadcast by the master to all vertices in the next superstep</li>
+</ul>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

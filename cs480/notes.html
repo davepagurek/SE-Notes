@@ -1,0 +1,733 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<title>CS480: Machine Learning</title>
+</head>
+<body>
+
+<h1 id="cs480-machine-learning">CS480: Machine Learning</h1>
+<a href="index.html">Back to cs480</a>
+<div id="TOC">
+
+<ul>
+<li><a href="#core-concepts">Core concepts</a></li>
+<li><a href="#performance">Performance</a></li>
+<li><a href="#regularizer">Regularizer</a></li>
+<li>
+<a href="#optimization-techniques">Optimization techniques</a><ul>
+<li><a href="#gradient-descent">Gradient Descent</a></li>
+<li><a href="#closed-form-solution">Closed-form solution</a></li>
+</ul>
+</li>
+<li><a href="#probability">Probability</a></li>
+<li><a href="#margins">Margins</a></li>
+<li><a href="#kernalizing">Kernalizing</a></li>
+<li>
+<a href="#decision-trees">Decision trees</a><ul>
+<li><a href="#training">Training</a></li>
+<li><a href="#prediction">Prediction</a></li>
+</ul>
+</li>
+<li>
+<a href="#k-nearest-neighbours-knn">K Nearest Neighbours (KNN)</a><ul>
+<li><a href="#training-1">Training</a></li>
+<li><a href="#prediction-1">Prediction</a></li>
+</ul>
+</li>
+<li>
+<a href="#perceptron">Perceptron</a><ul>
+<li><a href="#training-2">Training</a></li>
+<li><a href="#prediction-2">Prediction</a></li>
+<li><a href="#concepts">Concepts</a></li>
+</ul>
+</li>
+<li>
+<a href="#bayesian-linear-regression">Bayesian Linear Regression</a><ul>
+<li><a href="#training-3">Training</a></li>
+<li><a href="#prediction-3">Prediction</a></li>
+</ul>
+</li>
+<li>
+<a href="#naive-bayes-classification">Naive Bayes classification</a><ul>
+<li><a href="#training-4">Training</a></li>
+<li><a href="#prediction-4">Prediction</a></li>
+<li><a href="#other-properties">Other properties</a></li>
+</ul>
+</li>
+<li>
+<a href="#support-vector-machines-svns">Support Vector Machines (SVNs)</a><ul><li><a href="#training-5">Training</a></li></ul>
+</li>
+<li>
+<a href="#ensemble-learning">Ensemble Learning</a><ul>
+<li><a href="#bagging">Bagging</a></li>
+<li><a href="#random-forests">Random Forests</a></li>
+<li><a href="#boosting-adaboost">Boosting (AdaBoost)</a></li>
+</ul>
+</li>
+<li>
+<a href="#active-learning">Active Learning</a><ul>
+<li><a href="#pool-based-uncertainty-sampling">Pool-based Uncertainty Sampling</a></li>
+<li><a href="#query-by-committee">Query by Committee</a></li>
+</ul>
+</li>
+<li>
+<a href="#unsupervised-learning">Unsupervised Learning</a><ul>
+<li><a href="#k-means-clustering">K-Means Clustering</a></li>
+<li><a href="#hierarchical-clustering">Hierarchical Clustering</a></li>
+<li><a href="#principal-component-analysis-pca">Principal Component Analysis (PCA)</a></li>
+</ul>
+</li>
+<li>
+<a href="#semi-supervised-learning">Semi-Supervised Learning</a><ul>
+<li><a href="#self-learning">Self-Learning</a></li>
+<li><a href="#co-training">Co-Training</a></li>
+<li><a href="#gaussian-mixture-model-gmm">Gaussian Mixture Model (GMM)</a></li>
+<li><a href="#other-methods">Other methods</a></li>
+</ul>
+</li>
+<li><a href="#neural-networks">Neural Networks</a></li>
+<li>
+<a href="#structured-prediction">Structured prediction</a><ul>
+<li><a href="#structured-svm">Structured SVM</a></li>
+<li><a href="#conditional-random-fields">Conditional Random Fields</a></li>
+</ul>
+</li>
+<li>
+<a href="#reinforcement-learning">Reinforcement Learning</a><ul>
+<li><a href="#markov-system-of-rewards">Markov System of Rewards</a></li>
+<li><a href="#temporal-difference">Temporal difference</a></li>
+<li><a href="#q-learning">Q Learning</a></li>
+</ul>
+</li>
+<li>
+<a href="#learning-by-demonstration">Learning by Demonstration</a><ul>
+<li><a href="#sequential-decision-making">Sequential Decision Making</a></li>
+<li><a href="#forward-training">Forward Training</a></li>
+<li><a href="#stochastic-mixing-iterative-learning-smile">Stochastic Mixing Iterative Learning (SMILE)</a></li>
+<li><a href="#dataset-aggregation-dagger">Dataset Aggregation (Dagger)</a></li>
+<li><a href="#inverse-reinforcement-learning">Inverse Reinforcement Learning</a></li>
+</ul>
+</li>
+<li><a href="#independence-criterion">Independence criterion</a></li>
+<li>
+<a href="#interpretability">Interpretability</a><ul>
+<li><a href="#local-surrogate">Local Surrogate</a></li>
+<li><a href="#examples">Examples</a></li>
+<li><a href="#counterfactuals">Counterfactuals</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="core-concepts">Core concepts</h2>
+<ul>
+<li>
+<strong>Supervised learning</strong>: Learning given a set of training data and expected results (labels)</li>
+<li>
+<strong>Unsupervised learning</strong>: Given training data but no labels, cluster the samples based on their contained data</li>
+<li>
+<strong>Reinforcement learning</strong>: Learning by rewarding favourable results or punishing unfavourable results</li>
+<li>
+<strong>Inductive bias</strong>: The implicit biases different techniques come in with, e.g. <span class="math inline">\(K\)</span>NNs assume new examples should probably behave similarly to similar past data</li>
+<li>
+<strong>Bias</strong>: How close to the truth a model can actually get (more bias implies farther mean distance from the ideal)</li>
+<li>
+<strong>Variance</strong>: Regardless of how close to the truth a model gets, how consistent the predictions are</li>
+<li>
+<strong>Cross-validation</strong>: Average performance by splitting the data into <span class="math inline">\(K\)</span> groups, and for each <span class="math inline">\(K\)</span>, using that group as validation data and the rest as training data</li>
+</ul>
+<h2 id="performance">Performance</h2>
+<ul>
+<li>
+<strong>True positive</strong>: Class 1 predicted as 1</li>
+<li>
+<strong>False positive</strong>: Class 0 predicted as 1</li>
+<li>
+<strong>True negative</strong>: Class 0 predicted as 0</li>
+<li>
+<strong>False negative</strong>: Class 1 predicted as 0</li>
+</ul>
+<p><span class="math display">\[\begin{aligned}
+\text{Accuracy} &amp;= \frac{TP + TN}{TP + TN + FP + FN}\\
+\\
+\text{Error Rate} &amp;= \frac{FP + FN}{TP + TN + FP + FN}\\
+\\
+\text{Precision} &amp;= \frac{TP}{TP + FP}\\
+\\
+\text{Recall} &amp;= \frac{TP}{TP + FN}\\
+\\
+F &amp;= \frac{2 \cdot \text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}}\\
+\\
+\text{Weighted }F &amp;= \frac{(1 + \beta^2) \cdot \text{Precision} \cdot \text{Recall}}{\beta^2 \cdot \text{Precision} + \text{Recall}}\\
+\end{aligned}\]</span></p>
+<h2 id="regularizer">Regularizer</h2>
+<p>A regularizer is a term that adds a cost to having large weights, adding inductive bias favouring "simpler" solutions.</p>
+<p><strong>Ridge regularizers</strong> use 2-norms, meaning that equivalent-cost weight vectors will make a circle when plotted.</p>
+<p><strong>Lasso regularizers</strong> use 1-norms, meaning that equivalent-cost weight vectors make a diamond when plotted. This adds incentive for having weights with values exactly at 0 instead of simply having small values, as a ridge regularizer would.</p>
+<h2 id="optimization-techniques">Optimization techniques</h2>
+<p>Instead of using 0-1 loss, use a more nicely differentiable loss.</p>
+<h3 id="gradient-descent">Gradient Descent</h3>
+<p>If we are learning weights <span class="math inline">\(w\)</span> subject to loss function <span class="math inline">\(f\)</span>:</p>
+<ul>
+<li>Initialize <span class="math inline">\(w\)</span>
+</li>
+<li>Compute the gradient <span class="math inline">\(g = \left.\frac{\partial f}{\partial w} \right\rvert_{w}\)</span>
+</li>
+<li>Step down the gradient by setting <span class="math inline">\(w' = w - \eta g\)</span>
+</li>
+</ul>
+<h3 id="closed-form-solution">Closed-form solution</h3>
+<p>e.g. for squared loss with a 2-norm regularizer with no bias:</p>
+<p><span class="math display">\[\begin{aligned}
+\mathcal{L}(w) &amp;= \frac{1}{2}||Xw-Y||^2 + \frac{\lambda}{2}||w||^2\\
+\nabla_w \mathcal{L}(w) &amp;= X^T(Xw-Y) + \lambda w\\
+&amp;= X^T Xw - X^T Y + \lambda w\\
+&amp;= (X^T X + \lambda I)w - X^T Y\\
+\\
+(X^T X + \lambda I)w - X^T Y &amp;= 0\\
+(X^T X + \lambda I)w &amp;= X^T Y\\
+w &amp;= (X^T X + \lambda I)^{-1} X^T Y\\
+\end{aligned}\]</span></p>
+<h2 id="probability">Probability</h2>
+<p><strong>Joint probability</strong>: <span class="math inline">\(P(A, B) = P(A = a \land B = b) \forall a, b\)</span>.</p>
+<p><strong>Conditional probability</strong>: <span class="math inline">\(P(A|B) = \frac{P(A \land B)}{P(B)}\)</span></p>
+<p><strong>Product rule</strong>: <span class="math inline">\(P(A \land B) = P(A|B)P(B)\)</span>. Following this, <span class="math inline">\(P(A, B | C) = P(A|B, C)P(B|C)\)</span></p>
+<p><strong>Sum rule</strong>: <span class="math inline">\(\sum_i P(A_i | C) = 1\)</span></p>
+<p>Two events are <strong>independent</strong> if and only if <span class="math inline">\(P(A,B) = P(A)P(B)\)</span>.</p>
+<p><strong>Bayes Rule</strong>, given a hypothesis <span class="math inline">\(H\)</span> and evidence <span class="math inline">\(e\)</span>:</p>
+<p><span class="math display">\[\underbrace{P(H|e)}_\text{posterior} = \frac{\underbrace{P(e|H)}_\text{likelihood} \underbrace{P(H)}_\text{prior}}{\underbrace{P(e)}_\text{normalizer}}\]</span></p>
+<p><strong>Maximum a Posteriori</strong> makes predictions by finding the hypothesis that maximizes the probability of evidence given a prior:</p>
+<p><span class="math display">\[\begin{aligned}
+h_{MAP} &amp;= \operatorname*{argmax}_{h_i} P(h_i | e)\\
+&amp;= \operatorname*{argmax}_{h_i} P(h_i) P(e | h_i)
+\end{aligned}\]</span></p>
+<p><strong>Maximum Likelihood</strong> makes predictions by selecting the hypothesis that makes the evidence the most likely:</p>
+<p><span class="math display">\[h_{ML} = \operatorname*{argmax}_{h_i} P(e | h_i)\]</span></p>
+<p>If you pick two probability distribution families for the likelihood and the prior and arrive at a posterior in the same family as the prior, then we call the prior family a <strong>conjugate prior</strong> for the likelihood family.</p>
+<h2 id="margins">Margins</h2>
+<p><strong>Functional margin</strong>:</p>
+<p><span class="math display">\[\hat{\gamma}_i = y_i(w^T x_i + b)\]</span></p>
+<p>If <span class="math inline">\(y_i\)</span> and our prediction <span class="math inline">\(w^T x_i + b\)</span> have the same sign, the functional margin <span class="math inline">\(\hat{\gamma}_i\)</span> will be positive. A large functional margin means a confident and correct prediction.</p>
+<p>The functional margin of a training set is the minimum functional margin of individual training examples.</p>
+<p><strong>Geometric margin</strong>:</p>
+<p><span class="math display">\[\gamma_i = y_i \left(\frac{w^Tx_i + b}{||w||}\right)\]</span></p>
+<p>This refers to the distance between the hyperplane and a point.</p>
+<p>The geometric margin of a training set is the minimum distance between the hyperplane and any point in the training set.</p>
+<h2 id="kernalizing">Kernalizing</h2>
+<ul>
+<li>Replace instances of <span class="math inline">\(x\)</span> with the feature mapping <span class="math inline">\(\phi(x)\)</span>
+</li>
+<li>Rewrite to depend on a dot product of the mapped features.<ul>
+<li>For Perceptrons, since <span class="math inline">\(w\)</span> can always be written as a linear combination of <span class="math inline">\(\phi(x_i)\)</span> for all <span class="math inline">\(i\)</span>, we can make the prediction depend on dot products between mapped features and not an explicit weight vector:</li>
+<li><span class="math inline">\(w\cdot\phi(x)+b = \left(\sum_{i=1}^n \alpha_i \phi(x_i)\right)\cdot \phi(x)+b = \sum_{i=1}^n \alpha_i(\phi(x_i) \cdot \alpha(x)) + b\)</span></li>
+</ul>
+</li>
+<li>Then, the dot product can be replaced with a kernel <span class="math inline">\(K\)</span>
+</li>
+</ul>
+<h2 id="decision-trees">Decision trees</h2>
+<h3 id="training">Training</h3>
+<p>Until either a maximum depth is reached or all remaining data gets grouped into the same leaf, add a decision tree node splitting on the feature that yields the highest information gain.</p>
+<p>Given an event <span class="math inline">\(E\)</span> with a probability <span class="math inline">\(P(E)\)</span> of occurring, knowing for sure that <span class="math inline">\(E\)</span> will occur tells you <span class="math inline">\(I(E) = \log_2\frac{1}{P(E)}\)</span> bits of information.</p>
+<p>Entropy sums all possibilities multiplied by the information gain each would yield:</p>
+<p><span class="math display">\[\begin{aligned}
+H(s) &amp;= \sum_i^k p_i I(s_i)\\
+&amp;= \sum_i^k p_i \log\frac{1}{p_i}\\
+&amp;= - \sum_i^k p_i \log p_i\\
+\end{aligned}\]</span></p>
+<p>For binary classification, this simplifies to:</p>
+<p><span class="math display">\[H(s) = -p_\oplus \log p_\oplus - p_\ominus \log p_\ominus\]</span></p>
+<p><strong>Conditional entropy</strong> is the expected number of bits needed to encode <span class="math inline">\(y\)</span> if the possible values of <span class="math inline">\(x\)</span> are known. This is done by taking the sum for each possible value of <span class="math inline">\(x\)</span> of the percentage of samples having that <span class="math inline">\(x\)</span> value in the set multiplied with the entropy of the set of samples having that <span class="math inline">\(x\)</span> value:</p>
+<p><span class="math display">\[H(y | x) = \sum_v P(x = v) H(y | x = v)\]</span></p>
+<h3 id="prediction">Prediction</h3>
+<p>Given an example <span class="math inline">\(x\)</span>, step through the decision tree until a leaf node with a prediction is reached.</p>
+<h2 id="k-nearest-neighbours-knn">K Nearest Neighbours (KNN)</h2>
+<h3 id="training-1">Training</h3>
+<p>Store all training examples (e.g. in a <span class="math inline">\(k\)</span>-d tree).</p>
+<h3 id="prediction-1">Prediction</h3>
+<p>Define distance between samples, such as Euclidean distance. Any metric will do as long as:</p>
+<ul>
+<li>It is symmetric: <span class="math inline">\(d(a, b) = d(b, a)\)</span>
+</li>
+<li>It is definite: <span class="math inline">\(d(a, b) = 0 \text{ iff } a = b\)</span>
+</li>
+<li>Triangle inequality holds: <span class="math inline">\(d(a,b) \le d(a,c) + d(c,b)\)</span>
+</li>
+</ul>
+<p>Pick the closest <span class="math inline">\(K\)</span> stored training examples to the input according to the distance metric. Predict the most common label (or a random label of the possible tied most common labels) out of those <span class="math inline">\(K\)</span>.</p>
+<p>For <strong>distance-weighted</strong> <span class="math inline">\(K\)</span>NN, compute a weight <span class="math inline">\(w\)</span> where <span class="math inline">\(0 \le w \le 1\)</span> for each of the <span class="math inline">\(K\)</span> nearest neighbours (e.g. based on distance.) Predict based on those weights, <span class="math inline">\(\frac{\sum_i w_i y_i}{\sum_i w_i}\)</span>, instead of simply the most common label <span class="math inline">\(y\)</span>. Example weight functions are <span class="math inline">\(\frac{1}{c + d(a, b)^n}\)</span> for some <span class="math inline">\(c, n\)</span> or <span class="math inline">\(e^{-\frac{d(a,b)^2}{\sigma^2}}\)</span>.</p>
+<h2 id="perceptron">Perceptron</h2>
+<h3 id="training-2">Training</h3>
+<ul>
+<li>For training data with <span class="math inline">\(n\)</span> features, prepend a 1 to each row of the training data matrix <span class="math inline">\(X\)</span> to add a bias term.</li>
+<li>Create a row vector <span class="math inline">\(w\)</span> ("weights") with size <span class="math inline">\(n+1\)</span>, randomly initializing each element. <span class="math inline">\(w_1\)</span> is the bias.</li>
+<li>For each example, make a prediction (see below).<ul>
+<li>If we incorrectly predicted a 0 when the correct label was 1, add the input vector to the weight vector: <span class="math inline">\(w' = w + \eta x\)</span>
+</li>
+<li>If we incorrectly predicted a 1 when the correct label was 0, subtract the input vector to the weight vector: <span class="math inline">\(w' = w - \eta x\)</span>
+</li>
+<li>If we were correct, do nothing</li>
+<li>For multi-class, if incorrect <span class="math inline">\(\hat{y}\)</span> predicted: <span class="math inline">\(w' = w + \phi(x,y) - \phi(x, \hat{y})\)</span>
+</li>
+</ul>
+</li>
+<li>Repeat until stable</li>
+</ul>
+<p>Intuitively, the non-bias terms of <span class="math inline">\(w\)</span> make a vector pointing toward the positive examples, normal to the decision plane. If an example was misclassified, it is because it was on the wrong side of the plane. The vector from the origin to the example should is in the opposite direction of <span class="math inline">\(w\)</span>. So, adding it to <span class="math inline">\(w\)</span> makes the resulting <span class="math inline">\(w'\)</span> point slightly closer to that example than it did before.</p>
+<h3 id="prediction-2">Prediction</h3>
+<p>Let <span class="math inline">\(a = w \cdot x\)</span>. Then, we define the prediction <span class="math inline">\(y\)</span>:</p>
+<p><span class="math display">\[y = \begin{cases}1, &amp;a \gt 0\\0, &amp;a \le 0\end{cases}\]</span></p>
+<h3 id="concepts">Concepts</h3>
+<ul>
+<li>
+<strong>Margin</strong>: The distance from the boundary to the closest point.</li>
+<li>
+<strong>Rosenblatt's Convergence Theorem</strong>: For a margin <span class="math inline">\(\gamma\)</span> and assuming <span class="math inline">\(||x|| \le 1 \forall x\)</span>, Perceptron training will converge after at most <span class="math inline">\(\gamma^{-2}\)</span> updates.</li>
+<li>
+<strong>Voted Perceptron</strong>: Keep track of how many training steps, <span class="math inline">\(c\)</span>, each weight vector is stable for before it gets replaced. In prediction, predict using each weight vector, proportional to its <span class="math inline">\(c\)</span>.</li>
+<li>
+<strong>Averaged Perceptron</strong>: Keep track of weight vectors and their <span class="math inline">\(c\)</span> as in Voted Perceptrons, and predict using the average weight vector, weighted proportional to the <span class="math inline">\(c\)</span> for each vector.</li>
+</ul>
+<h2 id="bayesian-linear-regression">Bayesian Linear Regression</h2>
+<h3 id="training-3">Training</h3>
+<p>We want to maximize the posterior probability of weights given labels and data. We typically minimize log of the probability, since it is easier to take the derivative of.</p>
+<p><span class="math display">\[\begin{aligned}
+P(w|y,X) &amp;\propto \frac{P(y|w,X)P(w|X)}{P(y|x)}\\
+P(w|x,y) &amp;= \frac{\left(\prod_{i=1}^N P(y_i|x_i, w)\right)P(w)}{P(y|x)}\\
+-\ln P(w|x,y) &amp;= -\sum_{i=1}^N \ln P(y_i|x_i, w) - P(w)+\ln(y|x)\\
+&amp;= \frac{1}{2\sigma^2}\sum_{i=1}^N(y_i - f(x_i))^2 + \frac{\alpha}{2}||w||^2 + C\\
+\end{aligned}\]</span></p>
+<p>From this point, take the derivative, equate to 0, and solve.</p>
+<h3 id="prediction-3">Prediction</h3>
+<p>We don't estimate a single <span class="math inline">\(w\)</span>. Instead, we average all possible models, weighting different models according to their posterior probability.</p>
+<h2 id="naive-bayes-classification">Naive Bayes classification</h2>
+<h3 id="training-4">Training</h3>
+<p>The point of generative learning is to find <span class="math inline">\(P(y|x)\)</span> by estimating <span class="math inline">\(P(x|y)\)</span> and <span class="math inline">\(P(y)\)</span>. Generally, this would be the calculation for <span class="math inline">\(P(x|y)\)</span>:</p>
+<p><span class="math display">\[\begin{aligned}
+P(x|y) &amp;= P(x_1, x_2, ..., x_m | y)\\
+&amp;= P(x_1|y)P(x_2|y,x_1)P(x_3|y,x_1,x_2) ... P(x_m|y,x_1,x_2,...,x_{m-1})\\
+\end{aligned}\]</span></p>
+<p>Instead, we introduce the <strong>Naive Bayes</strong> assumption that <span class="math inline">\(P(x_i, x_j) = P(x_i)P(x_j), i \ne j\)</span>, treating all features as conditionally independent, giving us instead:</p>
+<p><span class="math display">\[P(x|y) = \prod_{i=1}^m P(x_i|y)\]</span></p>
+<p>We define probabilities:</p>
+<ul>
+<li><span class="math inline">\(\theta_1 = P(y=1)\)</span></li>
+<li><span class="math inline">\(\theta_{j,1} = P(x_j = 1 | y = 1)\)</span></li>
+<li><span class="math inline">\(\theta_{j,0} = P(x_j = 1 | y = 0)\)</span></li>
+</ul>
+<p>Then, find parameters that maximize log-likelihood:</p>
+<p><span class="math display">\[\begin{aligned}
+P(y|x) &amp;\propto P(y)P(x|y)\\
+&amp;= \prod_{i=1}^n\left(P(y_i) \prod_{j=1}^m P(x_{i,j}|y_i)\right)\\
+&amp;\propto \sum{i=1}^n\left(\ln P(y_i) + \sum{j=1}^m \ln P(x_{i,j}|y_i)\right)\\
+&amp;\propto \sum{i=1}^n\left(y_i \log \theta_1 + (1-y_i) \log(1 - \theta_1)\right)\\
+&amp;\quad + \sum_{j=1}^m y_i\left(x_{i,j}\log\theta_{i,1} + (1-x_{i,j})\log(1 - \theta_{i,1})\right)\\
+&amp;\quad + \sum_{j=1}^m (1-y_i)\left(x_{i,j}\log\theta_{i,0} + (1-x_{i,j})\log(1 - \theta_{i,0})\right)\\
+\end{aligned}\]</span></p>
+<p>For discrete classification, choose Bernoulli distributions for <span class="math inline">\(\theta\)</span> values. For continuous values, choose Gaussian.</p>
+<h3 id="prediction-4">Prediction</h3>
+<p>Calculate the probabilities of <span class="math inline">\(P(y=c)\)</span> for each class <span class="math inline">\(c\)</span>.</p>
+<h3 id="other-properties">Other properties</h3>
+<p>The decision boundary can be found by checking where <span class="math inline">\(\frac{P(y=1|x)}{P(y=0|x)} = 1\)</span>, or for easier computation, <span class="math inline">\(\ln \frac{P(y=1|x)}{P(y=0|x)} = 0\)</span>.</p>
+<p><strong>Laplace smoothing</strong>: add an addition of a constant into the numerator and the denominator of the maximum likelihood estimator to avoid a probability ever going to zero, acting as hallucinated examples.</p>
+<h2 id="support-vector-machines-svns">Support Vector Machines (SVNs)</h2>
+<h3 id="training-5">Training</h3>
+<p>We are attempting to maximize the geometric margin of a data set. We look for:</p>
+<p><span class="math display">\[\max_{w, b} \frac{1}{||w||}, \quad y_i(w^Tx_i+b) \ge 1 \quad \forall i \in \{1, ..., n\}\]</span></p>
+<p>We use <strong>Lagrangian optimization</strong>. In general, we want:</p>
+<p><span class="math display">\[\min_w f(w), \quad g_i(w) \le 0 \forall i, \quad h_i(w) = 0 \forall i\]</span></p>
+<p>Then, we define the <strong>generalized Lagrangian</strong>:</p>
+<p><span class="math display">\[L(w, \alpha, \beta) = f(w) + \sum_{i=1}^k \alpha_i g_i(w) + \sum_{i=1}^k \beta_i h_i(w)\]</span></p>
+<p>The <strong>primal problem</strong> is defined:</p>
+<p><span class="math display">\[\begin{aligned}
+\theta_P(w) &amp;= \max_{\alpha,\beta: \alpha_i \ge 0} L(w, \alpha, \beta)\\
+&amp;= \begin{cases}f(w),&amp;w\text{ satisfies all constraints}\\\infty,&amp;\text{otherwise}\end{cases}\\
+\end{aligned}\]</span></p>
+<p>We are concerned with finding:</p>
+<p><span class="math display">\[p^* = \min_w \theta_P(w) = \min_w \max_{\alpha,\beta: \alpha_i \ge 0} L(w, \alpha, \beta)\]</span></p>
+<p>Instead of minimizing <span class="math inline">\(w\)</span> first, we can minimize with respect to <span class="math inline">\(w\)</span>:</p>
+<p><span class="math display">\[d^* = \max_{\alpha,\beta: \alpha_i \ge 0} \theta_D (\alpha,\beta) = \max_{\alpha,\beta: \alpha_i \ge 0} \min_w L(w, \alpha, \beta)\]</span></p>
+<p>The max min of a function is always less than the min max of the function, so <span class="math inline">\(d^* \le p^*\)</span>. Under the following conditions, the <strong>Karush-Kuhn-Tucker (KKT) conditions</strong>, we can determine that they are equal:</p>
+<ul>
+<li><span class="math inline">\(\frac{\partial}{\partial w_i} L(w^*, \alpha^*, \beta^*) = 0, \quad i = 1,...,n\)</span></li>
+<li><span class="math inline">\(\frac{\partial}{\partial \beta_i} L(w^*, \alpha^*, \beta^*) = 0, \quad i = 1,...,l\)</span></li>
+<li>
+<span class="math inline">\(\alpha_i^* g_i(w^*) = 0, \quad i = 1,...,k\)</span> (dual complementarity)</li>
+<li>
+<span class="math inline">\(g_i(w^*) \le 0, \quad i = 1,...,k\)</span> (primal feasibility)</li>
+<li>
+<span class="math inline">\(\alpha^* \ge 0, \quad i = 1,...,k\)</span> (dual feasibility)</li>
+</ul>
+<p>e.g. to minimize <span class="math inline">\(x^2\)</span> subject to <span class="math inline">\((x-2)^2 \le 1\)</span>:</p>
+<ul>
+<li><span class="math inline">\(L(x, \lambda) = x^2 + \lambda((x-2)^2 - 1)\)</span></li>
+<li>To solve the primal problem:<ul>
+<li>Take <span class="math inline">\(\frac{\partial}{\partial \lambda} L(x, \lambda) = 0\)</span>
+</li>
+<li>Solve for where <span class="math inline">\(x = 0\)</span>
+</li>
+<li>Plug <span class="math inline">\(x\)</span> back in to get the optimal value <span class="math inline">\(p^*\)</span>
+</li>
+</ul>
+</li>
+<li>To solve the dual problem:<ul>
+<li>Solve <span class="math inline">\(\frac{\partial}{\partial x} L(x, \lambda) = 0\)</span> for <span class="math inline">\(x^*\)</span> in terms of <span class="math inline">\(\lambda\)</span>
+</li>
+<li>Plug <span class="math inline">\(x^*\)</span> back into <span class="math inline">\(L\)</span> to get the dual formula <span class="math inline">\(g\)</span>
+</li>
+<li>Solve <span class="math inline">\(0 = \frac{\partial L}{\partial \lambda}\)</span> for <span class="math inline">\(\lambda\)</span>
+</li>
+<li>Plug that value back into <span class="math inline">\(g\)</span> to get the optimal value <span class="math inline">\(d^*\)</span>
+</li>
+</ul>
+</li>
+</ul>
+<p>To solve an optimal margin classifier, we want to solve <span class="math inline">\(\min_{w,b}\frac{1}{2}||w||^2\)</span>, subject to <span class="math inline">\(y_i(w^Tx_i+b) \ge 1\)</span>, <span class="math inline">\(i=1,...,n\)</span>. We can rewrite the constraints as <span class="math inline">\(g_i(w) = 1 - y_i(w^Tx_i+b) \le 0\)</span> and solve the Lagrangian problem.</p>
+<p>The dual formulation:</p>
+<p><span class="math display">\[\max_\alpha \underbrace{\sum_{i=1}^n \alpha_i}_{\text{Depends only on}\\\text{dual variable}} - \underbrace{\frac{1}{2} \sum_{i,j=1}^n y_iy_j\alpha_i\alpha_j(x_i^T x_j)}_\text{Depends only on data}\]</span></p>
+<p>We replace <span class="math inline">\(x_i^T x_j\)</span> with a kernel <span class="math inline">\(K(x_i, x_j)\)</span> so that different kinds of nonlinearities can be represented. The kernel function is equivalent to <span class="math inline">\(\phi(x_i)^T\phi(\hat x)\)</span>, for some feature mapping <span class="math inline">\(\phi\)</span>. The dot product form is useful because it can be many less operations than actually computing the full multiplication. Some kernels:</p>
+<ul>
+<li>
+<strong>Linear</strong>: <span class="math inline">\(K(x,z) = x \cdot z\)</span>
+</li>
+<li>
+<strong>Polynomial</strong>: <span class="math inline">\(K(x,z) = (1 + x \cdot z)^d\)</span>
+</li>
+<li>
+<strong>Gaussian</strong>: <span class="math inline">\(K(x,z) = \exp\left(-\frac{||x-z||^2}{2\sigma^2}\right)\)</span>
+</li>
+</ul>
+<p>Due to the dual complementarity condition, we either have <span class="math inline">\(\alpha_i = 0\)</span> or <span class="math inline">\(1 - y_i(w^Tx_i+b) = 0\)</span>. Only constraints where the latter is true are "active" constraints, and these are the <strong>support vectors</strong>. They are points lying on the edge of the margin.</p>
+<p>To allow for not all constraints to be met, soften the primal problem by using non-infinite values in the loss function, such as quadratic loss or hinge loss.</p>
+<h2 id="ensemble-learning">Ensemble Learning</h2>
+<h3 id="bagging">Bagging</h3>
+<p>Multiple versions of the same model are trained on different datasets. Given an initial dataset <span class="math inline">\(D\)</span>, sample from it with replacement to create a bootstrapped dataset <span class="math inline">\(D_*\)</span> for each model instance. Take the average or majority prediction.</p>
+<p>Tends to reduce variance but increase bias.</p>
+<h3 id="random-forests">Random Forests</h3>
+<ul>
+<li>Create <span class="math inline">\(K\)</span> different bootstrapped datasets to create <span class="math inline">\(K\)</span> decision trees<ul><li>At each node, pick <span class="math inline">\(m\)</span> features to possible switch on, and pick the one that yields highest information gain</li></ul>
+</li>
+<li>Combine majority or average vote from all trees</li>
+</ul>
+<h3 id="boosting-adaboost">Boosting (AdaBoost)</h3>
+<ul>
+<li>Create a bunch of weak learners (ever so slightly better than random)</li>
+<li>Weight the misclassified examples more when training the next weak learner</li>
+<li>Decide in aggregate from all Weighted weak learners</li>
+</ul>
+<p>For <span class="math inline">\(m\)</span> samples:</p>
+<ul>
+<li>Initialize weights <span class="math inline">\(D_1(i) = \frac{1}{m}\)</span>
+</li>
+<li>For <span class="math inline">\(t = 1, ..., T\)</span>:<ul>
+<li>Train weak learner with weights <span class="math inline">\(D_t\)</span>
+</li>
+<li>Get error <span class="math inline">\(\epsilon_t = \sum_{i: h_t(x_i) \ne y_i} D_t(i)\)</span> (the sum of the weights for the misclassified examples)</li>
+<li>Get <span class="math inline">\(\alpha_t = \frac{1}{2} \ln \left(\frac{1-\epsilon_t}{\epsilon_t}\right)\)</span>
+</li>
+<li>Set <span class="math inline">\(D_{t+1}(i) = \frac{D_t(i)}{Z_t} \times \begin{cases}e^{-\alpha_t}, &amp;h_t(x_i) = y_i \\ e^{\alpha_t}, &amp;h_t(x_i) \ne y_i \end{cases}\)</span><ul><li>
+<span class="math inline">\(Z_t\)</span> is picked so <span class="math inline">\(\sum_i D_t(i) = 1\)</span>
+</li></ul>
+</li>
+</ul>
+</li>
+<li>Assuming classes are <span class="math inline">\(\{1, -1\}\)</span>, then the final output is the sign of the sum of the predictions of every weak learner</li>
+</ul>
+<h2 id="active-learning">Active Learning</h2>
+<p>Learning how to take samples to achieve the best results</p>
+<h3 id="pool-based-uncertainty-sampling">Pool-based Uncertainty Sampling</h3>
+<p>Given a pool of unlabelled samples, ask the oracle for a label on the most uncertain one.</p>
+<p>When using <strong>version spaces</strong>, pick samples that will eliminate half of the possible model parameters.</p>
+<h3 id="query-by-committee">Query by Committee</h3>
+<p>Train multiple models, and query instances for which committee members disagree.</p>
+<p>Disagreement metrics:</p>
+<ul>
+<li>Vote Entropy: <span class="math inline">\(x_{VE}^* = \operatorname*{argmax}_x - \sum_y \frac{\text{vote}_C(y,x)}{|C|} \log \frac{\text{vote}_C(y,x)}{|C|}\)</span><ul><li>
+<span class="math inline">\(\text{vote}_C(y,x)\)</span> is the number of times <span class="math inline">\(x\)</span> is classified as <span class="math inline">\(y\)</span> by committee members</li></ul>
+</li>
+<li>Soft Vote Entropy: <span class="math inline">\(x_{SVE}^* = \operatorname*{argmax}_x - \sum_y P_C(y|x) \log P_C(y|x)\)</span><ul><li>
+<span class="math inline">\(P_C(y|x)\)</span> is the probability of <span class="math inline">\(x\)</span> being labelled <span class="math inline">\(y\)</span> by committee members</li></ul>
+</li>
+<li>KL divergence: <span class="math inline">\(x_{KL}^* = \operatorname*{argmax}_x \frac{1}{C} \sum_{\theta \in C} \sum_y P_\theta(y|x) \log \frac{P_\theta(y|x)}{P_C(y|x)}\)</span><ul><li>Average divergence of each committee member's <span class="math inline">\(\theta\)</span> prediction from the consensus</li></ul>
+</li>
+</ul>
+<p>Dealing with outliers</p>
+<ul>
+<li>Density weighting: <span class="math inline">\(x^* = \operatorname*{argmax} H_\theta(Y|x) \left(\frac{1}{U} \sum_{x' \in U} \text{sim}(x, x')\right)^\beta\)</span><ul>
+<li>
+<span class="math inline">\(\text{sim}(x, x')\)</span> is the average similarity of <span class="math inline">\(x\)</span> to all other instances in the pool <span class="math inline">\(U\)</span>
+</li>
+<li>
+<span class="math inline">\(\beta\)</span> is the importance of the density term</li>
+</ul>
+</li>
+<li>Estimated error reduction: <span class="math inline">\(\operatorname*{argmax}_x \sum_{x' \in U} \left(H_\theta(Y|x') - E_{Y|\theta,x}[H_{\theta^+}(Y|x')]\right)\)</span><ul>
+<li>
+<span class="math inline">\(H_\theta(Y|x')\)</span> is the uncertainty before the query</li>
+<li>
+<span class="math inline">\(E_{Y|\theta,x}[H_{\theta^+}(Y|x')]\)</span> is the expected uncertainty after querying for <span class="math inline">\(x\)</span>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="unsupervised-learning">Unsupervised Learning</h2>
+<h3 id="k-means-clustering">K-Means Clustering</h3>
+<ul>
+<li>Pick desired number of clusters <span class="math inline">\(K\)</span>
+</li>
+<li>Assume a distribution for each class (e.g. Gaussian)</li>
+<li>Randomly assign parameters for each distribution</li>
+<li>Iterate until Convergence:<ul>
+<li>Assign instances to the most likely class given current parameters (expectation)</li>
+<li>Estimate new parameters given the elements last assigned to each class (maximization)</li>
+</ul>
+</li>
+</ul>
+<p>Picking <span class="math inline">\(K\)</span>:</p>
+<p><span class="math display">\[\begin{aligned}
+W(K) &amp;= \sum^K_{k=1}\sum_{i \in I_k} ||x_i-\bar{x}_k||^2\\
+B(K) &amp;= \sum_{k=1}^K n_k ||\bar{x}_k - \bar{x}||^2\\
+CH(K) &amp;= \frac{B(K)/(K-1)}{W(K)/(N-K)}\\
+K^* &amp;= \operatorname*{argmax}_{K \in \{2, ..., K_{max}\}} CH(K)\\
+\end{aligned}\]</span></p>
+<h3 id="hierarchical-clustering">Hierarchical Clustering</h3>
+<p>Linkage (dissimilarity) functions:</p>
+<ul>
+<li>Single: <span class="math inline">\(d(G,H) = \min_{i\in G, j\in H} d_{i,j}\)</span>
+</li>
+<li>Complete: <span class="math inline">\(d(G,H) = \max_{i\in G, j\in H} d_{i,j}\)</span>
+</li>
+<li>Average: <span class="math inline">\(d(G,H) = \frac{1}{n_G \cdot n_H} \sum_{i\in G, j\in H} d_{i,j}\)</span>
+</li>
+</ul>
+<p>Algorithm:</p>
+<ul><li>Until there are only two classes left:<ul>
+<li>Create a matrix of linkages between each pair</li>
+<li>Take the argmin element and combine the classes for its row and column into a bigger class</li>
+</ul>
+</li></ul>
+<h3 id="principal-component-analysis-pca">Principal Component Analysis (PCA)</h3>
+<ul>
+<li>Normalize features (so each has zero mean)</li>
+<li>Compute covariance matrix</li>
+<li>Compute eigenvectors</li>
+<li>Keep first <span class="math inline">\(k\)</span> eigenvectors and project onto them to get new features <span class="math inline">\(z\)</span>
+</li>
+</ul>
+<h2 id="semi-supervised-learning">Semi-Supervised Learning</h2>
+<h3 id="self-learning">Self-Learning</h3>
+<ul>
+<li>Initially set <span class="math inline">\(L\)</span> equal to labelled training data and <span class="math inline">\(U\)</span> equal to all unlabelled data</li>
+<li>Repeat:<ul>
+<li>Train on <span class="math inline">\(L\)</span>
+</li>
+<li>Apply classification to a subset of <span class="math inline">\(U\)</span>
+</li>
+<li>Move that subset from <span class="math inline">\(U\)</span> to <span class="math inline">\(L\)</span> with the applied labels</li>
+</ul>
+</li>
+</ul>
+<h3 id="co-training">Co-Training</h3>
+<ul>
+<li>Train two classifiers: <span class="math inline">\(f_1\)</span> from <span class="math inline">\((X_1, Y)\)</span> and <span class="math inline">\(f_2\)</span> from <span class="math inline">\((X_2, Y)\)</span>
+</li>
+<li>Classify unlabelled data with <span class="math inline">\(f_1\)</span> and <span class="math inline">\(f_2\)</span>
+</li>
+<li>Add <span class="math inline">\(f_1\)</span>'s <span class="math inline">\(k\)</span> most confident to <span class="math inline">\(f_2\)</span>'s labelled data</li>
+<li>Add <span class="math inline">\(f_2\)</span>'s <span class="math inline">\(k\)</span> most confident to <span class="math inline">\(f_1\)</span>'s labelled data</li>
+<li>Repeat</li>
+</ul>
+<p>Assumes:</p>
+<ul>
+<li>Each view alone is sufficient to make good predictions</li>
+<li>The two views are conditionally independent given the class label</li>
+</ul>
+<h3 id="gaussian-mixture-model-gmm">Gaussian Mixture Model (GMM)</h3>
+<p>Assumes data is generated by:</p>
+<ul>
+<li>Picking a single Gaussian source out of many sources, given weights for each</li>
+<li>Generating a value from that single Gaussian distribution given its parameters</li>
+</ul>
+<p>With labelled data:<br>
+<span class="math display">\[\begin{aligned}
+\log (D|\theta) &amp;= \log \prod_{i=1}^l p(x_i, y_i | \theta)\\
+&amp;= \log \prod_{i=1}^l p(y_i | \theta) p(x_i | y_i, \theta)\\
+\end{aligned}\]</span></p>
+<p>With labelled and unlabelled data:<br>
+<span class="math display">\[\begin{aligned}
+\log (D|\theta) &amp;= \log \prod_{i=1}^l p(x_i, y_i | \theta) \prod_{i=l+1}^{l+u} p(x_i | \theta)\\
+&amp;= \log \prod_{i=1}^l p(y_i | \theta) p(x_i | y_i, \theta) \prod_{i=l+1}^{l+u} \sum_{k=1}^K p(y_i = k | \theta) p(x_i | y_i, \theta)\\
+\end{aligned}\]</span></p>
+<h4 id="for-2-class-gmm-expectation-maximization">For 2-class GMM, Expectation Maximization</h4>
+<p>Expectation step:<br>
+<span class="math display">\[\gamma_{i,k} \leftarrow P(y_i = k | x_i) = \frac{\pi_k \mathcal{N}(x_i; \mu_k, \sigma_k)}{\sum_{k'=1}^2 \pi_{k'} \mathcal{N}(x_i; \mu_{k'}, \sigma_{k'})}\]</span></p>
+<p>Maximization step:<br>
+<span class="math display">\[\begin{aligned}
+\mu_k &amp;\leftarrow \frac{1}{\sum_{i=1}^N \gamma_{i,k}}\sum_{i=1}^N \gamma_{i,k}x_i\\
+\sigma_k &amp;\leftarrow \frac{1}{\sum_{i=1}^N \gamma_{i,k}} \sum_{i=1}^N \gamma_{i,k} (x_i - \mu_k)^2\\
+\pi_k &amp;\leftarrow \frac{1}{N} \sum_{i=1}^N \gamma_{i,k}\\
+\end{aligned}\]</span></p>
+<h3 id="other-methods">Other methods</h3>
+<p>Graph-based</p>
+<ul><li>Edges have similarity weights</li></ul>
+<p>Semi-supervised SVM</p>
+<ul>
+<li><span class="math inline">\(\min_{w,b} \sum_{i=1}^l \max(1-y_i(w^T x_i + b), 0) + \lambda_1 ||w||^2 + \lambda_2 \sum_{j=l+1}^{l+u} \max(1 - |w^T x_j + b|, 0)\)</span></li>
+<li>Prefer unlabelled points outside the margin</li>
+</ul>
+<h2 id="neural-networks">Neural Networks</h2>
+<p><span class="math inline">\(\sigma(x) = \frac{1}{1 + e^x}\)</span></p>
+<p><span class="math inline">\(\frac{\partial \sigma(x)}{\partial x} = \sigma(x)(1-\sigma(x))\)</span></p>
+<p>Gradient descent:</p>
+<p><span class="math display">\[\begin{aligned}
+E &amp;= \frac{1}{2} \sum_{m \in M} (y^{(m)} - o^{(m)})^2\\
+\frac{\partial E}{\partial w_i} &amp;= \frac{1}{2} \sum_{m \in M} \frac{\partial E \partial o^m}{\partial o^m \partial w_i}\\
+&amp;= \frac{1}{2}\sum_{m \in M} \frac{\partial E}{\partial o^m}\left(\frac{\partial o^m \partial z}{\partial z \partial w_i}\right)\\
+&amp;= -\sum_{m \in M} x_1^{(m)} o^{(m)} (1 - o^{(m)})(y^{(m)} - o^{(m)})\\
+\Delta w_i &amp;= -\epsilon \frac{\partial E}{\partial w_i}\\
+\end{aligned}\]</span></p>
+<p>For RNNs, since weights are constrained to be the same over time, compute <span class="math inline">\(\frac{\partial E}{\partial w_1}\)</span> and <span class="math inline">\(\frac{\partial E}{\partial w_2}\)</span>. Update <span class="math inline">\(w_1\)</span> and <span class="math inline">\(w_2\)</span> both by <span class="math inline">\(\frac{\partial E}{\partial w_1} + \frac{\partial E}{\partial w_2}\)</span> to enforce <span class="math inline">\(w_1 = w_2\)</span>.</p>
+<p>GANs try to find:</p>
+<p><span class="math display">\[\begin{aligned}
+&amp;\min_{W_g} \max_{W_d} \sum_n \log P(x_n \text{ is real; } W_d) + \log P(g(z_n; W_g) \text{ is fake; } W_d)\\
+\equiv &amp;\min_{W_g} \max_{W_d} \sum_n \log d(x_n; W_d) + \log(1 - d(g(z_n; W_g); W-d))\\
+\end{aligned}\]</span></p>
+<p>To train, repeat until convergence:</p>
+<ul>
+<li>For <span class="math inline">\(k\)</span> steps:<ul>
+<li>Sample <span class="math inline">\(z_1, ..., z_m\)</span> from <span class="math inline">\(P(z)\)</span>
+</li>
+<li>Sample <span class="math inline">\(x_1, ..., x_m\)</span> from training set</li>
+<li>Update the discriminator by ascending its stochastic gradient:<ul><li><span class="math inline">\(\Delta_{w_d}\left(\frac{1}{m} \sum_{n=1}^m[\log d(x_n; W_d) + \log(1 - d(g(z_n; W_g); W_d))]\right)\)</span></li></ul>
+</li>
+</ul>
+</li>
+<li>Sample <span class="math inline">\(z_1, ..., z_m\)</span> from <span class="math inline">\(P(z)\)</span>
+</li>
+<li>Update the generator by ascending its stochastic gradient:<ul><li><span class="math inline">\(\Delta_{w_g}\left(\log(1 - d(g(z_n; W_g); W_d))\right)\)</span></li></ul>
+</li>
+</ul>
+<h2 id="structured-prediction">Structured prediction</h2>
+<h3 id="structured-svm">Structured SVM</h3>
+<p>Goal: learn a scoring function <span class="math inline">\(s(x,y) \gt s(x, \hat y) \forall \hat y \ne y\)</span> where <span class="math inline">\(y\)</span> is the true label and <span class="math inline">\(\hat y\)</span> is an impostor label. In general, <span class="math inline">\(s(x, y)\)</span> takes the form <span class="math inline">\(w^T \phi(x, y)\)</span>, weights over a feature function.</p>
+<p>We try to find <span class="math inline">\(\hat y = \operatorname*{argmax}_y w \cdot \phi(x, y)\)</span>.</p>
+<h3 id="conditional-random-fields">Conditional Random Fields</h3>
+<p>A log linear model is used to give the probability of a label sequence <span class="math inline">\(y\)</span> given an observation sequence <span class="math inline">\(x\)</span>:</p>
+<p><span class="math display">\[p(y|x,w) = \frac{\exp\left(\sum_{j=1}^F w_j \phi_j(x,y)\right)}{\sum_{y'}\exp\left(\sum_{j=1}^F w_j \phi_j(x,y')\right)}\]</span></p>
+<p>Where <span class="math inline">\(\phi_j(x,y) = \sum_{i=1}^N f_i (y_{i-1}, y_i, x_{1:N}, i)\)</span>. <span class="math inline">\(x\)</span> is a sequence of words, <span class="math inline">\(y_i\)</span> is the label for the current word, and <span class="math inline">\(y_{i-1}\)</span> is the label of the previous word.</p>
+<h2 id="reinforcement-learning">Reinforcement Learning</h2>
+<h3 id="markov-system-of-rewards">Markov System of Rewards</h3>
+<p>Given a state transition matrix <span class="math inline">\(P\)</span>, a discount factor <span class="math inline">\(\gamma\)</span>, and the reward for being in state <span class="math inline">\(s_i\)</span> is <span class="math inline">\(r_i\)</span>, we want to find a vector <span class="math inline">\(U^*(s_i)\)</span>, the expected discounted sum of future rewards starting at state <span class="math inline">\(s_i\)</span>.</p>
+<p>Can solve by value iteration:</p>
+<p><span class="math display">\[\begin{aligned}
+U^1(s_i) &amp;= r_i\\
+U^2(s_i) &amp;= r_i + \gamma \sum_{j=1}^n P_{i,j} U^1 (s_j)\\
+&amp;...\\
+U^{k+1}(s_i) &amp;= r_i + \gamma \sum_{j=1}^n P_{i,j} U^k (s_j)\\
+\end{aligned}\]</span></p>
+<p>When there are actions that have probabilities of outcomes (e.g. in a Markov Decision Process):</p>
+<p><span class="math display">\[V^{t+1}(s_i) = \max_k \left[ r_i + \gamma \sum_{j=1}^n P^{(k)}_{i,j}V^t(s_j)\right]\]</span></p>
+<p>The best action <span class="math inline">\(k\)</span> in state <span class="math inline">\(s_i\)</span> is the argmax over <span class="math inline">\(k\)</span> of the previous equation.</p>
+<h3 id="temporal-difference">Temporal difference</h3>
+<p><span class="math display">\[V^\pi(s) = V^\pi(s) + \underbrace\alpha_\text{Learning rate} \underbrace{(\underbrace{r(s) + \gamma V^\pi(s')}_\text{target} - V^\pi(s))}_\text{Temporal difference}\]</span></p>
+<p>Basically, this is a running average of samples:</p>
+<p><span class="math display">\[\begin{aligned}
+x &amp;\leftarrow R(s) + \gamma V^\pi (s')\\
+V^\pi (s) &amp;\leftarrow (1-\alpha)V^\pi(s) + \alpha x\\
+\end{aligned}\]</span></p>
+<h3 id="q-learning">Q Learning</h3>
+<p>Make a table <span class="math inline">\(Q: S \times A \rightarrow R\)</span> representing the value of a state-action pair. The optimal policy is then:<br>
+<span class="math display">\[\pi^*(s) = \operatorname*{argmax}_a Q(s,a)\]</span></p>
+<p>Bellman's equation:</p>
+<p><span class="math display">\[Q(s,a) \leftarrow r(s) + \gamma \sum_{s'} P(s' | s,a) \max_{a'} Q(s', a')\]</span></p>
+<p>That is to say, for each possible state <span class="math inline">\(s'\)</span> you could end up in by performing <span class="math inline">\(a\)</span> at state <span class="math inline">\(s\)</span>, take the sum the maximum expected reward you can get from performing some action from <span class="math inline">\(s'\)</span> multiplied by the probability of landing in <span class="math inline">\(s'\)</span>. Scale this sum by <span class="math inline">\(\gamma\)</span> and add it to the received reward.</p>
+<h4 id="learning-policy-behaviour-policy-sarsa">Learning policy = behaviour policy (SARSA)</h4>
+<ul>
+<li>Take an action <span class="math inline">\(a\)</span> and observe <span class="math inline">\(r\)</span> and <span class="math inline">\(s'\)</span>
+</li>
+<li>Choose <span class="math inline">\(a'\)</span> from <span class="math inline">\(s'\)</span> according to policy</li>
+<li><span class="math inline">\(Q(s,a) \leftarrow Q(s,a) + \alpha(r + \gamma Q(s', a') - Q(s,a))\)</span></li>
+</ul>
+<h4 id="learning-policy-behaviour-policy">Learning policy ≠ behaviour policy</h4>
+<ul>
+<li>Take an action <span class="math inline">\(a\)</span> and observe <span class="math inline">\(r\)</span> and <span class="math inline">\(s'\)</span>
+</li>
+<li><span class="math inline">\(Q(s,a) \leftarrow Q(s,a) + \alpha(r + \gamma \max_{a'} Q(s', a') - Q(s,a))\)</span></li>
+</ul>
+<h2 id="learning-by-demonstration">Learning by Demonstration</h2>
+<p>The goal here is to learn a policy that mimics expert actions.</p>
+<h3 id="sequential-decision-making">Sequential Decision Making</h3>
+<p>Learn a policy <span class="math inline">\(\pi\)</span> that maps sensory readings to action.</p>
+<p><span class="math display">\[\hat\pi = \operatorname*{argmin}_\pi E_{s \sim d_\pi}[l(s, \pi)]\]</span></p>
+<p>Here, <span class="math inline">\(E\)</span> is expected loss, <span class="math inline">\(d_\pi\)</span> is the distribution of states given that the policy is followed.</p>
+<h3 id="forward-training">Forward Training</h3>
+<p>For each policy <span class="math inline">\(\pi_i\)</span>:</p>
+<ul>
+<li>Sample <span class="math inline">\(t\)</span> steps of trajectory following <span class="math inline">\(\pi_{i-1}\)</span>
+</li>
+<li>For each of the steps, ask the expert what action would have been taken</li>
+<li>Train policy <span class="math inline">\(\pi_i\)</span> by on the trajectory-action pairs</li>
+</ul>
+<h3 id="stochastic-mixing-iterative-learning-smile">Stochastic Mixing Iterative Learning (SMILE)</h3>
+<p>For each policy <span class="math inline">\(\pi_i\)</span>:</p>
+<ul>
+<li>Sample <span class="math inline">\(t\)</span> steps of trajectory following <span class="math inline">\(\hat\pi_{i-1}\)</span>
+</li>
+<li>For each of the steps, ask the expert what action would have been taken</li>
+<li>Train policy <span class="math inline">\(\hat\pi_i\)</span> by adding those trajectory-action pairs to the training set</li>
+<li><span class="math inline">\(\pi_i = (1-\alpha)^i \pi^* + \alpha\sum_{j=1}^i (1-\alpha)^{j-1} \hat\pi^{*j}\)</span></li>
+</ul>
+<h3 id="dataset-aggregation-dagger">Dataset Aggregation (Dagger)</h3>
+<p>For each policy <span class="math inline">\(\pi_i\)</span>:</p>
+<ul>
+<li>Sample <span class="math inline">\(t\)</span> steps of trajectory following <span class="math inline">\(\pi_{i-1}\)</span>
+</li>
+<li>For each of the steps, ask the expert what action would have been taken</li>
+<li>Add these trajectory-action pairs to the training set and train policy <span class="math inline">\(\pi_i\)</span> on it</li>
+</ul>
+<h3 id="inverse-reinforcement-learning">Inverse Reinforcement Learning</h3>
+<p>Given traces from an expert and a probability transition matrix <span class="math inline">\(T\)</span>, create a reward function <span class="math inline">\(R\)</span> such that:</p>
+<p><span class="math display">\[E\left[\sum_{t=0}^\infty \gamma^t R^*(s_t) | \pi^*\right] \le E\left[\sum_{t=0}^\infty \gamma^t R^*(s_t) | \pi\right] \forall \pi\]</span></p>
+<h4 id="feature-based-reward-function">Feature based reward function</h4>
+<p><span class="math display">\[\begin{aligned}
+&amp;E\left[\sum_{t=0}^\infty \gamma^t R^*(s_t) | \pi\right]\\
+=&amp; E\left[\sum_{t=0}^\infty \gamma^t w^T \phi(s_t) | \pi\right]\\
+=&amp; w^T E\left[\sum_{t=0}^\infty \gamma^t \phi(s_t) | \pi\right]\\
+=&amp; w^T \mu(\pi)\\
+\end{aligned}\]</span></p>
+<p><span class="math inline">\(\mu\)</span> is the expected cumulative discounted sum of feature values. Given <span class="math inline">\(\phi: S \rightarrow \mathbb{R}^n\)</span>, find <span class="math inline">\(w^*\)</span> such that <span class="math inline">\(w^{*T}\mu(\pi^*) \ge w^{*T}\mu(\pi) \forall \pi\)</span>.</p>
+<p>It suffices that <span class="math inline">\(||\mu(\pi) - \mu(\pi^*)||_1 \le \epsilon\)</span>.</p>
+<h4 id="apprenticeship-learning">Apprenticeship Learning</h4>
+<ul>
+<li>Pick a controller <span class="math inline">\(\pi_0\)</span>
+</li>
+<li>Iterate <span class="math inline">\(n\)</span> steps</li>
+<li>Find a reward function such that the teacher maximally outperforms all previously found controllers</li>
+<li>Find an optimal control policy <span class="math inline">\(\pi_i\)</span> for the current guess of the reward function</li>
+</ul>
+<h2 id="independence-criterion">Independence criterion</h2>
+<p><span class="math display">\[\frac{P(R=1|A=a)}{P(R=1|A=b)} \ge 1 - \epsilon\]</span></p>
+<p>This expresses the belief that traits relevant for classification are independent of certain attributes.</p>
+<h2 id="interpretability">Interpretability</h2>
+<h3 id="local-surrogate">Local Surrogate</h3>
+<ul>
+<li>Choose an instance you want to have an explanation for</li>
+<li>Perturb your dataset and get black box predictions for the new points</li>
+<li>Weight new samples by their proximity to the region of interest</li>
+<li>Fit a weighted, interpretable model (e.g. decision tree) on the dataset</li>
+</ul>
+<h3 id="examples">Examples</h3>
+<ul><li>Pick examples representative of different classifications from the dataset</li></ul>
+<h3 id="counterfactuals">Counterfactuals</h3>
+<ul><li>Example of the smallest change to feature values that changes the prediction of the output</li></ul>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

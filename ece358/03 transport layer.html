@@ -1,0 +1,369 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<title>Transport layer</title>
+</head>
+<body>
+
+<h1 id="transport-layer">Transport layer</h1>
+<a href="index.html">Back to ece358</a>
+<div id="TOC">
+
+<ul>
+<li><a href="#services">Services</a></li>
+<li>
+<a href="#reliable-data-transfer">Reliable Data Transfer</a><ul>
+<li><a href="#stop-and-wait">Stop-and-wait</a></li>
+<li><a href="#go-back-n">Go-back-<span class="math inline">\(N\)</span></a></li>
+<li><a href="#selective-repeat">Selective Repeat</a></li>
+</ul>
+</li>
+<li>
+<a href="#tcp">TCP</a><ul>
+<li><a href="#segment-structure">Segment structure</a></li>
+<li><a href="#estimating-round-trip-time">Estimating round trip time</a></li>
+<li><a href="#rdt">RDT</a></li>
+<li><a href="#flow-control">Flow control</a></li>
+<li><a href="#connection-management">Connection management</a></li>
+<li><a href="#congestion-control">Congestion Control</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="services">Services</h2>
+<ul>
+<li>Provide logical communication between app processes running on different hosts</li>
+<li>Transport protocols run on end systems<ul>
+<li>Send side: messages broken into segments, passed to network layer</li>
+<li>Receive side: reassembles segments into messages, passes to the app layer</li>
+</ul>
+</li>
+<li>More than one transport protocol available</li>
+<li>Network layer provides logical communication between <em>hosts</em>, transport layer adds logical communication between <em>processes</em>
+</li>
+</ul>
+<p>IP protocols:</p>
+<ul>
+<li>Reliable, in-order delivery: TCP<ul>
+<li>Congestion control (network itself not overloaded)</li>
+<li>Flow control (receiver not overloaded)</li>
+</ul>
+</li>
+<li>Unreliable, unordered delivery: UDP</li>
+<li>Services not available: bandwidth/delay guarantees</li>
+</ul>
+<p>Multiplexing</p>
+<ul>
+<li>Multiplexing at sender: handle data from multiple sockets, add transport header</li>
+<li>Demultiplexing at receiver: use header info to deliver received segments to correct socket<ul>
+<li>Host receives IP datagrams</li>
+<li>each datagram has one segment, which has source and destination IP &amp; socket number</li>
+<li>UDP only differentiates segments based on port number</li>
+<li>TCP differentiates segments based on IP and port</li>
+</ul>
+</li>
+</ul>
+<p>UDP checksum</p>
+<ul>
+<li>If the receiver calculates the checksum and it doesn't match the checksum in the header, there was an error</li>
+<li>Checksum: 1's complement: Add the two 16-bit integers. If there is a carry, add it to the first bit. Invert the bits for the checksum.</li>
+</ul>
+<h2 id="reliable-data-transfer">Reliable Data Transfer</h2>
+<h3 id="stop-and-wait">Stop-and-wait</h3>
+<ul>
+<li>Reliable Data Transfer (RDT) protocol</li>
+<li>Sender application calls <code>rdt_send()</code>, which make calls to <code>udt_send()</code><ul><li>
+<code>udt_send</code> is unreliable data transfer, used internally by RDT</li></ul>
+</li>
+<li>Recipient calls <code>rdt_rcv()</code> called when packed arrives on the receive side of the channel, which calls <code>deliver_data()</code> to hand it off to the application</li>
+<li>Uses checksum for error detection</li>
+<li>Adds ACKs when received correctly</li>
+<li>Adds NAKs when received with an error</li>
+<li>ACKs and NAKs can be corrupted, too. We add a <strong>sequence number</strong> to each packet.<ul>
+<li>If an ACK or NAK is corrupted, we treat it like it was a NAK</li>
+<li>If the receiver actually had sent an ACK, it will see that it got sent the same packet again, and can ignore it and send an ACK</li>
+<li>Sequence number can just be 0 or 1, alternating between them</li>
+<li>ACK is actually ACK of the current sequence number, and NAK is just an ACK for the other sequence number</li>
+</ul>
+</li>
+<li>Packet loss is possible: use a timer. If a response hasn't been received by the time the timer runs out, resend.<ul><li>This is an example of an <strong>Automatic Repeat Request</strong> (ARQ) protocol</li></ul>
+</li>
+</ul>
+<h4 id="performance">Performance</h4>
+<ul>
+<li>Not good</li>
+<li>Utilization: <span class="math inline">\(U_{sender} = \frac{L/R}{RTT + L/R}\)</span>
+</li>
+<li><span class="math inline">\(D_{trans} = \frac{L}{R}\)</span></li>
+<li>
+<span class="math inline">\(L/R\)</span> is the time spend sending actual useful information, but then we also have to wait for a round trip to receive an ACK</li>
+<li>Do it better with <strong>pipelined protocols</strong>
+</li>
+</ul>
+<h3 id="go-back-n">Go-back-<span class="math inline">\(N\)</span>
+</h3>
+<ul>
+<li>Sender can have up to <span class="math inline">\(N\)</span> packets in pipeline</li>
+<li>Receiver only sends cumulative ACK</li>
+<li>doesn't ACK a packet i there's a gap</li>
+<li>sender has timer for oldest un-acked packet<ul><li>when timer expires, ALL are resent</li></ul>
+</li>
+</ul>
+<h3 id="selective-repeat">Selective Repeat</h3>
+<ul>
+<li>Sender can have up to <span class="math inline">\(N\)</span> un-acked packets in the pipeline</li>
+<li>receiver sends individual ack for each packet</li>
+<li>sender maintains timer for each un-acked packet<ul><li>When timer expires, retransmit only that un-acked packet</li></ul>
+</li>
+</ul>
+<h4 id="performance-assuming-no-errors">Performance (assuming no errors)</h4>
+<p>Say <span class="math inline">\(T_x\)</span> and <span class="math inline">\(R_x\)</span> have agreed on a window size <span class="math inline">\(W\)</span>, and <span class="math inline">\(L\)</span> is the frame size. Then, if <span class="math inline">\(t_T\)</span> is the total elapsed time to send a data frame and receive a corresponding ack, then the sender will send:</p>
+<ul>
+<li>
+<span class="math inline">\(W\)</span> frames if <span class="math inline">\(\frac{WL}{C} \le t_T\)</span>, or</li>
+<li>if <span class="math inline">\(\frac{WL}{C} \gt t_T\)</span>, the "link" will be full and the number of sent frames will be <span class="math inline">\(\frac{t_T}{t_I}\)</span>, where <span class="math inline">\(t_I\)</span> is the time to transmit one frame<ul>
+<li><span class="math inline">\(t_I = \frac{L}{C}\)</span></li>
+<li>Utilization = <span class="math inline">\(\min\left(1, \frac{W \frac{L}{C}}{t_T}\right)\)</span>
+</li>
+</ul>
+</li>
+<li>Best case performance happens when the first ack is received while still sending packets, so we are sending packets all the time.</li>
+</ul>
+<p>Maximum window size:<br>
+<span class="math display">\[W_{max} = \frac{t_I}{t_t} = \frac{\underbrace{\frac{L}{C} + RTT}_\text{period of time considered}}{\underbrace{\frac{L}{C}}_\text{transmission time of one segment}}\]</span></p>
+<p>Throughput = utilization <span class="math inline">\(*\)</span> link rate</p>
+<h2 id="tcp">TCP</h2>
+<ul>
+<li>
+<strong>connection-oriented</strong>: sender and receiver have to handshake to initialize parameters, but not circuit switching because intermediate nodes don't keep state</li>
+<li>
+<strong>point-to-point</strong>: one sender, one receiver</li>
+<li>
+<strong>reliable, in-order byte stream</strong>: no message boundaries</li>
+<li>
+<strong>full duplex data</strong>: bi-directional data flow in same connection, MSS: maximum segment size</li>
+<li>
+<strong>pipelined</strong>: TCP congestion and flow control set window size</li>
+<li>
+<strong>flow controlled</strong>: sender will not overwhelm receiver</li>
+</ul>
+<h3 id="segment-structure">Segment structure</h3>
+<table>
+<tr><th colspan="4">width: 32 bits</th></tr>
+<tr>
+<td colspan="3">Source port #</td>
+<td>Dest port #</td>
+</tr>
+<tr><td colspan="4">Sequence number</td></tr>
+<tr><td colspan="4">acknowledgement number</td></tr>
+<tr>
+<td>head len</td>
+<td>not used</td>
+<td>`U A P R S F`</td>
+<td>receive window</td>
+</tr>
+<tr>
+<td colspan="3">checksum</td>
+<td>Urg data pointer</td>
+</tr>
+<tr><td colspan="4">options (variable length)</td></tr>
+<tr><td colspan="4">application data (variable length)</td></tr>
+</table>
+<ul>
+<li>URG: urgent data (usually not used)</li>
+<li>Ack: declares the acked # as valid</li>
+<li>PSH: push data now (usually not used)</li>
+<li>RST, SYN, FIN: connection establish (Setup, teardown commands)</li>
+<li>sequence numbers: byte stream "number" of first byte in segment's data</li>
+<li>acknowledgements:<ul>
+<li>sequence number of next byte expected from other side</li>
+<li>cumulative ACK</li>
+<li>Can ack while sending other data</li>
+</ul>
+</li>
+</ul>
+<h3 id="estimating-round-trip-time">Estimating round trip time</h3>
+<ul>
+<li>What to set the timeout value to?</li>
+<li>Longer than RTT, but RTT varies</li>
+<li>If it's too short, premature timeout happens, and there can be unnecessary retransmissions</li>
+<li>if it's too long, it reacts slowly when packets are lost</li>
+</ul>
+<p>Round trip time estimate</p>
+<ul>
+<li>
+<code>SampleRTT</code>: measured time from segment transmission until ACK receipt, ignoring retransmissions</li>
+<li>
+<code>EstimatedRTT</code> <span class="math inline">\(= (1 - \alpha) *\)</span> <code>EstimatedRTT</code> <span class="math inline">\(+ \alpha *\)</span> <code>SampleRTT</code><ul>
+<li>Exponential weighted moving average (EWMA)</li>
+<li>influence of past sample decreases exponentially fast. Recent sample better reflects current congestion in the network</li>
+<li>Typical <span class="math inline">\(\alpha\)</span>: 0.25</li>
+</ul>
+</li>
+<li>Timeout interval: <code>EstimatedRTT</code> + safety margin<ul>
+<li>Large variation in estimation yields a larger safety margin</li>
+<li><span class="math inline">\(DevRTT = (1-\beta)*DevRTT + \beta * |SampleRTT-EstimatedRTT|\)</span></li>
+<li>Typically, <span class="math inline">\(\beta=0.25\)</span>
+</li>
+<li><span class="math inline">\(TimeoutInterval = EstimatedRTT + 4*DevRTT\)</span></li>
+</ul>
+</li>
+</ul>
+<h3 id="rdt">RDT</h3>
+<ul>
+<li>Pipelined segments</li>
+<li>cumulative acks</li>
+<li>single retransmission timer</li>
+<li>retransmissions retriggered by timeout events, duplicate acks</li>
+</ul>
+<h4 id="sender-events">Sender events</h4>
+<p>Initialization:</p>
+<ul>
+<li><code>nextSeqNum = InitialSeqNum</code></li>
+<li><code>SendBase = InitialSeqNum</code></li>
+</ul>
+<ol>
+<li>Data received from app<ul>
+<li>Create segment with sequence number</li>
+<li>sequence number is byte stream number of first data byte in segment<ul><li><code>NExtSeqNum = NextSeqNum + length(data)</code></li></ul>
+</li>
+<li>start timer if not already running (timer is for oldest unacked segment) with interval <code>TimeOutInterval</code>
+</li>
+</ul>
+</li>
+<li>Timeout<ul>
+<li>Retransmit segment that caused timeout</li>
+<li>Restart timer</li>
+</ul>
+</li>
+<li>Ack received<ul><li>If ack acknowledges previously unacked segments, update what is known to be acked, start timer if there are still unacked segments</li></ul>
+</li>
+</ol>
+<p>Fast retransmission</p>
+<ul>
+<li>time out period is often long: delay before resending lost packet</li>
+<li>detect lost segments via duplicate ACKs<ul>
+<li>sender often sends many segments back to back</li>
+<li>if a segment is lost, there will likely be many duplicate ACKs</li>
+</ul>
+</li>
+<li>If sender receives 3 duplicate acks (the fourth ack for that same piece of data), resend unacked segment with smallest sequence number</li>
+</ul>
+<h3 id="flow-control">Flow control</h3>
+<ul>
+<li>receiver "Advertises" free buffer space by including <code>rwnd</code> (receiver window) value in TCP header of receiver-to-sender segments<ul>
+<li>
+<code>RcvBuffer</code> size set via socket operations (Default 4096 bytes)</li>
+<li>many OS autoadjust <code>RcvBuffer</code>
+</li>
+</ul>
+</li>
+<li>sender limits amount of unacked data to receiver's <code>rwnd</code> value (16 bits, so max value is <span class="math inline">\(2^{16}-1\)</span>)</li>
+<li>guarantees receive buffer will not overflow</li>
+</ul>
+<h3 id="connection-management">Connection management</h3>
+<p>Handshake:</p>
+<ul>
+<li>agree to establish connection</li>
+<li>agree on connection params</li>
+</ul>
+<p>Simple 2-way handshake won't work:</p>
+<ul>
+<li>variable delays</li>
+<li>retransmitted messages due to loss</li>
+<li>message reordering</li>
+<li>can't "see" other side</li>
+</ul>
+<p>Use a <strong>3-way handshake</strong> instead:</p>
+<ul>
+<li>Establish connection<ul>
+<li>client and server start in listening state</li>
+<li>Client sends a request to connect via TCP with <code>SYN = 1</code> (synchronized) set in the header, with a random initial sequence number</li>
+<li>Server chooses another random sequence number, and then sends a TCP <code>SYNACK</code> (<code>SYN = 1</code>, <code>ACK = 1</code>), acknowledging the <code>SYN</code>
+</li>
+<li>Client receives the SYNACK, knowing the server is live. Sends an ACK to acknowledge the SYNACK was received, plus maybe additional data.</li>
+<li>Server receives the ack, so it knows the client is live</li>
+</ul>
+</li>
+<li>close connection<ul>
+<li>Client sends <code>FIN = 1</code>, with sequence number <span class="math inline">\(x\)</span>
+</li>
+<li>Server replies with <code>ACK = 1</code>, <code>ACKNUM</code> = <span class="math inline">\(x + 1\)</span>
+</li>
+<li>Client waits for server to close</li>
+<li>Server sends <code>FIN = 1</code>, random sequence number <span class="math inline">\(y\)</span>
+</li>
+<li>Client replies with <code>ACK = 1</code>, <code>ACKNUM</code> = <span class="math inline">\(y + 1\)</span>
+</li>
+<li>Client waits for <span class="math inline">\(2*\)</span> max segment lifetime as a safeguard</li>
+</ul>
+</li>
+</ul>
+<h3 id="congestion-control">Congestion Control</h3>
+<ul>
+<li>Congestion is when there are too many sources sending data too fast for the <strong>network</strong> to handle</li>
+<li>Problems due to congestion:<ul>
+<li>Queueing delays as the packet arrival rate reaches the link cap (output link capacity is <span class="math inline">\(R\)</span>, so maximum per-connection throughput is <span class="math inline">\(\frac{R}{n}\)</span> where there are <span class="math inline">\(n\)</span> "customers" on the link)</li>
+<li>Packets can be lost when the router buffers are full and packets are dropped. Sender only resends if the packet is known to be lost.</li>
+<li>Sender times out prematurely and sends two copies of a packet, both of which get delivered</li>
+<li>more routers between source and destination means more wasted resources</li>
+</ul>
+</li>
+</ul>
+<p><strong>TCP protocol</strong></p>
+<ul>
+<li>Sender increases transmission rate (window size), probing for usable bandwidth, until loss occurs<ul>
+<li>
+<strong>additive increase</strong>: increase <code>cwnd</code> by 1 MSS (maximum segment size) for every acknowledged segment until loss detected</li>
+<li>
+<strong>multiplicative decrease</strong>: decrease <code>cwnd</code> in half after loss</li>
+<li>Sender limits transmission: <code>LastByteSend - LastByteAcked &lt;= min(cwnd, rwnd)</code>
+</li>
+<li>
+<code>rwnd</code> is usually very large at the receiver</li>
+</ul>
+</li>
+<li>Slow Start<ul>
+<li>When connection begins, increase rate exponentially until first loss event<ul>
+<li>Initially <code>cwnd</code> is 1 MSS</li>
+<li>double <code>cwnd</code> every RTT</li>
+<li>Done by incrementing <code>cwnd</code> for every ACK received</li>
+</ul>
+</li>
+<li>Initial rate is slow but ramps up exponentially fast</li>
+</ul>
+</li>
+<li>Dealing with packet loss<ul>
+<li>Loss indicated by timeout:<ul>
+<li>
+<code>cwnd</code> set to 1 MSS</li>
+<li>window then grows exponentially (as in slow start) to threshold, then grows exponentially</li>
+</ul>
+</li>
+<li>Loss indicated by 3 duplicate ACKs: TCP Reno<ul>
+<li>dup ACKs indicate network capable of delivering some segments</li>
+<li>
+<code>cwnd</code> is cut in half window then grows linearly</li>
+</ul>
+</li>
+<li>TCP Tahoe (older version) always sets cwnd to 1 (timeout or 3 duplicate acks)</li>
+<li>when <code>cwnd</code> gets to one half of its value before timeout, switch from exponential to linear</li>
+<li>Above <code>ssthresh</code>, growth is linear; below, it is exponential</li>
+<li>on a loss event, <code>ssthresh</code> is set to one half of <code>cwnd</code> just before the loss event</li>
+</ul>
+</li>
+<li>Avg throughput = <span class="math inline">\(\frac{3}{4}\frac{W}{RTT}\)</span>
+</li>
+</ul>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

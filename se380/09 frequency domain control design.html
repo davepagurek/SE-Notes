@@ -1,0 +1,339 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<title>Intro to Control Design in the Frequency Domain</title>
+</head>
+<body>
+
+<h1 id="intro-to-control-design-in-the-frequency-domain">Intro to Control Design in the Frequency Domain</h1>
+<a href="index.html">Back to se380</a>
+<div id="TOC">
+
+<ul>
+<li>
+<a href="#intro-to-stability-margins">Intro to stability margins</a><ul>
+<li><a href="#gain-margin">Gain margin</a></li>
+<li><a href="#phase-margin">Phase margin</a></li>
+<li><a href="#obtaining-gain-and-phase-margins">Obtaining gain and phase margins</a></li>
+</ul>
+</li>
+<li>
+<a href="#performance-specifications">Performance Specifications</a><ul>
+<li><a href="#relationship-between-crossover-frequencies-and-bandwidth">Relationship between crossover frequencies and bandwidth</a></li>
+<li><a href="#relationship-between-damping-ratio-and-phase-margin">Relationship between damping ratio and phase margin</a></li>
+</ul>
+</li>
+<li>
+<a href="#lag-compensation">Lag Compensation</a><ul>
+<li><a href="#steady-state-gain">Steady-state gain</a></li>
+<li><a href="#uses">Uses</a></li>
+<li><a href="#e.g.-9.3.1">e.g. 9.3.1</a></li>
+<li><a href="#procedure-for-lag-design">Procedure for lag design</a></li>
+</ul>
+</li>
+<li>
+<a href="#lead-controller">Lead controller</a><ul>
+<li><a href="#lead-design-equations">Lead design equations</a></li>
+<li><a href="#e.g.-9.4.1">e.g. 9.4.1</a></li>
+<li><a href="#procedure-for-lead-design">Procedure for lead design</a></li>
+<li><a href="#e.g.">E.g.</a></li>
+<li><a href="#delay-tolerance">Delay tolerance</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<ul>
+<li>This chapter is about "classical" Frequency domain design</li>
+<li>Specs will be given in terms of <strong>bandwidth</strong> and <strong>stability margins</strong>
+</li>
+<li>Our real interest is in how the system behaves in the time domain, so we will use the duality between these domains</li>
+<li>We'll take specs like %OS, <span class="math inline">\(T_s\)</span>, steady-state tracking error and convert them to the frequency domain</li>
+</ul>
+<h2 id="intro-to-stability-margins">Intro to stability margins</h2>
+<p>If a system is stable, how stable is it? This depends on how much error/uncertainty there is in the plant model. Stability margins help answer the question of how much inaccuracy the system can handle. Best understoodusing <strong>Nyquist plots</strong>, but Bode plots work too</p>
+<h3 id="gain-margin">Gain margin</h3>
+<p><img src="img/stabilitymargin.png"></p>
+<ul>
+<li>Think of <span class="math inline">\(K=1\)</span> as our <strong>nominal design</strong>
+</li>
+<li>Our <strong>gain margin</strong> <span class="math inline">\(K_{gm} = \max\left\{\bar{K} \gt 1: \text{ closed-loop stability for } K \in [1, \bar{K})\right\}\)</span>
+</li>
+</ul>
+<h3 id="phase-margin">Phase margin</h3>
+<p><img src="img/phasemargin.png"></p>
+<ul>
+<li>Think of <span class="math inline">\(\phi=0\)</span> as out <strong>nominal design</strong>
+</li>
+<li><p>Our <strong>phase margin</strong> <span class="math inline">\(\Phi_{pm} = \max\left\{\bar{\phi} \gt 0: \text{ closed-loop stability for } \phi \in [1, \bar{\phi})\right\}\)</span></p></li>
+<li><p>Large <span class="math inline">\(K_{gm}, \phi_{pm}\)</span> not only ensure robustness, but also good transient behaviour. A system with small <span class="math inline">\(K_{gm}, \Phi_{pm}\)</span> is nearly unstable which could mean slow response and oscillatory behaviour.</p></li>
+</ul>
+<h3 id="obtaining-gain-and-phase-margins">Obtaining gain and phase margins</h3>
+<p><img src="img/obtainphase.png"></p>
+<p>Let <span class="math inline">\(L(s) := C(s)P(s)H(s)\)</span>. Draw the Bode plot of <span class="math inline">\(L(j\omega)\)</span>.</p>
+<p><img src="img/stabilitymarginbode.png"></p>
+<ul>
+<li>
+<span class="math inline">\(\omega_{gc}\)</span> is the gain crossover frequency<ul>
+<li>frequency at which <span class="math inline">\(L(j\omega_{gc})=1\)</span>
+</li>
+<li>frequency at which we measure <span class="math inline">\(\Phi_{pm}\)</span>
+</li>
+</ul>
+</li>
+<li>
+<span class="math inline">\(\omega_{pc}\)</span> is the phase crossover frequency<ul>
+<li>frequency at which <span class="math inline">\(\angle L(j\omega_{pc})=\pi\)</span>
+</li>
+<li>frequency at which we measure <span class="math inline">\(K_{gm}\)</span>
+</li>
+</ul>
+</li>
+</ul>
+<p>Matlab:</p>
+<div class="sourceCode"><pre class="sourceCode matlab"><code class="sourceCode matlab">[K_gm, Phi_pm, omega_pc, omega_gc] = margin(sys);</code></pre></div>
+<h2 id="performance-specifications">Performance Specifications</h2>
+<p>We focus on:</p>
+<ol>
+<li>input-output stability</li>
+<li>steady-state tracking error</li>
+<li>%OS (converted into a <span class="math inline">\(\Phi_{pm}\)</span> spec)</li>
+<li>Closed-loop bandwidth</li>
+</ol>
+<h3 id="relationship-between-crossover-frequencies-and-bandwidth">Relationship between crossover frequencies and bandwidth</h3>
+<p><span class="math display">\[\frac{Y(s)}{R(s)} = \frac{C(s)P(s)}{1+C(s)P(s)} = G(s)\]</span><br>
+<img src="img/bwbode.png"></p>
+<p>Define the loop transfer function:<br>
+<span class="math display">\[L(s) = C(s)P(s)\]</span><br>
+We can see the open-loop gain crossover frequency:<br>
+<img src="img/openloopgaincrossover.png"></p>
+<p>"Normally," <span class="math inline">\(\omega_{gc} \lt \omega_{bw} \lt \omega_{pc}\)</span>. For design purposes, we'll use a rule of thumb:<br>
+<span class="math display">\[\omega_{gc} \approx \omega_{bw}\]</span></p>
+<h3 id="relationship-between-damping-ratio-and-phase-margin">Relationship between damping ratio and phase margin</h3>
+<p>Damping ratio: <span class="math inline">\(\zeta\)</span><br>
+Phase margin: <span class="math inline">\(\Phi_{pm}\)</span></p>
+<p>This relationship can be found in closed form for second-order systems.</p>
+<p><img src="img/dampingratiophase.png"></p>
+<p><span class="math display">\[\frac{Y(s)}{R(s)} = \frac{\omega_n^2}{s^2+2\zeta\omega_ns + \omega_n^2}\]</span></p>
+<p>A messy calculation gives:<br>
+<span class="math display">\[\Phi_{pm}=\tan^{-1}\left(2\zeta\left((1+4\zeta^4)^{\frac{1}{2}}-2\zeta^2\right)^{\frac{-1}{2}}\right)\]</span></p>
+<p><img src="img/phasemargingraph.png"></p>
+<h2 id="lag-compensation">Lag Compensation</h2>
+<p><img src="img/lagcontroller.png"></p>
+<p>Lag controller:<br>
+<span class="math display">\[\begin{align}
+C(s) &amp;= KC_1(s)\\
+&amp;= K\frac{\alpha Ts+1}{Ts+1}, \quad 0 \lt \alpha \lt 1, \quad T \gt 0, \quad K \gt 0
+\end{align}\]</span></p>
+<p>Pole and zero locations for a lag controller:<br>
+<img src="img/lagpolar.png"></p>
+<h3 id="steady-state-gain">Steady-state gain</h3>
+<p><span class="math display">\[C(0)=K\]</span><br>
+<img src="img/lagbode.png"></p>
+<p>Key befefit: Reduce high frequency gain without changing phase</p>
+<h3 id="uses">Uses</h3>
+<ol>
+<li>Boost low frequency gain to get good tracking and disturbance rejection without affecting stability margins or the high frequency behaviour (<span class="math inline">\(e_{ss}\)</span> spec and %OS spec)</li>
+<li>To increase phase margin, done indirectly through changing the high frequency gain (See fig. 9.9 in the notes)</li>
+</ol>
+<h3 id="e.g.-9.3.1">e.g. 9.3.1</h3>
+<p><span class="math display">\[\begin{align}
+P(s) &amp;= \frac{1}{s(s+2)}\\
+\\
+C(s) &amp;= \text{lag controller}\\
+&amp;= K\frac{\alpha Ts+1}{Ts+1}
+\end{align}\]</span></p>
+<p>Specs:</p>
+<ol>
+<li>If <span class="math inline">\(r(t)=t1(t)\)</span>, then <span class="math inline">\(|e_{ss}| \le 0.05\)</span>.</li>
+<li>
+<span class="math inline">\(\Phi_{pm}^{desired} = 45^{\circ}\)</span> (for good damping)</li>
+</ol>
+<p>Steps 1: Choose <span class="math inline">\(K\)</span> to meet <span class="math inline">\(e_{ss}\)</span> spec. For now, assume <span class="math inline">\(C(s)\)</span> provides IO stability s we can apply FVT.<br>
+<span class="math display">\[\begin{align}
+e_{ss} &amp;= \lim_{t\rightarrow \infty}e(t)\\
+&amp;= \lim_{s \rightarrow 0} sE(s)\\
+&amp;= \lim_{s \rightarrow 0} s\frac{1}{1+C(s)P(s)} R(s)\\
+&amp;= \lim_{s \rightarrow 0} s \frac{1}{1+\frac{K\alpha Ts+1}{Ts+1} \frac{1}{s(s_2)}} \frac{1}{s^2}\\
+&amp;= \frac{2}{K} \le 0.05 \Leftrightarrow K \ge 40
+\end{align}\]</span><br>
+Take <span class="math inline">\(K=40\)</span></p>
+<p>(Step 2) Next, draw a Bode plot of <span class="math inline">\(KP(j\omega)=\frac{40}{s(s+2)}\)</span>. From the plot, we see that the phase margin <span class="math inline">\(\Phi_{pm}=18^\circ\)</span> (not to spec) at <span class="math inline">\(\omega_{gc}=6.17\)</span> rad/s.</p>
+<p>Because it is not to spec, we design <span class="math inline">\(C_1(s)=\frac{\alpha Ts+1}{Ts+1}\)</span>. We want <span class="math inline">\(\Phi_{pm}^{desired}=45^\circ\)</span>, so we'll aim for <span class="math inline">\(50^\circ\)</span> since <span class="math inline">\(\angle C_1(j\omega)\)</span> only approaches zero asymptotically.</p>
+<p>From out Bode plot in Step 2, we observe:<br>
+<span class="math display">\[\Phi_{pm}^{desired} = 50^\circ = 180^\circ + \angle KP(j\omega) \text{ when } \omega=1.7\text{rad/s}\]</span><br>
+The idea is to reduce the gain at <span class="math inline">\(\omega=1.7\)</span> rad/s so that this becomes the gain crossover frequency and do so without changing the phase.</p>
+<p>The gain of <span class="math inline">\(KP(j\omega)\)</span> at <span class="math inline">\(\omega=1.7\)</span> rad/s is 19dB, so we want to reduce by 19dB to make it the crossover frequency.<br>
+<span class="math display">\[20log|\alpha|=-19\text{dB} \Leftrightarrow \alpha=\frac{1}{9}\]</span></p>
+<p>Now pick <span class="math inline">\(T\)</span> so that <span class="math inline">\(\angle C(j\omega)\approx 0\)</span> at <span class="math inline">\(\omega=1.7\)</span>rad/s.<br>
+<span class="math display">\[\frac{10}{\alpha T} \le 1.7\]</span><br>
+We'll pick <span class="math inline">\(T=52.7\)</span> to get the final controller:<br>
+<span class="math display">\[C(s)=40 \frac{\frac{1}{9} \cdot 52.7s+1}{52.7s=1}=\frac{234.2s+40}{52.7s+1}\]</span></p>
+<p>We verify with a simulation. The Bode plot of <span class="math inline">\(C(s)P(s)\)</span> yields <span class="math inline">\(\Phi_{pm}=44.6^\circ\)</span>.</p>
+<h3 id="procedure-for-lag-design">Procedure for lag design</h3>
+<p>Specs:</p>
+<ol>
+<li>Steady-state tracking/disturbance rejection</li>
+<li>
+<span class="math inline">\(\Phi_{pm}^{desired}\)</span> (may be given as an overshoot spec, so you need to convert)</li>
+</ol>
+<p>Procedure:</p>
+<ol>
+<li>Use Final Value Theorem to pick <span class="math inline">\(K\)</span> and meet spec 1.</li>
+<li>Draw Bode plot of <span class="math inline">\(KP(j\omega)\)</span>
+</li>
+<li>If spec 2 is satisfied, stop. Otherwise, find <span class="math inline">\(\omega\)</span> such that <span class="math inline">\(180^\circ + \angle KP(j\omega) = \Phi_{pm}^{desired} + \delta\)</span>, where <span class="math inline">\(\delta\)</span> is a buffer to account for <span class="math inline">\(\angle C(j\omega) \ne 0\)</span> at high <span class="math inline">\(\omega\)</span>. Usually <span class="math inline">\(5^\circ\)</span>.</li>
+<li>Shift the gain of <span class="math inline">\(KP\)</span> down at <span class="math inline">\(\omega\)</span> so that <span class="math inline">\(\omega\)</span> becomes <span class="math inline">\(\omega_{gc}\)</span>: <span class="math inline">\(\alpha=\frac{1}{KP(j\omega)}\)</span>.</li>
+<li>Put the controller zero far away from <span class="math inline">\(\omega\)</span> so that phase isn't affected too much: <span class="math inline">\(\frac{10}{\alpha T} \le \omega\)</span>.</li>
+<li>Simulate to verify (see PS9 for a root-locus based design)</li>
+</ol>
+<h2 id="lead-controller">Lead controller</h2>
+<p><img src="img/leadcontroller.png"></p>
+<p><span class="math display">\[\begin{align}
+C(s) &amp;= KC_1(s)\\
+&amp;= K\frac{\alpha Ts+1}{Ts+1}, \quad \alpha \gt 1, \quad K,T \gt 0
+\end{align}\]</span></p>
+<p><img src="img/leadpolar.png"></p>
+<p><img src="img/leadbode.png"></p>
+<p>Uses</p>
+<ol>
+<li>Increase gain crossover frequency to increase closed loop bandwidth</li>
+<li>Increase phase margin by adding phase where needed</li>
+</ol>
+<h3 id="lead-design-equations">Lead design equations</h3>
+<p><span class="math display">\[\omega_m = \frac{1}{T\sqrt{\alpha}}\]</span><br>
+This is the frequency at which the lead controller adds max phase.</p>
+<p><span class="math display">\[\phi_{max} = \sin^{-1}\left(\frac{\alpha-1}{\alpha+1}\right)\]</span><br>
+<span class="math display">\[\alpha = \frac{1+\sin{\phi_{max}}}{1 - \sin{\phi_{max}}}\]</span><br>
+This is the max phase added by the lead controller.</p>
+<h3 id="e.g.-9.4.1">e.g. 9.4.1</h3>
+<p><span class="math display">\[P(s) = \frac{1}{s(s+2)}\]</span></p>
+<p>Specs:</p>
+<ul>
+<li>
+<span class="math inline">\(|e_{ss}| \le 0.05\)</span> for <span class="math inline">\(r(t)=t1(t)\)</span>
+</li>
+<li><span class="math inline">\(\Phi_{pm} = 45^\circ\)</span></li>
+</ul>
+<p>We want to explress the lead controller in the form:<br>
+<span class="math display">\[C(s)=\frac{\hat{K}}{\sqrt{\alpha}} \frac{\alpha Ts+1}{Ts+1}\]</span></p>
+<p>First, choose <span class="math inline">\(\hat{K}\)</span> to meet the steady-state spec using FVT. In this case, we get <span class="math inline">\(\hat{K} \ge 40\)</span>. We then want to boost <span class="math inline">\(\hat{K}\)</span> by around 10dB to account for effective <span class="math inline">\(\alpha\)</span>. Our final result is <span class="math inline">\(\hat{K}=40\cdot \sqrt{10}\)</span>.</p>
+<p>Next, draw a Bode plot of <span class="math inline">\(\hat{K}P(j\omega)\)</span> and observe that we have <span class="math inline">\(\Phi_{pm}=10.2^\circ\)</span> at <span class="math inline">\(\omega_{gc}=11.2\)</span> rad/s. So we set <span class="math inline">\(\omega_m = \omega_{gc}\)</span>. We need to add <span class="math inline">\(\Phi_{pm}^{desired} - \Phi_{pm} = 45-10.2 = 34.8^\circ\)</span>. Therefore, set <span class="math inline">\(\phi_{max} = 34.8^\circ\)</span>. This gives us <span class="math inline">\(\alpha=3.66\)</span>.</p>
+<p>(This also gives <span class="math inline">\(K=\frac{\hat{K}}{\sqrt{\alpha}}=66.13\)</span>.)</p>
+<p>Then, make sure we add <span class="math inline">\(\phi_{max}\)</span> at the correct frequency.<br>
+<span class="math display">\[T=\frac{1}{\omega_m\sqrt{\alpha}}=0.0467\]</span></p>
+<p>Combining these:<br>
+<span class="math display">\[C(s)=66.13 \frac{3.66\cdot 0.0467s+1}{0.0467s+1} = \frac{241.9(s+5.85)}{s+21.43}\]</span></p>
+<p>Finally, verify design. Draw the Bode plot of <span class="math inline">\(C(s)P(s)\)</span> yields <span class="math inline">\(\Phi_{pm}=45^\circ\)</span>, <span class="math inline">\(\omega_{gc}=11.1\)</span> rad/s.</p>
+<h3 id="procedure-for-lead-design">Procedure for lead design</h3>
+<p>Specs:</p>
+<ol>
+<li><span class="math inline">\(\Phi_{pm}^{desired}\)</span></li>
+<li>Either:<ul>
+<li>steady-state tracking/disturbance rejection</li>
+<li>desired closed-loop bandwidth</li>
+</ul>
+</li>
+</ol>
+<p>Procedure:</p>
+<ol>
+<li>Let <span class="math inline">\(\hat{K}=K\sqrt{\alpha}\)</span> and choose <span class="math inline">\(\hat{K}\)</span> so that either:<ul>
+<li>Using FVT, pick <span class="math inline">\(\hat{K}\)</span> <span class="math inline">\(\hat{K}P\)</span> meets steady-state spec. From here, we purposefully boost <span class="math inline">\(\hat{K}\)</span> by 10dB to account for <span class="math inline">\(\alpha\)</span> distortion</li>
+<li>Pick <span class="math inline">\(\hat{K}\)</span> so that <span class="math inline">\(\hat{K}P\)</span> has desired gain crossover frequency (<span class="math inline">\(\omega_{gc} = \omega_{BW}\)</span>)</li>
+</ul>
+</li>
+<li>Draw Bode plot of <span class="math inline">\(\hat KP\)</span>
+</li>
+<li>Find <span class="math inline">\(\omega_{gc}\)</span> and <span class="math inline">\(\Phi_{pm}\)</span>. Set <span class="math inline">\(\omega_m = \omega_{gc}\)</span>.</li>
+<li>Determine the amount of phase to add: set <span class="math inline">\(\phi_{max}=\Phi_{pm}^{desired} - \Phi_{pm}\)</span>.</li>
+<li>
+<span class="math inline">\(\alpha = \frac{1+\sin\phi_{max}}{1-\sin\phi_{max}}\)</span>. (Determine the value of <span class="math inline">\(K=\frac{\hat K}{\sqrt{\alpha}}\)</span>.)</li>
+<li>Set <span class="math inline">\(T = \frac{1}{\omega_m \sqrt{\alpha}}\)</span>
+</li>
+<li>Simulate to check design</li>
+</ol>
+<h3 id="e.g.">E.g.</h3>
+<p><span class="math display">\[P(s)=\frac{10}{s^2-10}\]</span><br>
+Specs:</p>
+<ul>
+<li><span class="math inline">\(\Phi_{pm}=50^\circ\)</span></li>
+<li>closed-loop bandwidth <span class="math inline">\(\omega_{BW}=10\)</span> rad/s</li>
+</ul>
+<p><img src="img/leadcontrollernode.png"></p>
+<ol>
+<li>pick <span class="math inline">\(\hat K\)</span> so that <span class="math inline">\(\omega_{gc}=\omega_{BW}\)</span>. From the plot, we see that we need to boost the gain of <span class="math inline">\(P\)</span> by 20dB. i.e.: <span class="math inline">\(20\log\hat K = 20 \Leftrightarrow \hat K = 10\)</span>.</li>
+<li>Draw a Bode plot of <span class="math inline">\(\hat K D\)</span>. (Or don't if it's an exam and you know how it'll change.)</li>
+<li>
+<span class="math inline">\(\omega_{gc} = 10\)</span> rad/s, <span class="math inline">\(\Phi_{pm} = 0\)</span>.</li>
+<li>We need to add <span class="math inline">\(\phi_{max}=\Phi_{pm}^{desired} - \Phi_{pm} = 50^\circ\)</span>.</li>
+<li>
+<span class="math inline">\(\alpha = \frac{1+\sin\phi_{max}}{1-\sin\phi_{max}} = 7.55^\circ\)</span>. This means <span class="math inline">\(K=\frac{\hat K}{\sqrt \alpha} = 3.64\)</span>.</li>
+<li>Add phase at the right drequency: <span class="math inline">\(T = \frac{1}{\omega_m \sqrt \alpha}=0.0364\)</span>.</li>
+</ol>
+<p>We get:<br>
+<span class="math display">\[C(s)=3.64\frac{7.55\cdot 0.0364s+1}{0.0364s+1} = \frac{27.4 (s+3.65)}{s+27.47}\]</span></p>
+<p>In this case, the closed-loop bandwidth ends up being 11.5 rad/s, so our approximation <span class="math inline">\(\omega_{gc} \approx \omega_{BW}\)</span> worked well.</p>
+<h3 id="delay-tolerance">Delay tolerance</h3>
+<p>How much delay can we tolerate in our system before losing stability?</p>
+<p><img src="img/delayblock.png"><br>
+This diagram has the transfer function <span class="math inline">\(T(s) = e^{-sT}\)</span>.</p>
+<p>Bode plot of the delay: <span class="math inline">\(\left|e^{-j\omega T}\right|=1\)</span>, <span class="math inline">\(\angle e^{-j\omega T}=-\omega T\)</span>. The time delay <strong>only affects phase</strong>.</p>
+<p><img src="img/delayblock2.png"></p>
+<p><img src="img/feedbackfunction.png"></p>
+<ul>
+<li>Suppose that when <span class="math inline">\(T=0\)</span>, the system has a phase margin of <span class="math inline">\(\Phi_{pm}\)</span> degrees at the frequency <span class="math inline">\(\omega_{gc}\)</span>.</li>
+<li>The system will become unstable if we reduce the phase by <span class="math inline">\(-\Phi_{pm}\)</span> at <span class="math inline">\(\omega=\omega_{gc}\)</span>.</li>
+<li>The maximum delay we can tolerate before losing stability is when <span class="math inline">\(\angle e^{-j\omega_{gc}T_{max}} = -\Phi_{pm}\)</span><ul><li>i.e., <span class="math inline">\(-\omega_{gc}T_{max} = -\Phi_{pm} \Leftrightarrow T_{max} = \frac{\Phi_{pm}}{\omega_{gc}}\)</span>
+</li></ul>
+</li>
+<li>Stability if <span class="math inline">\(T \lt T_{max}\)</span>
+</li>
+</ul>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

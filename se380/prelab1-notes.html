@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<title>Prelab 1 Notes</title>
+</head>
+<body>
+
+<h1 id="prelab-1-notes">Prelab 1 Notes</h1>
+<a href="index.html">Back to se380</a>
+<div id="TOC">
+
+<ul>
+<li><a href="#laplace-transforms">Laplace transforms</a></li>
+<li>
+<a href="#transfer-functions">Transfer functions</a><ul><li><a href="#how-do-you-get-a-transfer-function">How do you get a transfer function?</a></li></ul>
+</li>
+<li><a href="#time-constant">Time constant</a></li>
+<li><a href="#gain">Gain</a></li>
+</ul>
+</div>
+<p>Things I think are important to understanding the prelab</p>
+<h2 id="laplace-transforms">Laplace transforms</h2>
+<p>If <span class="math inline">\(f(t)\)</span> is a function in the time domain, then the laplace transform <span class="math inline">\(\mathcal{L}\{f(t)\} = F(s)\)</span> is in the frequency domain.</p>
+<p><span class="math inline">\(s\)</span> is a complex variable, so <span class="math inline">\(s = \sigma_{\text{(real part)}} + j\omega_{\text{(imaginary part)}}\)</span>.</p>
+<ul>
+<li>The unit of <span class="math inline">\(s\)</span> is in rad/s</li>
+<li>The imaginary part is the frequency</li>
+<li>The real part represents a decay coefficient</li>
+</ul>
+<h2 id="transfer-functions">Transfer functions</h2>
+<p>Transfer functions exist in the <span class="math inline">\(s\)</span>-plane, not the time plane.</p>
+<p>The transfer function <span class="math inline">\(T(s)\)</span> of a system with an input signal <span class="math inline">\(X(s)\)</span> and output <span class="math inline">\(Y(s)\)</span> is just defined to be the ratio of output to input:</p>
+<p><span class="math display">\[T(s) = \frac{Y_{\text{(output)}}(s)}{X_{\text{(input)}}(s)}\]</span></p>
+<p>A <strong>pole</strong> is an asymptote in the transfer function.</p>
+<h3 id="how-do-you-get-a-transfer-function">How do you get a transfer function?</h3>
+<h4 id="block-diagram-to-transfer-function">1. Block diagram to transfer function</h4>
+<p>There is a direct mapping from block diagram to transfer function:</p>
+<p><img src="img/transfer-simple.png"><br>
+<strong>Square blocks multiply.</strong> In this case, <span class="math inline">\(Y(s) = X(s)F(s)\)</span>.</p>
+<p><img src="img/transfer-complex.png"><br>
+<strong>Circle blocks sum,</strong> taking into account signs on input arrows. In this case, <span class="math inline">\(Y(s) = (X(s)-G(s))F(s)\)</span>.</p>
+<h4 id="system-response-to-transfer-function">2. System response to transfer function</h4>
+<p>You can produce an input <span class="math inline">\(x(t)\)</span> and measure the system response <span class="math inline">\(y(t)\)</span>. Then, you can just take the Laplace transform of <span class="math inline">\(x(t)\)</span> and divide it by the Laplace transform of <span class="math inline">\(y(t)\)</span> to get the transfer function.</p>
+<ul>
+<li>If your input is the Dirac delta function (a value of basically <span class="math inline">\(\infty\)</span> for a tiny width of <span class="math inline">\(dx\)</span> followed by nothing), then <span class="math inline">\(\mathcal{L}\{\delta(t)\} = 1\)</span>, so the Laplace transformed system response <span class="math inline">\(Y(s)\)</span> is equal to the transfer function.</li>
+<li>If your input is the unit step function (a value of 0 for <span class="math inline">\(x \lt 0\)</span> and a value of 1 otherwise), <span class="math inline">\(X(s) = s\)</span>, so the observed system response divided by <span class="math inline">\(s\)</span> will be your transfer function: <span class="math inline">\(T(s) = Y(s)/s\)</span>
+</li>
+</ul>
+<h2 id="time-constant">Time constant</h2>
+<p>You gave a unit step as an input to a system and got a response <span class="math inline">\(y(t)\)</span>. The time constant <span class="math inline">\(\tau\)</span> is just the <span class="math inline">\(t\)</span> value that decays the unit step response to either <span class="math inline">\(1 - \frac{1}{e}\)</span> times its final value if the function is increasing, or <span class="math inline">\(\frac{1}{e}\)</span> times its final value if it is decreasing.</p>
+<p>For example, imagine the response is <span class="math inline">\(y(t) = 20e^{-5 t}\)</span>:<br>
+<img src="img/decay-response.png"></p>
+<p>The function decreases to its final value 20, so the time constant is the <span class="math inline">\(t\)</span> where its value is <span class="math inline">\(\frac{20}{e}\)</span>:</p>
+<p><span class="math display">\[\begin{align}
+f(\tau) &amp;= \frac{20}{e}\\
+&amp;= 20e^{-1}\\
+20e^{-1} &amp;= 20e^{-5 \tau}\\
+e^{-1} &amp;= e^{-5 \tau}\\
+-1 &amp;= -5 \tau\\
+\tau = \frac{1}{5}
+\end{align}\]</span></p>
+<h2 id="gain">Gain</h2>
+<p>Given a transfer function <span class="math inline">\(T(s)\)</span>, the gain of frequency <span class="math inline">\(\omega\)</span> is defined as <span class="math inline">\(\left| T(j \omega) \right|\)</span>.</p>
+<p><span class="math inline">\(\omega\)</span> is a frequency in rad/s, so you can put any frequency value in there as input instead of using a variable. Remember as well that <span class="math inline">\(|j|=1\)</span>.</p>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

@@ -1,0 +1,609 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<title>Network Layer</title>
+</head>
+<body>
+
+<h1 id="network-layer">Network Layer</h1>
+<a href="index.html">Back to ece358</a>
+<div id="TOC">
+
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li>
+<a href="#connection-connectionless-service">Connection, connectionless service</a><ul>
+<li><a href="#virtual-circuit">Virtual Circuit</a></li>
+<li><a href="#datagram-network">Datagram network</a></li>
+</ul>
+</li>
+<li>
+<a href="#router-architecture">Router architecture</a><ul>
+<li><a href="#input-port-functions">Input port functions</a></li>
+<li><a href="#output-port-functions">Output port functions</a></li>
+<li><a href="#queueing">Queueing</a></li>
+</ul>
+</li>
+<li>
+<a href="#internet-protocol">Internet Protocol</a><ul>
+<li><a href="#datagram-format">Datagram format</a></li>
+<li><a href="#fragmentation-reassembly">Fragmentation, reassembly</a></li>
+<li><a href="#ip-addressing">IP Addressing</a></li>
+<li><a href="#icmp-internet-control-message-protocol">ICMP: Internet Control Message Protocol</a></li>
+<li><a href="#ipv6">IPv6</a></li>
+</ul>
+</li>
+<li>
+<a href="#routing-algorithms">Routing algorithms</a><ul>
+<li><a href="#graph-abstraction">Graph abstraction</a></li>
+<li><a href="#link-state">Link State</a></li>
+<li><a href="#distance-vector">Distance vector</a></li>
+<li><a href="#hierarchical-routing-1">Hierarchical Routing</a></li>
+</ul>
+</li>
+<li>
+<a href="#internet-intra-as-routing">Internet Intra-AS Routing</a><ul>
+<li><a href="#rip-routing-information-protocol">RIP: Routing Information Protocol</a></li>
+<li><a href="#ospf-open-shortest-path-first">OSPF: Open Shortest Path First</a></li>
+<li><a href="#bgp-border-gateway-protocol">BGP: Border Gateway Protocol</a></li>
+<li><a href="#broadcast-routing">Broadcast Routing</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h3 id="overview">Overview</h3>
+<ul>
+<li>Sending side, chunks segments into datagrams</li>
+<li>Receiving side, delivers segments to transport layer</li>
+<li>Key functions:<ul>
+<li>
+<strong>Forwarding</strong>: move packets from router's input to appropriate output router (getting packet through single interchange)</li>
+<li>
+<strong>Routing</strong>: determine route taken by packets from source to destination (planning packet route from source to destination)</li>
+</ul>
+</li>
+<li>Connection setup<ul>
+<li>Before sending datagrams, two hosts and intervening routers establish virtual connection</li>
+<li>Distinction between network and transport:<ul>
+<li>
+<strong>network</strong>: between two hosts (may involve intervening routers)</li>
+<li>
+<strong>transport</strong>: between two processes</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Services, per datagram<ul>
+<li>guaranteed delivery</li>
+<li>guaranteed delivery with less than 40 msec delay</li>
+</ul>
+</li>
+<li>Services for a flow of datagrams<ul>
+<li>in order delivery</li>
+<li>guaranteed minimum bandwidth</li>
+<li>restrictions on inter-packet spacing</li>
+</ul>
+</li>
+</ul>
+<h2 id="connection-connectionless-service">Connection, connectionless service</h2>
+<ul>
+<li>
+<strong>datagram</strong> network provides network layer <strong>connectionless</strong> service</li>
+<li>
+<strong>virtual circuit</strong> network provides network layer <strong>connection</strong> service</li>
+<li>analogous to TCP/UDP connection-oriented/connectionless transport layer services, but:<ul>
+<li>
+<strong>service</strong>: host-to-host</li>
+<li>
+<strong>no choice</strong>: network provides one or the other</li>
+<li>
+<strong>implementation</strong>: in network core</li>
+</ul>
+</li>
+</ul>
+<h3 id="virtual-circuit">Virtual Circuit</h3>
+<ul>
+<li>source-to-destination path behaves like a phone circuit</li>
+<li>call setup, teardown for each call before data can flow</li>
+<li>each packet carries VC identifier, not destination host address</li>
+<li>every router on source-to-destination path has state for each passing connection</li>
+<li>link, router resources (bandwidth and buffers) may be allocated to VC<ul><li>dedicated resources gives predictable service</li></ul>
+</li>
+</ul>
+<h3 id="datagram-network">Datagram network</h3>
+<ul>
+<li>no call setup at network layer</li>
+<li>no state about connections in routers</li>
+<li>packets forwarded using destination host address</li>
+<li>forwarding table has ranges of addresses instead of individual addresses<ul><li>Longest prefix matching: looks for forwarding table entry for a destination address that has the longest matching address prefix</li></ul>
+</li>
+</ul>
+<h2 id="router-architecture">Router architecture</h2>
+<ul>
+<li>Input, output ports</li>
+<li>Switching fabric<ul>
+<li>forwards data</li>
+<li>Transfer packet from input buffer to output buffer</li>
+<li>switching rate: rate at which packets can transfer from input to output<ul>
+<li>often measured as multiple of i/o line rate</li>
+<li>
+<span class="math inline">\(n\)</span> inputs: switching rate <span class="math inline">\(n\)</span> times line rate is desirable</li>
+</ul>
+</li>
+<li>types: memory, bus, crossbar</li>
+</ul>
+</li>
+<li>routing processor<ul><li>Runs routing algorithms and protocols</li></ul>
+</li>
+<li>Has line termination, link layer protocol receiver, lookup forwarding and queueing</li>
+</ul>
+<h3 id="input-port-functions">Input port functions</h3>
+<p>Decentralized switching</p>
+<ul>
+<li>given datagram destination, look up output port using forwarding table in input port memory (match plus action)</li>
+<li>goal: complete input port processing at "line speed"</li>
+<li>queueing: if datagrams arrive faster than can be outputted, queue them up</li>
+</ul>
+<p>Switching factors</p>
+<ul>
+<li>transfer packet from input buffer to appropriate output buffer</li>
+<li>Switching via memory<ul>
+<li>Traditional computers with switching under direct control of CPU</li>
+<li>packet copied to system's memory</li>
+<li>spreed limited by memory bandwidth (2 bus crossings per datagram)</li>
+</ul>
+</li>
+<li>Switching via bus<ul>
+<li>datagram from input port memory to output port memory via shared bus</li>
+<li>bus contention: switching speed limited by bandwidth</li>
+<li>32 Gbps: sufficient for access and enterprise routers</li>
+</ul>
+</li>
+<li>Switching via interconnection network<ul>
+<li>Overcome bus bandwidth limitation</li>
+<li>banyan networks, crossbar, other interconnection nets initially developed to connect processors in multiprocessors</li>
+<li>fragments datagram into fixed cell lengths, switch cells through fabric</li>
+<li>switches 60 Gbps through the interconnection network</li>
+</ul>
+</li>
+</ul>
+<h3 id="output-port-functions">Output port functions</h3>
+<ul>
+<li>Same as input ports but in opposite order</li>
+<li>buffering required for datagrams that arrive faster from fabric than transmission rate</li>
+<li>scheduling discipline chooses among queued datagrams for transmission</li>
+<li>Avg buffering equal to typical RTT (e.g. 250 msec) times link capacity <span class="math inline">\(C\)</span><ul>
+<li>e.g. <span class="math inline">\(C\)</span> = 10 Gbps, link is 2.5 Gbit buffer</li>
+<li>Recent recommendation: with <span class="math inline">\(N\)</span> flows, buffering is equal to <span class="math inline">\(\frac{RTT \cdot C}{\sqrt{N}}\)</span>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="queueing">Queueing</h3>
+<ul>
+<li>input queueing happens when transmission rate of input is faster than fabric rate</li>
+<li>
+<strong>Head-of-the-line (HOL) blocking</strong>: queued datagram at front of queue prevents other in queue from moving forward</li>
+</ul>
+<h2 id="internet-protocol">Internet Protocol</h2>
+<ul>
+<li>IP has addressing conventions, datagram format, and packet handling conventions</li>
+<li>ICMP (Internet Control Message Protocol) is for error reporting and router signalling</li>
+</ul>
+<h3 id="datagram-format">Datagram format</h3>
+<table>
+<tr><th colspan="5">32 bits</th></tr>
+<tr>
+<td>version</td>
+<td>head len</td>
+<td>type of service</td>
+<td colspan="2">length</td>
+</tr>
+<tr>
+<td colspan="3">16-bit identifier</td>
+<td>flags</td>
+<td>fragment offset</td>
+</tr>
+<tr>
+<td colspan="2">time to live</td>
+<td>upper layer</td>
+<td colspan="2">header checksum</td>
+</tr>
+<tr><td colspan="5">32 bit source IP address</td></tr>
+<tr><td colspan="5">32 bit destination IP address</td></tr>
+<tr><td colspan="5">options, if any</td></tr>
+<tr><td colspan="5">data (variable lenfth, typically a TCP or UDP segment)</td></tr>
+</table>
+<ul>
+<li>Time to live is the max number of remaining hops, decremented at each router</li>
+<li>Overhead: 20 bytes of TCP header + 20 bytes of IP header = 40 bytes, plus app layer overhead</li>
+</ul>
+<h3 id="fragmentation-reassembly">Fragmentation, reassembly</h3>
+<ul>
+<li>network links have maximum transfer size MTU: largest possible link level frame<ul><li>different link types have different MTUs</li></ul>
+</li>
+<li>large IP datagram becomes divided ("fragmented") within network<ul>
+<li>one datagram becomes several</li>
+<li>reassembled only at final destination</li>
+<li>IP header bits used to identify, order related fragments</li>
+</ul>
+</li>
+<li>Have length, ID, frag flag, offset<ul>
+<li>fragments are specified in units of 8 byte offsets</li>
+<li>fragflag = 0 implies that it is the last one, so when received, the datagram can be reassembled</li>
+</ul>
+</li>
+</ul>
+<h3 id="ip-addressing">IP Addressing</h3>
+<ul>
+<li>32 bit identifier for host, router interface</li>
+<li>interface: connection between router/host and physical link<ul>
+<li>routers typically have multiple interfaces</li>
+<li>host typically has one or two interfaces (e.g. wired ethernet, wireless 802.11)</li>
+</ul>
+</li>
+<li>IP addresses associated with each interface</li>
+</ul>
+<h4 id="subnets">Subnets</h4>
+<ul>
+<li>A subnet includes device interfaces with same subnet part of IP address<ul><li>can physically reach other without a router</li></ul>
+</li>
+<li>Address<ul>
+<li>Subnet part: high order bits</li>
+<li>Host part: low order bits</li>
+</ul>
+</li>
+<li>subnet mask: e.g. <code>/24</code> at end of address means that the most significant 24 bits are the fixed subnet part, and the rest are the host part.<ul>
+<li>Class A: /8</li>
+<li>Class B: /16</li>
+<li>Class C: /24</li>
+</ul>
+</li>
+</ul>
+<h4 id="cidr">CIDR</h4>
+<ul>
+<li>Classless InterDomain Routing</li>
+<li>Subnet portion of address can be arbitrary length</li>
+<li>format: <code>a.b.c.d/x</code>, where <code>x</code> is the number of bits in the subnet portion</li>
+<li>All ones in the host part is used for broadcast</li>
+<li>All zeros is used for network identification</li>
+</ul>
+<p>Getting an IP address</p>
+<ul>
+<li>hard-coded sometimes</li>
+<li>DHCP</li>
+</ul>
+<h4 id="dhcp">DHCP</h4>
+<ul>
+<li>Goal is to allow any computer to automatically get an IP address</li>
+<li>leases an address, can be renewed</li>
+<li>allows reuse of addresses (only holds while connected)</li>
+<li>host broadcasts DHCP discover message</li>
+<li>DHCP server responds with DHCP offer</li>
+<li>host requests IP address with DHCP request msg</li>
+<li>DHCP server replies with DHCP acknowledgement</li>
+<li>Port 67 reserved for DHCP server, Port 68 reserved for incoming DHCP client</li>
+<li>Server uses broadcast to reply because the client doesn't have an address yet</li>
+<li><p>After receiving a reply from the server, the client knows the server's address, and can reply directly to the server</p></li>
+<li>How servers pick IPs<ul>
+<li>network gets allocated a portion of its provider ISP's address space</li>
+<li>ISP gets block from ICANN: Internet Corporation for Assigned Names and Numbers</li>
+</ul>
+</li>
+</ul>
+<h4 id="hierarchical-routing">Hierarchical Routing</h4>
+<ul>
+<li>"send me anything with addresses beginning (e.g.) 200.23.16.0/20"</li>
+<li>Gets progressively more specific</li>
+</ul>
+<h4 id="nat-network-address-translation">NAT: Network Address Translation</h4>
+<ul>
+<li>All datagrams <em>leaving</em> local network have the same single source NAT IP address, assigned by ISP, different source port numbers</li>
+<li>Datagrams with source or destination in this network have 10.0.0/24 address for sources, destination</li>
+<li>Outside IP address can change without affecting local IP addresses and vice versa (e.g. changing an ISP)</li>
+<li>Router has NAT translation table from WAN side address to LAN side address</li>
+<li>Talking to computers on another local network:<ul>
+<li>manual configuration</li>
+<li>IGD</li>
+<li>both connect to relay</li>
+</ul>
+</li>
+</ul>
+<h3 id="icmp-internet-control-message-protocol">ICMP: Internet Control Message Protocol</h3>
+<ul>
+<li>used by hosts and routers to communicate network-level information</li>
+<li>ICMP message: type, code, plus first 8 bytes of datagram causing error</li>
+</ul>
+<p>Traceroute</p>
+<ul>
+<li>Send series of UDP segments to destination<ul>
+<li>First has TTL=1, second with TTL=2, etc</li>
+<li>unlikely port number</li>
+</ul>
+</li>
+<li>When nth set of datagrams arrives to nth router:<ul>
+<li>router discards datagrams</li>
+<li>sends source ICMP message for TTL expired (Type 11, code 0)</li>
+<li>ICMP messages include name of router and IP address</li>
+</ul>
+</li>
+<li>When ICMP messages arrive, source records RTTs</li>
+<li>Stops when:<ul>
+<li>UDP segment eventually arrives at destination host</li>
+<li>destination returns ICMP "port unreachable" (type 3, code 3), because it arrived, but can't do anything with the port specified</li>
+<li>source stops</li>
+</ul>
+</li>
+</ul>
+<h3 id="ipv6">IPv6</h3>
+<ul>
+<li>32-bit address space completely allocated</li>
+<li>In IPv6, there is a fixed 40 byte header, with no fragmentation allowed</li>
+</ul>
+<h4 id="header">Header</h4>
+<table>
+<tr>
+<td>ver</td>
+<td>pri</td>
+<td colspan="3">flow label</td>
+</tr>
+<tr>
+<td colspan="3">payload len</td>
+<td>next hdr</td>
+<td>hop limit</td>
+</tr>
+<tr><td colspan="5">source address (128 bits)</td></tr>
+<tr><td colspan="5">destination address (128 bits)</td></tr>
+<tr><td colspan="5">data</td></tr>
+</table>
+<ul>
+<li>No checksum</li>
+<li>No options field, but is allowed outside of header, indicated by "next header" field</li>
+<li>ICMPv6<ul><li>additional types like "packet too big"</li></ul>
+</li>
+</ul>
+<h4 id="transition-from-ipv4">Transition from IPv4</h4>
+<ul>
+<li>not all routers can be upgraded simultaneously</li>
+<li>
+<strong>Tunneling</strong>: IPv6 datagram carried as a payload in IPv4 datagram among IPv4 routers</li>
+</ul>
+<h2 id="routing-algorithms">Routing algorithms</h2>
+<h3 id="graph-abstraction">Graph abstraction</h3>
+<p>A graph <span class="math inline">\(G = (N, E)\)</span>. <span class="math inline">\(c(x, x')\)</span> is the cost of the link <span class="math inline">\((x, x')\)</span>.</p>
+<p>Question: <strong>what is the least cost path from the source to the destination?</strong></p>
+<ul>
+<li>global:<ul>
+<li>all routers have complete info on topology</li>
+<li>"link state" algorithms</li>
+</ul>
+</li>
+<li>decentralized<ul>
+<li>router knows physically connected neighbours, link costs to neughbours</li>
+<li>iterative process of computation, exchange of info with neighbours</li>
+<li>"distance vector" algorithms</li>
+</ul>
+</li>
+<li>static<ul><li>routes change slowly over time</li></ul>
+</li>
+<li>dynamic<ul>
+<li>routes change more quickly</li>
+<li>periodic update</li>
+<li>in response to link cost changes</li>
+</ul>
+</li>
+</ul>
+<h3 id="link-state">Link State</h3>
+<ul>
+<li>e.g. Dijkstra's algorithm</li>
+<li>
+<span class="math inline">\(c(x, x')\)</span> edge weights</li>
+<li>
+<span class="math inline">\(D(v)\)</span> current value of cost path from source to dest <span class="math inline">\(v\)</span>
+</li>
+<li>
+<span class="math inline">\(p(v)\)</span>: predecessor</li>
+<li>
+<span class="math inline">\(N'\)</span> set of routers who we know the least cost path for</li>
+</ul>
+<h3 id="distance-vector">Distance vector</h3>
+<p>Bellman-Ford equation (DP)<br>
+Let <span class="math inline">\(d_x(y) :=\)</span> cost of least cost path from <span class="math inline">\(x\)</span> to <span class="math inline">\(y\)</span><br>
+Then, <span class="math inline">\(d_x(y) = \min\{c(x,v) + d_v(y)\}\)</span></p>
+<ul>
+<li>
+<span class="math inline">\(D_x(y)\)</span> is the estimate of least cost from <span class="math inline">\(x\)</span> to <span class="math inline">\(y\)</span>
+</li>
+<li>
+<span class="math inline">\(x\)</span> maintains the distance vector <span class="math inline">\(D_x = [D_x(y): y \in N]\)</span>
+</li>
+<li>For each node <span class="math inline">\(x\)</span> it knows the distance to each of its neighbours</li>
+<li>From time to time, each node sends its own distance bector estimate to neghbours</li>
+<li>when <span class="math inline">\(x\)</span> receives new DV estimate from neighbour, it updates its own DV using B-F equation:<ul><li><span class="math inline">\(D_x(y) \leftarrow \min_v\{x(x,v) + D_v(y)\} \quad \forall y \in N\)</span></li></ul>
+</li>
+<li>poisoned reverse:<ul><li>if Z routes through Y to get to X:<ul><li>X tells Y its distance to X is infinite</li></ul>
+</li></ul>
+</li>
+<li>message complexity<ul>
+<li>LS: with n nodes, E links, <span class="math inline">\(O(nE)\)</span>
+</li>
+<li>DV: exchange between neighbours only. Convergence time varies</li>
+</ul>
+</li>
+<li>Speed of convergence<ul>
+<li>LS: <span class="math inline">\(O(n^2)\)</span>, requires <span class="math inline">\(O(nE)\)</span> messages. May have oscillations</li>
+<li>DV: convergence time varies. May be routing loops, count-to-infinity problem</li>
+</ul>
+</li>
+<li>Robustness<ul>
+<li>LS: node can advertise incorrect link cost, each node computes only its own table</li>
+<li>DV: DV node can advertise incorrect path cost</li>
+<li>each node's table is used by others so the error propagates through the network</li>
+</ul>
+</li>
+</ul>
+<h3 id="hierarchical-routing-1">Hierarchical Routing</h3>
+<ul>
+<li>aggregate routers into regions, "autonomous systems"</li>
+<li>routers in same AS run same routing protocol<ul>
+<li>intra-AS routing protocol</li>
+<li>routers in different AS can run different intra-AS routing protocols</li>
+</ul>
+</li>
+<li>gateway router:<ul>
+<li>at edge of its own AS</li>
+<li>has link to router in another AS</li>
+</ul>
+</li>
+<li>forwarding table configured by both intra- and inter-AS routing algorithms</li>
+</ul>
+<p>Inter-AS tasks</p>
+<ul>
+<li>Router in AS1 receives datagram destined for outside AS1</li>
+<li>AS1 must learn which dests are reachable through AS2, and which through AS3</li>
+<li>AS1 must propagate this reachability info to all routers in AS1</li>
+<li>Use internal routing to find shortest path to exit nodes in AS1, add those to forwarding table</li>
+<li>At output nodes, the connecting nodes in other ASes give info to AS1 that they can both reach the final destination<ul><li>Hot potato routing: pick closest one to forward to that will still get to the destination</li></ul>
+</li>
+</ul>
+<h2 id="internet-intra-as-routing">Internet Intra-AS Routing</h2>
+<ul><li>AKA <strong>interior gateway protocols (IGP)</strong>
+</li></ul>
+<h3 id="rip-routing-information-protocol">RIP: Routing Information Protocol</h3>
+<ul>
+<li>included in BSD-UNIX since 1982</li>
+<li>distance vector algorithm<ul>
+<li>distance metric: number of hops (up to 15 max), each link has cost 1</li>
+<li>DVs exchanged with neighbours every 30 seconds in response message (this is <strong>advertisement</strong>)</li>
+<li>each advertisement: list of up to 25 destination subnets and the hops to get there</li>
+</ul>
+</li>
+<li>Link failure<ul>
+<li>If no advertisement heard after 180s, neighbour/link declared dead</li>
+<li>routes via neighbour invalidated</li>
+<li>new advertisements sent to neighbours</li>
+<li>neighbours in turn send out new advertisements</li>
+<li>poison reverse used to stop infinite loops: max 16 hops</li>
+</ul>
+</li>
+<li>RIP routing tables managed by application level process called <code>routed</code><ul><li>Advertisements sent as UDP packets</li></ul>
+</li>
+</ul>
+<h3 id="ospf-open-shortest-path-first">OSPF: Open Shortest Path First</h3>
+<ul>
+<li>uses link state<ul><li>topology map at each node, route computation using Dijkstra's</li></ul>
+</li>
+<li>advertisement carries one entry per neighbour<ul><li>broadcast link state every 30 minutes even if there is no change</li></ul>
+</li>
+<li>advertisements flooded to entire AS<ul><li>carried in OSPF messages directly over IP, not TCP or UDP</li></ul>
+</li>
+<li>IS-IS routing protocol is nearly identical to OSPF</li>
+<li>Adds security: messages authenticated</li>
+<li>multiple same-cost paths allowed (compared to only one in RIP)</li>
+<li>for each link, multiple cost metrics for different types of service (e.g. satellite link cost set to "low" for best effort ToS, high for real time ToS)</li>
+<li>integrated uni- and multi-cast support: Multicast OSPF (MOSPF) uses same topology data base as OSPF</li>
+<li>hierarchical OSPF in large domains</li>
+</ul>
+<h3 id="bgp-border-gateway-protocol">BGP: Border Gateway Protocol</h3>
+<ul>
+<li>the de facto inter-domain routing protocol</li>
+<li>BGP provides each AS as a means to:<ul>
+<li>eBGP: (external) obtain subnet reachability information form neighbour ASes</li>
+<li>iBGP: (internal) propagate reachability info to all AS-internal routers</li>
+<li>determine good routes to other networks based on reachability info and policy</li>
+</ul>
+</li>
+<li>Allows subnet to advertise its existence on internet</li>
+<li>Messages, sent over TCP:<ul>
+<li>
+<strong>OPEN</strong>: opens TCP connection to peer and authenticates sender</li>
+<li>
+<strong>UPDATE</strong>: advertises new path or withdraws old</li>
+<li>
+<strong>KEEPALIVE</strong>: keeps connection open in apsence of UPDATEs, also ACKs OPEN request</li>
+<li>
+<strong>NOTIFICATION</strong>: reports errors in previous msg, also used to close connections</li>
+</ul>
+</li>
+<li>BGP session: two BGP peers echange BGP messages:<ul>
+<li>advertising paths to different destination network prefices ("path vector" protocol)</li>
+<li>exchanged over semi permanent TCP connections</li>
+</ul>
+</li>
+<li>Advertised prefix includes BGP attributes:<ul>
+<li>
+<strong>AS-PATH</strong>: contains ASes through which prefix advertisement has passed</li>
+<li>
+<strong>NEXT-HOP</strong>: indicates internal-AS router to next-hop AS</li>
+</ul>
+</li>
+<li>Route selection<ul>
+<li>local preference value attribute: policy decision</li>
+<li>shortest AS-PATH</li>
+<li>closest NEXT-HOP router</li>
+<li>additional criteria</li>
+</ul>
+</li>
+<li>Routing policies<ul>
+<li>inter-AS: admin wants control over how its traffic is routed, who routes through its network</li>
+<li>intra-AS: single admin, so no policy decisions needed</li>
+</ul>
+</li>
+<li>Scale<ul><li>hierarchical routing saves table size, reduced update traffic</li></ul>
+</li>
+<li>Performance<ul>
+<li>intra-AS: can focus on performance</li>
+<li>inter-AS: policy may dominate over performance</li>
+</ul>
+</li>
+</ul>
+<h3 id="broadcast-routing">Broadcast Routing</h3>
+<ul>
+<li>Deliver packets from source to all other nodes</li>
+<li>Source transmit <span class="math inline">\(n\)</span> copies to the <span class="math inline">\(n\)</span> destinations using unicast routing. <strong><span class="math inline">\(n\)</span>-way-unicast (source duplication)</strong><ul>
+<li>Simple but inefficient</li>
+<li>how does source determine recipient addresses?<ul><li>need additional protocol mechanisms (e.g. broadcast membership.) Adds overhead</li></ul>
+</li>
+</ul>
+</li>
+<li>Uncontrolled flooding<ul><li>When node receives broadcast, it sends to all neighbours except from the source it came from<ul>
+<li>Problem: cycles lead to endless flooding</li>
+<li>Problem: broadcast storm. When a node is connected to more than two other nodes, it will create and forward multiple copies of the broadcast, resulting in endless multiplication of packets</li>
+</ul>
+</li></ul>
+</li>
+<li>Controlled flooding<ul>
+<li>Only broadcast if it hasn't broadcast the same packet before</li>
+<li>Sequence number controlled flooding: source puts its address and a sequence number into the packet, and sends that to all neighbours</li>
+<li>Each node maintains a list of source address and sequence number of each broadcast packed it has received and forwarded</li>
+<li>When a node receives a broadcast packet, it first checks whether the packed is in the list. If so, it is dropped. Otherwise, it is duplicated and forwarded and added to the list</li>
+</ul>
+</li>
+<li>Reverse path forwarding (RPF)<ul>
+<li>only forward packet if it arrived on the shortest path between node and source</li>
+<li>RPF does not require that a router knows the complete shortest path. Only needs to know the next neighbour on its unicast shortest path to the sender</li>
+</ul>
+</li>
+<li>Spanning tree<ul>
+<li>No redundant packets received by any node</li>
+<li>first, construct spanning tree<ul>
+<li>Each node sends unicast join message to centre node</li>
+<li>message forwarded until it arrives at a node already in tree</li>
+</ul>
+</li>
+<li>nodes then forward or make copies along spanning tree</li>
+</ul>
+</li>
+</ul>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

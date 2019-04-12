@@ -1,0 +1,447 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<title>State Response</title>
+</head>
+<body>
+
+<h1 id="state-response">State Response</h1>
+<a href="index.html">Back to se380</a>
+<div id="TOC">
+
+<ul>
+<li><a href="#e.g.-3.1.1">e.g. 3.1.1</a></li>
+<li><a href="#e.g.-3.1.2">e.g. 3.1.2</a></li>
+<li><a href="#e.g.-3.1.3">e.g. 3.1.3</a></li>
+<li>
+<a href="#using-laplace">Using Laplace</a><ul><li><a href="#e.g.">e.g.</a></li></ul>
+</li>
+<li><a href="#total-response">Total Response</a></li>
+<li>
+<a href="#stability-of-state-space-models">Stability of state-space models</a><ul><li><a href="#e.g.-3.4.2">e.g. 3.4.2</a></li></ul>
+</li>
+<li>
+<a href="#bounded-input-bounded-output-stability">Bounded input, bounded output stability</a><ul><li><a href="#e.g.-3.5.1">e.g. 3.5.1</a></li></ul>
+</li>
+<li><a href="#bibo-and-poles">BIBO and poles</a></li>
+<li>
+<a href="#stability-of-state-space-models-and-bibo-stability">Stability of state-space models and BIBO stability</a><ul><li><a href="#e.g.-3.5.5-mass-spring">e.g. 3.5.5: mass-spring</a></li></ul>
+</li>
+<li>
+<a href="#steady-state-gain">Steady-state gain</a><ul><li><a href="#e.g.-set-point-control">e.g. Set-point control</a></li></ul>
+</li>
+<li>
+<a href="#frequency-response">Frequency response</a><ul><li><a href="#e.g.-1">e.g.</a></li></ul>
+</li>
+<li>
+<a href="#graphical-representations-of-frequency-response">Graphical representations of frequency response</a><ul>
+<li><a href="#bode-plots">Bode plots</a></li>
+<li><a href="#polar-plots">Polar plots</a></li>
+<li><a href="#e.g.-3.8.5">e.g. 3.8.5</a></li>
+<li><a href="#e.g.-3.8.6">e.g. 3.8.6</a></li>
+<li><a href="#e.g.-plot">e.g. plot</a></li>
+<li><a href="#e.g.-complex-conjugate-zeroes">e.g. Complex conjugate zeroes</a></li>
+</ul>
+</li>
+<li>
+<a href="#summary">Summary</a><ul>
+<li><a href="#domains">Domains</a></li>
+<li><a href="#state-space-models">State-space models</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<p><span class="math display">\[\begin{align}
+\dot{x}&amp;=Ax\\
+x &amp;\in \mathbb{R}^n\\
+A &amp;\in \mathbb{R}^{n \times n}\\
+x(0) &amp;= x_0 \in \mathbb{R}^n \text{ (initial condition) }\\
+\end{align}\]</span></p>
+<p>Recall:</p>
+<ol>
+<li>When <span class="math inline">\(n=1\)</span> (A is scalar), the solution is <span class="math inline">\(x(t)=e^{tA}x_0\)</span>
+</li>
+<li>Taylor series expansion of <span class="math inline">\(e^{At}=1 + At + \frac{(At)^2}{2!} + ...\)</span>
+</li>
+</ol>
+<p>Motivated by 1 and 2, define the <strong>matrix exponential</strong>:<br>
+<span class="math display">\[e^A := I + A + \frac{A^2}{2!} + ...\]</span></p>
+<h3 id="e.g.-3.1.1">e.g. 3.1.1</h3>
+<p><span class="math display">\[\begin{align}
+A &amp;= \begin{bmatrix}0 &amp; 0 \\ 0 &amp; 0\end{bmatrix}\\
+\Rightarrow e^A &amp;= I + 0 + 0 + ...\\
+&amp;= \begin{bmatrix}1 &amp; 0 \\ 0 &amp; 1\end{bmatrix}\\
+\end{align}\]</span></p>
+<h3 id="e.g.-3.1.2">e.g. 3.1.2</h3>
+<p><span class="math display">\[\begin{align}
+A &amp;= \begin{bmatrix}1 &amp; 0 \\ 0 &amp; 2\end{bmatrix}\\
+\text{For a diagonal matrix:}\\
+A^k &amp;= \begin{bmatrix}1^k &amp; 0 \\ 0 &amp; 2^k\end{bmatrix}\\
+\Rightarrow e^A &amp;= I + \begin{bmatrix}1 &amp; 0 \\ 0 &amp; 2\end{bmatrix} + \begin{bmatrix}1^2 &amp; 0 \\ 0 &amp; 2^2\end{bmatrix} + ...\\
+&amp;= \begin{bmatrix}e^1 &amp; 0 \\ 0 &amp; e^2\end{bmatrix}\\
+\end{align}\]</span></p>
+<h3 id="e.g.-3.1.3">e.g. 3.1.3</h3>
+<p><span class="math display">\[
+A = \begin{bmatrix}0 &amp; 1 &amp; 0 \\ 0 &amp; 0 &amp; 1 \\ 0 &amp; 0 &amp; 0\end{bmatrix}\\
+\]</span><br>
+Check that <span class="math inline">\(A^3=0\)</span> (i.e. <span class="math inline">\(A\)</span> is nilpotent).<br>
+<span class="math display">\[
+e^A = I + A + \frac{A^2}{2} = \begin{bmatrix}1 &amp; 1 &amp; \frac{1}{2} \\ 0 &amp; 1 &amp; 1 \\ 0 &amp; 0 &amp; 1\end{bmatrix}\\
+\]</span></p>
+<p>Replace <span class="math inline">\(A\)</span> with <span class="math inline">\(tA\)</span> to get a function of time:<br>
+<span class="math display">\[e^{At} = I + tA + \frac{t^2A^2}{2!} + ...\]</span></p>
+<p><strong>Theorem:</strong> The unique solution to <span class="math inline">\(\dot{x}=Ax, \quad x(0)=x_0\)</span> is <span class="math inline">\(x(t)=e^{tA}x_0\)</span>.</p>
+<h2 id="using-laplace">Using Laplace</h2>
+<p>Take the Laplace transform of <span class="math inline">\(\dot{x}=Ax\)</span> without assuming <span class="math inline">\(x(0)=0\)</span>:<br>
+<span class="math display">\[\begin{align}
+sX(s) - x(0) &amp;= AX(s)\\
+X(s) &amp;= (sI-A)^{-1} x(0)\\
+\end{align}\]</span></p>
+<p><strong>Conclusion</strong>: <span class="math inline">\(e^{At}\)</span> and <span class="math inline">\((sI-A)^{-1}\)</span> are Laplace transform pairs.</p>
+<h3 id="e.g.">e.g.</h3>
+<p><span class="math display">\[\begin{align}
+A &amp;= \begin{bmatrix}0&amp;1&amp;0\\0&amp;0&amp;1\\0&amp;0&amp;0\end{bmatrix}\\
+sI-A &amp;= \begin{bmatrix}s&amp;-1&amp;0\\0&amp;s&amp;-1\\0&amp;0&amp;s\end{bmatrix}\\
+(sI-A)^{-1} &amp;= \frac{\text{adj}(sI-A)}{\det(sI-A)}\\
+&amp;= \frac{1}{s^3} \begin{bmatrix}s^2&amp;s&amp;1\\0&amp;s^2&amp;s\\0&amp;0&amp;s^2\end{bmatrix}\\
+e^{tA} &amp;= \mathcal{L}^{-1} \left\{ (sI-A)^{-1} \right\}\\
+&amp;= \begin{bmatrix}1&amp;t&amp;\frac{t^2}{2}\\0&amp;1&amp;t\\0&amp;0&amp;1\end{bmatrix}, \quad t \ge 0\\
+\end{align}\]</span></p>
+<h2 id="total-response">Total Response</h2>
+<p>The solution of <span class="math inline">\(\dot{x}=Ax+Bu\)</span>, <span class="math inline">\(y=Cx+Du\)</span>, <span class="math inline">\(x(0)=x_0\)</span> is:<br>
+<span class="math display">\[x(t) = \underbrace{e^{At}x_0}_\text{initial state response} + \underbrace{\int_0^t e^{A(t-\tau)} Bu(\tau)d\tau}_\text{forced response}\]</span><br>
+<span class="math display">\[Y(t)=Cx(t)+Du(t)\]</span></p>
+<p>In SISO (single-input-single-output) special case where <span class="math inline">\(x(0)=0\)</span>, we get the familiar result:<br>
+<span class="math display">\[\begin{align}
+y(t)&amp;=(g * u)(t) = \int_0^t g(t-\tau)u(\tau)d\tau\\
+g(t)&amp;=Ce^{At}B 1(t) + D\delta(t)
+\end{align}\]</span><br>
+Where <span class="math inline">\(1(t)\)</span> is the unit step function and <span class="math inline">\(\delta(t)\)</span> is the unit impulse.</p>
+<h2 id="stability-of-state-space-models">Stability of state-space models</h2>
+<p>The system <span class="math inline">\(\dot{x}=Ax\)</span> is <strong>asymptotically stable</strong> if <span class="math inline">\(x(t) \rightarrow 0\)</span> for any initial condition.</p>
+<p><span class="math inline">\(e^{At} \rightarrow 0\)</span> if and only if all the eigenvalues of <span class="math inline">\(A\)</span> have a negative real part.</p>
+<h3 id="e.g.-3.4.2">e.g. 3.4.2</h3>
+<p><span class="math display">\[\begin{align}
+M\ddot{q}&amp;=u-Kq \quad \text{(mass-spring)}\\
+x &amp;= \begin{bmatrix}x_1\\x_2\end{bmatrix} := \begin{bmatrix}q\\\dot{q}\end{bmatrix}\\
+\dot{x} &amp;= \begin{bmatrix}0&amp;1\\\frac{-k}{M}&amp;0\end{bmatrix}x + \begin{bmatrix}0\\\frac{1}{M}\end{bmatrix}u\\
+\\
+\text{Using } M=1, k=4:\\
+e^{At} &amp;= \begin{bmatrix}\cos 2t&amp;\frac{1}{2}\sin 2t\\-2\sin 2t &amp; \cos 2t\end{bmatrix}\\
+\end{align}\]</span></p>
+<p>Since <span class="math inline">\(e^{At}\)</span> does not approach 0 as <span class="math inline">\(t\)</span> grows large, the system is not asymptotically stable.</p>
+<p>Let's double-check this using the eigenvalues. Solve for <span class="math inline">\(s\)</span> such that <span class="math inline">\(\det(sI-A)=0\)</span>.<br>
+<span class="math display">\[\begin{align}
+A &amp;= \begin{bmatrix}0 &amp; 1 \\ -4 &amp; 0 \end{bmatrix}\\
+\det \begin{bmatrix}s &amp; -1 \\ 4 &amp; s\end{bmatrix} &amp;= 0\\
+s^2 + 4 &amp;= 0\\
+s &amp;= \pm 2j
+\end{align}\]</span><br>
+The system is therefore not asymptotically stable since it has at least one eigenvalue (in this case, it has two) with a non-negative real part.</p>
+<p>If we introduce friction:<br>
+<span class="math display">\[\begin{align}
+\ddot{q} &amp;= u-4q-\dot{q}
+\end{align}\]</span></p>
+<p>Check that it is asymptotically stable (it should be)</p>
+<h2 id="bounded-input-bounded-output-stability">Bounded input, bounded output stability</h2>
+<p><span class="math display">\[
+Y(s)=G(s)U(s) \quad \text{or} \quad y(t)=(g*u)(t), g(t)=\mathcal{L}^{-1}\left\{G(s)\right\}\\
+\]</span></p>
+<p>A signal <span class="math inline">\(u(t)\)</span> is <strong>bounded</strong> if there exists a constant <span class="math inline">\(b\)</span> such that, for all <span class="math inline">\(t \ge 0\)</span>, <span class="math inline">\(|u(t)| \le b\)</span>.</p>
+<p>For example, <span class="math inline">\(\sin t\)</span> is bounded by <span class="math inline">\(b=1\)</span>.</p>
+<p>If <span class="math inline">\(u\)</span> is bounded, <span class="math inline">\(||u||_\infty\)</span> denotes the <strong>least upper bound</strong>. For example, for <span class="math inline">\(\sin t\)</span>, then <span class="math inline">\(|u(t)| \le 10\)</span> and <span class="math inline">\(u\)</span> is bounded.</p>
+<p>A linear, time-independent system is <strong>BIBO stable</strong> if every bounded input produces a bounded output. <span class="math inline">\(||u||_\infty\)</span> is finite <span class="math inline">\(\Rightarrow ||y||_\infty\)</span> is finite.</p>
+<h3 id="e.g.-3.5.1">e.g. 3.5.1</h3>
+<p><span class="math inline">\(G(s)=\frac{1}{s+2}\)</span>. The impulse response is <span class="math inline">\(g(t)=\mathcal{L}^{-1}\{G(s)\} = e^{-2t}\)</span>. Then:</p>
+<p><span class="math display">\[\begin{align}
+y(t) &amp;=(g * u)(t)\\
+&amp;= \int_0^t e^{-2\tau} u(t-\tau) d\tau\\
+\forall t \ge 0:\\
+|y(t)|&amp;=\left|\int_0^t e^{-2\tau} u(t-\tau) d\tau\right|\\
+&amp;\le \int_0^t \left|e^{-2\tau} u(t-\tau) \right| d\tau\\
+&amp;\le \int_0^t e^{-2\tau} d\tau ||u||_\infty\\
+&amp;\le \int_0^\infty e^{-2\tau} d\tau ||u||_\infty\\
+&amp;= \frac{1}{2} ||u||_\infty\\
+\\
+||y||_\infty &amp;\le \frac{1}{2} ||u||_\infty\\
+\therefore \text{ system is BIBO stable. }
+\end{align}\]</span></p>
+<h2 id="bibo-and-poles">BIBO and poles</h2>
+<p><strong>Theorem 3.5.4:</strong> Assume that <span class="math inline">\(G(s)\)</span> is rational and strictly proper. Then the following are equivalent:</p>
+<ol>
+<li>
+<span class="math inline">\(G\)</span> is BIBO stable.</li>
+<li>the impulse response <span class="math inline">\(g(t)=\mathcal{L}^{-1}\{G(s)\}\)</span> is absolutely integrable: <span class="math inline">\(\int_0^\infty |g(\tau)| d\tau \lt \infty\)</span>
+</li>
+<li>Every pole of <span class="math inline">\(G\)</span> has a negative real part</li>
+</ol>
+<p>For example, <span class="math inline">\(\frac{1}{s+1}, \frac{1}{(s+3)^2}, \frac{s-1}{s^2+5s+6}\)</span> are all BIBO stable because their poles have a negative real part.</p>
+<p>On the other hand, take <span class="math inline">\(\frac{1}{s}, \frac{1}{s-1}\)</span>. These are all BIBO unstable because they have poles which do not have a negative real part. The function <span class="math inline">\(\frac{1}{s}\)</span> is an integrator, so when you give it a constant function as an input, the output will be a ramp, which is unbounded.</p>
+<p><strong>Theorem 3.5.5:</strong> If <span class="math inline">\(G(s)\)</span> is rational and improper (the degree of the numerator is greater than the degree of the denominator), then <span class="math inline">\(G\)</span> is not BIBO stable.</p>
+<h2 id="stability-of-state-space-models-and-bibo-stability">Stability of state-space models and BIBO stability</h2>
+<p><span class="math display">\[\begin{align}
+\dot{x} &amp;= Ax+Bu\\
+y *= Cx+Du\\
+\Rightarrow Y(s) &amp;= \left(C(SI-A)^{-1}B + D\right)U(s)\\
+&amp;= \left(C\frac{\text{adj}(sI-A)}{\det(sI-A)}B + D\right)U(s)\\
+\end{align}\]</span><br>
+This is BIBO stable if all poles in <span class="math inline">\(\Re(s) \lt 0\)</span><br>
+This is asymptotically stable if all eigenvalues of <span class="math inline">\(A \in \Re(s) \lt 0\)</span><br>
+Eigenvalues of <span class="math inline">\(A\)</span> = roots of <span class="math inline">\(\det(sI-A) \supseteq\)</span> poles of <span class="math inline">\(G(s)=C(sI-A)^{-1}B+D\)</span></p>
+<h3 id="e.g.-3.5.5-mass-spring">e.g. 3.5.5: mass-spring</h3>
+<p><span class="math display">\[\begin{align}
+\dot{x} &amp;= \begin{bmatrix}0&amp;1\\-4&amp;0\end{bmatrix}x + \begin{bmatrix}0\\1\end{bmatrix}u\\
+y &amp;= \begin{bmatrix}1 &amp; 0\end{bmatrix} x
+\end{align}\]</span></p>
+<p>Eigenvalues of <span class="math inline">\(A\)</span> are <span class="math inline">\(\pm 2j \Rightarrow\)</span> the system is not asymptotically stable.</p>
+<p><span class="math display">\[\begin{align}
+\frac{Y(s)}{U(s)} &amp;= \begin{bmatrix}1&amp;0\end{bmatrix}\begin{bmatrix}s&amp;1\\4&amp;s\end{bmatrix}^{-1}\begin{bmatrix}0\\1\end{bmatrix}\\
+&amp;=\frac{1}{s^2+4}\\
+&amp;=G(s)
+\end{align}\]</span><br>
+The system is not BIBO stable based on its poles.</p>
+<p>In this example, <span class="math inline">\(C\text{adj}(sI-A)B=1\)</span> and <span class="math inline">\(\det(sI-A)=s^2+4\)</span> are coprime, so eigenvalues of <span class="math inline">\(A\)</span> are the poles of <span class="math inline">\(G\)</span>.</p>
+<h2 id="steady-state-gain">Steady-state gain</h2>
+<p>Apply a constant <span class="math inline">\(b\)</span> as input to a system. When we observe the output, the <strong>steady-state gain</strong> of a transfer function <span class="math inline">\(G(s)\)</span> is <span class="math inline">\(\frac{Y_{ss}}{b}\)</span>.</p>
+<p><strong>Final Value Theorem (3.6.1)</strong>: Given <span class="math inline">\(F(s)=\mathcal{L}\{f(t)\}\)</span>, where <span class="math inline">\(F(s)\)</span> is rational:</p>
+<ol>
+<li>If <span class="math inline">\(F(s)\)</span> has all of its poles in <span class="math inline">\(\Re(s) \lt 0\)</span>, then <span class="math inline">\(\lim_{t \rightarrow \infty} f(t) = 0\)</span>.</li>
+<li>If <span class="math inline">\(sF(s)\)</span> has all poles in <span class="math inline">\(\Re(s) \lt 0\)</span>, then <span class="math inline">\(\lim_{t \rightarrow \infty} f(t) = \lim_{s \rightarrow 0} sF(s)\)</span>
+</li>
+<li>If <span class="math inline">\(sF(s)\)</span> has even one pole with <span class="math inline">\(\Re(s) \ge 0\)</span>, then <span class="math inline">\(f(t)\)</span> does not converge.</li>
+</ol>
+<p>For example: <span class="math inline">\(F(s) = \frac{1}{s^2}, sF(s) = \frac{1}{s}\)</span>. <span class="math inline">\(f(t)=t\)</span>, which does not converge.</p>
+<p>e.g.:</p>
+<table style="width:14%;">
+<colgroup>
+<col width="2%">
+<col width="2%">
+<col width="2%">
+<col width="2%">
+<col width="2%">
+</colgroup>
+<thead><tr class="header">
+<th><span class="math inline">\(f(t)\)</span></th>
+<th><span class="math inline">\(\lim_{t \Rightarrow \infty} f(t)\)</span></th>
+<th><span class="math inline">\(F(s)\)</span></th>
+<th><span class="math inline">\(\lim_{s \rightarrow 0} sF(s)\)</span></th>
+<th>FVT case</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(e^{-t}\)</span></td>
+<td>0</td>
+<td><span class="math inline">\(\frac{1}{s+1}\)</span></td>
+<td>0</td>
+<td>1 or 2</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(1(t)\)</span></td>
+<td>1</td>
+<td><span class="math inline">\(\frac{1}{s}\)</span></td>
+<td>1</td>
+<td>2</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(t\)</span></td>
+<td><span class="math inline">\(\infty\)</span></td>
+<td><span class="math inline">\(\frac{1}{s^2}\)</span></td>
+<td><span class="math inline">\(\infty\)</span></td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(te^{-t}\)</span></td>
+<td>0</td>
+<td><span class="math inline">\(\frac{1}{(s+1)^2}\)</span></td>
+<td>0</td>
+<td>1 or 2</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(e^t\)</span></td>
+<td><span class="math inline">\(\infty\)</span></td>
+<td><span class="math inline">\(\frac{1}{s-1}\)</span></td>
+<td>0</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\cos{\omega t}\)</span></td>
+<td>N/A</td>
+<td><span class="math inline">\(\frac{s}{s^2 + \omega^2}\)</span></td>
+<td>0</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Theorem 3.6.2</strong>: If <span class="math inline">\(G(s)\)</span> is BIBO stable and we input <span class="math inline">\(u(t)=b1(t)\)</span>, then the steady state gain <span class="math inline">\(y_{ss}=bG(0)\)</span>. This can be proven using the final value theorem.</p>
+<p>This is sto say, steady-state gain is <em>always</em> <span class="math inline">\(\frac{y_{ss}}{b}=G(0)\)</span> for any <span class="math inline">\(b\)</span>.</p>
+<h3 id="e.g.-set-point-control">e.g. Set-point control</h3>
+<p><span class="math inline">\(\dot{x}=-2x+u\)</span>, <span class="math inline">\(y=x\)</span>. This gives the transfer function <span class="math inline">\(Y(s)=\frac{1}{d+2}U(s)\)</span>. Given a constant reference <span class="math inline">\(r(t)=r_o 1(t)\)</span> where <span class="math inline">\(r_0\)</span> constant, find a control signal <span class="math inline">\(u\)</span> to make <span class="math inline">\(y\)</span> go to <span class="math inline">\(r\)</span>.</p>
+<p>We want <span class="math inline">\(\lim_{t \rightarrow \infty} y(t) = r_0\)</span>.</p>
+<p>Try open loop:<br>
+<img src="img/setpointcontrol.png"></p>
+<p><span class="math display">\[\begin{align}
+y_{ss} &amp;= \lim_{t \rightarrow \infty} y(t)\\
+&amp;=^? \lim_{s\rightarrow 0} sC(s)R(s) \\
+&amp;= \lim_{s\rightarrow 0} C(s) \frac{1}{s+2} r_0\\
+\end{align}\]</span></p>
+<p>If <span class="math inline">\(C(s)\)</span> is BIBO stable, then <span class="math inline">\(y_{ss} = \lim_{s \rightarrow 0} C_s \frac{r_0}{s+2} = C(0) \frac{1}{2} r_0\)</span>. So, <span class="math inline">\(y_{ss} = r_0 \Leftrightarrow C(0) = 2 = \frac{1}{P(0)}\)</span>.</p>
+<p>The simplest choice is <span class="math inline">\(C(s) = \frac{1}{P(0)} = 2\)</span>, a proportional controller.</p>
+<h2 id="frequency-response">Frequency response</h2>
+<p><span class="math inline">\(Y(s)=G(s)U(s)\)</span> or <span class="math inline">\(y(t)=(g*u)(t)\)</span>. Assume <span class="math inline">\(G\)</span> is BIBO stable, and the input signal <span class="math inline">\(u\)</span> is a sinusoid: <span class="math inline">\(u(t) = \cos(\omega t)\)</span>. The period is <span class="math inline">\(\frac{2\pi}{\omega}\)</span>.</p>
+<p><strong>Theorem 3.7.1</strong>: Assuming <span class="math inline">\(G\)</span> is rational and BIBO stable, then if <span class="math inline">\(u(t)=\cos(\omega t)\)</span>, then the steady-state output is <span class="math inline">\(y(t) = A\cos(\omega t + \phi)\)</span>. <span class="math inline">\(A=|G(j\omega)|\)</span>, and <span class="math inline">\(\phi = \angle G(j\omega)\)</span></p>
+<h3 id="e.g.-1">e.g.</h3>
+<p><span class="math inline">\(\dot{x}=-10x+u\)</span>, <span class="math inline">\(y=x\)</span>. Then <span class="math inline">\(Y(s) = \frac{1}{s+10}U(s) =: G(s)U(s)\)</span>. If <span class="math inline">\(u(t)=2\cos(3t+ \frac{\pi}{6})\)</span>, what is the steady-state output?</p>
+<ul>
+<li>
+<span class="math inline">\(A=-10\)</span>, so <span class="math inline">\(\det(sI-A)=s+10\)</span>. The eigenvalue of <span class="math inline">\(A\)</span> is -10, so the system is asymptotically stable.</li>
+<li>Because the system is asymptotically stable, which implies it is BIBO stable, which means Theorem 3.7.1 applies.</li>
+<li>From Theorem 3.7.1, the steady state output is <span class="math inline">\(y(t)=2A\cos(3t + \frac{\pi}{6} + \phi)\)</span>.</li>
+</ul>
+<p><span class="math inline">\(A=|G(3j)|=\left|\frac{1}{3j+10}\right|\approx 0.1\)</span><br>
+<span class="math inline">\(\phi = \angle G(3j) = \angle \frac{1}{3j+10} = \angle1 - \angle(3j+10) \approx 0.2915\)</span></p>
+<p>Therefore <span class="math inline">\(y(t)=0.2\cos(3t+\frac{\pi}{6}-0.2915)\)</span>.</p>
+<p><strong>Definition 3.7.2.</strong> If <span class="math inline">\(G(s) \in \mathbb{R}(s)\)</span> and is BIBO stable, then:</p>
+<ol>
+<li>The function <span class="math inline">\(\mathbb{R} \rightarrow \mathbb{C}, \quad \omega \mapsto G(j\omega)\)</span> is the <strong>frequency response</strong>
+</li>
+<li>The function <span class="math inline">\(\mathbb{R} \rightarrow \mathbb{R}, \quad \omega \mapsto |G(j\omega)|\)</span> is the <strong>magnitude response</strong>
+</li>
+<li>The function <span class="math inline">\(\mathbb{R} \rightarrow (-\pi, \pi], \quad \omega \mapsto \angle G(j\omega)\)</span> is the <strong>phase response</strong>
+</li>
+</ol>
+<h2 id="graphical-representations-of-frequency-response">Graphical representations of frequency response</h2>
+<ul><li>When we graph <span class="math inline">\(G(j\omega)\)</span>, we only consider <span class="math inline">\(\omega \ge 0\)</span>, so there is no loss of info when <span class="math inline">\(G\)</span> is rational: <span class="math inline">\(|G(j\omega)|=|G(j\omega)|\)</span>, and <span class="math inline">\(\angle G(j\omega) = -\angle G(-j\omega)\)</span>
+</li></ul>
+<h3 id="bode-plots">Bode plots</h3>
+<ol>
+<li>Magnitude plot: <span class="math inline">\(20\log|G(j\omega)|\)</span> vs <span class="math inline">\(\log(\omega)\)</span>
+</li>
+<li>Phase plot: <span class="math inline">\(\angle G(j \omega)\)</span> vs <span class="math inline">\(\log(\omega)\)</span>
+</li>
+</ol>
+<p>To sketch the Bode plot of any rational transfer function, we only need to know how to sketch four terms:</p>
+<ol>
+<li>Pure gain: <span class="math inline">\(G(s)=K\)</span>
+</li>
+<li>First-order terms: <span class="math inline">\(G(s) = \tau s \pm 1, \quad \tau \gt 0\)</span>
+</li>
+<li>Zeroes at <span class="math inline">\(s=0\)</span>: <span class="math inline">\(G(s)=s^n\)</span>
+</li>
+<li>Complex conjugate roots: <span class="math inline">\(G(s)=s^2 + 2\zeta \omega_n s + \omega_n^2 = \omega_n^2\left(\frac{s^2}{\omega_n^2} + \frac{2\zeta s}{\omega_n} + 1\right)\)</span>
+</li>
+</ol>
+<p>Given a transfer function, we can decompose it into these terms.</p>
+<h3 id="polar-plots">Polar plots</h3>
+<p><span class="math inline">\(\Re(G(j\omega))\)</span> vs <span class="math inline">\(\Im(G(j\omega))\)</span></p>
+<h3 id="e.g.-3.8.5">e.g. 3.8.5</h3>
+<p><span class="math display">\[\begin{align}
+G(s) &amp;= \frac{40s^2(s-2)}{(s+5)(s^2 + 4s+100)}\\
+&amp;= \frac{40s^2(2)\left(\frac{s}{2}-1\right)}{5(100)\left(\frac{3}{5}+1\right)\left(\frac{s^2}{10^2}+\frac{4s}{10}+j\right)}\\
+&amp;= \frac{40(2)}{5(100)} \cdot \frac{s^2(\frac{s}{2}-1)}{(\frac{s}{5}+1)(\frac{s^2}{10^2}+\frac{4s}{10^2}+1)}\\
+\end{align}\]</span></p>
+<h3 id="e.g.-3.8.6">e.g. 3.8.6</h3>
+<p>To plot the Bode plot, we need:<br>
+<span class="math display">\[\begin{align}
+20\log|G(j\omega)|&amp;=20\log\left|\frac{80}{500}\right| + 20\log|(j\omega)^2| + 30\log\left|\frac{j\omega}{2}-1\right|\\
+&amp;=-20\log\left|\frac{j\omega}{5}+1\right| - 20\log\left|\frac{(j\omega)^2}{10^2} + \frac{4}{10^2}j\omega + 1\right|\\
+\\
+\angle G(j\omega)&amp;=\angle\frac{800}{500}+\angle(j\omega)^2 + \angle\frac{j\omega}{2}+1-\angle\frac{j\omega}{5}+1-\angle\left(\frac{(j\omega)^2}{10^2}+\frac{4}{10^2}j\omega + 1\right)\\
+\end{align}\]</span></p>
+<h3 id="e.g.-plot">e.g. plot</h3>
+<p>For <span class="math inline">\(G(j\omega)=K\)</span>:</p>
+<p>Polar:<br>
+<img src="img/constpolar.png"></p>
+<p>Bode:<br>
+<img src="img/constbode.png"></p>
+<p>For <span class="math inline">\(G(j\omega)=j\tau \omega + 1\)</span> (the transfer function with a zero at <span class="math inline">\(s=\frac{-1}{\tau}\)</span>)</p>
+<p>Polar:<br>
+<img src="img/firstorderpolar.png"></p>
+<p>Bode:</p>
+<p>Approximations for sketching:</p>
+<ol>
+<li>For <span class="math inline">\(\omega \lt \frac{1}{\tau}\)</span>, <span class="math inline">\(\Im(G(j\omega)) \approx 0 \Rightarrow \forall \omega \lt \frac{1}{\tau}, \quad 20\log|G(j\omega)| \approx 20\log|1|=0\)</span>
+</li>
+<li>For <span class="math inline">\(\omega \ge \frac{1}{\tau}\)</span>, <span class="math inline">\(\Re(G) \gt \gt \Im(G) \Rightarrow \omega \ge \frac{1}{\tau}, \quad 20\log|G(j\omega)| \approx 20\log|j \tau \omega|\)</span>
+</li>
+<li>For <span class="math inline">\(\omega \lt\lt \frac{1}{\tau}\)</span>, <span class="math inline">\(\angle G(j\omega)\approx \angle 0j+1 = 0\)</span> (<span class="math inline">\(\omega \lt\lt \frac{1}{\tau}\)</span> means <span class="math inline">\(\omega \le \frac{0.1}{\tau}\)</span>)</li>
+<li>For <span class="math inline">\(\omega \gt\gt \frac{1}{\tau}\)</span>, <span class="math inline">\(\angle G(j\omega)\approx \angle j\omega\tau = \frac{\pi}{2}\)</span> (<span class="math inline">\(\omega \gt\gt \frac{1}{\tau}\)</span> means <span class="math inline">\(\omega \ge \frac{10}{\tau}\)</span>)</li>
+<li>Linear interpolation between <span class="math inline">\(\frac{0.1}{\tau}\)</span> and <span class="math inline">\(\frac{10}{\tau}\)</span>
+</li>
+</ol>
+<p><img src="img/firstorderbode.png"></p>
+<p>Sub-case: <span class="math inline">\(G(s) = \tau s - 1\)</span> (zero at <span class="math inline">\(s=\frac{1}{\tau}\)</span>)</p>
+<p>Polar plot:<br>
+<img src="img/firstorderpolarsubcase.png"></p>
+<ul>
+<li>From the polar plot, the magnitude Bode plot is unchanged</li>
+<li>for the phase plot, start at <span class="math inline">\(\pi\)</span> for small <span class="math inline">\(\omega\)</span> and goes to <span class="math inline">\(\frac{\pi}{2}\)</span> as <span class="math inline">\(\omega \rightarrow \infty\)</span>
+</li>
+</ul>
+<p><img src="img/firstordersubcasebode.png"></p>
+<p>e.g. <span class="math inline">\(G(s) = \frac{100}{s+10} = \frac{100}{10} \cdot \frac{1}{\frac{s}{10}+1} = 10 \frac{1}{\frac{s}{10}+1}\)</span></p>
+<p>Frequency response: <span class="math inline">\(G(j\omega)=10\frac{1}{\frac{j\omega}{10}+1}\)</span><br>
+Magnitude: <span class="math inline">\(20\log|G(j\omega)|=\underbrace{20\log10}_{A}-\underbrace{20\log\left|\frac{j\omega}{10}+1\right|}_B\)</span><br>
+Phase: <span class="math inline">\(\angle G(j\omega) = \underbrace{\angle 10}_A - \underbrace{\angle \frac{j\omega}{10}+1}_B\)</span></p>
+<p><img src="img/bodeplotex.png"></p>
+<p>The <strong>bandwidth</strong> of the above system is the smallest frequency <span class="math inline">\(\omega_{BW}\)</span> such that:<br>
+<span class="math display">\[|G(j\omega_{BW})|=\frac{1}{\sqrt{2}}|G(0)|\]</span><br>
+In dB: <span class="math inline">\(20\log|G(0)|-20\log|G(j\omega)|=3dB\)</span></p>
+<p>From the Bode plot, <span class="math inline">\(\omega_{BW}=1.0 \text{ rad/s}\)</span></p>
+<p>e.g. <span class="math inline">\(G(s)=s^n\)</span></p>
+<ul>
+<li>When <span class="math inline">\(n=1\)</span>: <span class="math inline">\(G(j\omega)=j\omega\)</span>
+</li>
+<li>When <span class="math inline">\(n=2\)</span>: <span class="math inline">\(G(j\omega)=-\omega^2\)</span>
+</li>
+<li>When <span class="math inline">\(n=3\)</span>: <span class="math inline">\(G(j\omega)=-j\omega^3\)</span>
+</li>
+<li>When <span class="math inline">\(n=4\)</span>: <span class="math inline">\(G(j\omega)=\omega^4\)</span>
+</li>
+</ul>
+<p><img src="img/spowerofnpolar.png"><br>
+<img src="img/spowerofnbode.png"></p>
+<h3 id="e.g.-complex-conjugate-zeroes">e.g. Complex conjugate zeroes</h3>
+<p><span class="math display">\[G(s) = \frac{s^2}{\omega_n^2}+\frac{2\zeta}{\omega_n}s + 1, \quad \zeta \in [0,1), \quad \omega_n \ne 0\]</span><br>
+<span class="math display">\[G(j\omega)=\left(1-\frac{\omega^2}{\omega_n^2}\right) + j\cdot 2\zeta \frac{\omega}{\omega_n}\]</span></p>
+<p><img src="img/complexconjugatezeroes.png"></p>
+<p>Observations:</p>
+<ul>
+<li>If <span class="math inline">\(\omega \lt\lt |\omega_n|\)</span>, <span class="math inline">\(|G(j\omega)| \approx 1\)</span>, <span class="math inline">\(\angle G(j\omega) \approx 0\)</span>
+</li>
+<li>If <span class="math inline">\(\omega \gt\gt |\omega_n|\)</span>, <span class="math inline">\(|G(j\omega)| \approx \frac{\omega^2}{\omega_n^2}\)</span>, <span class="math inline">\(\angle G(j\omega) \approx 180^{\circ}\)</span>
+</li>
+</ul>
+<p>For asymptotic Bode plots of complex conjugate roots, approximate <span class="math inline">\(G(s)\)</span> as two first order terms with roots at <span class="math inline">\(-\omega_n\)</span>. i.e., set <span class="math inline">\(\zeta=1\)</span>:<br>
+<span class="math display">\[\begin{align}
+G(s)&amp;=\frac{s^2}{\omega_n^2}+\frac{2\zeta s}{\omega_n} + 1\\
+&amp;\approx \frac{s^2}{\omega_n^2}+\frac{2s}{\omega_n}+1\\
+&amp;=\left(\frac{s}{\omega_n}+1\right)^2\\
+&amp;= (\tau s + 1)^2, \quad \tau = \frac{1}{\omega_n}\\
+\end{align}\]</span></p>
+<p><img src="img/complexconjugatezeroesbode.png"></p>
+<h2 id="summary">Summary</h2>
+<ul>
+<li>definition of asymptotic stability and how to test</li>
+<li>definition of BIBO stability and how to test</li>
+<li>relationship between asymptotic stability and BIBO stabilities</li>
+<li>final value theorem, steady-state gain <span class="math inline">\(G(0)\)</span>
+</li>
+<li>frequency response physical meaning and how to draw Bode plots</li>
+</ul>
+<h3 id="domains">Domains</h3>
+<p><img src="img/formats.png"></p>
+<h3 id="state-space-models">State-space models</h3>
+<p><span class="math display">\[g(t) = Ce^{At} 1(t) + D \delta(t)\]</span><br>
+<span class="math display">\[G(s) = C(sI-A)^{-1}B+D\]</span></p>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

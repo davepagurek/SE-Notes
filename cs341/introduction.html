@@ -1,0 +1,318 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<title>Introduction</title>
+</head>
+<body>
+
+<h1 id="introduction">Introduction</h1>
+<a href="index.html">Back to cs341</a>
+<div id="TOC">
+
+<ul>
+<li>
+<a href="#analysis-of-algorithms">Analysis of algorithms</a><ul>
+<li><a href="#efficiency">Efficiency</a></li>
+<li><a href="#design">Design</a></li>
+<li><a href="#e.g.-maximum-problem">e.g. Maximum problem</a></li>
+<li><a href="#e.g.-max-min">e.g. Max-min</a></li>
+<li><a href="#e.g.-3sum-problem">e.g. 3SUM problem</a></li>
+</ul>
+</li>
+<li>
+<a href="#problems">Problems</a><ul>
+<li><a href="#running-time-complexity">Running time, complexity</a></li>
+<li><a href="#o-notation"><span class="math inline">\(O\)</span>-Notation</a></li>
+<li><a href="#omega-notation"><span class="math inline">\(\Omega\)</span>-Notation</a></li>
+<li><a href="#theta-notation"><span class="math inline">\(\Theta\)</span>-Notation</a></li>
+<li><a href="#rules">Rules</a></li>
+<li><a href="#from-first-principles">From first principles</a></li>
+<li><a href="#techniques">Techniques</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="analysis-of-algorithms">Analysis of algorithms</h2>
+<h3 id="efficiency">Efficiency</h3>
+<p>Given an algorithm <span class="math inline">\(A\)</span>, we want to know how efficient it is. This includes:</p>
+<ul>
+<li>asymptotic complexity</li>
+<li>number of computations done</li>
+<li>average-case complexity</li>
+<li>lower bound on the complexity of <em>any</em> algorithm to solve the problem</li>
+<li>NP-completeness</li>
+<li>undecidability</li>
+</ul>
+<h3 id="design">Design</h3>
+<p>Strategies:</p>
+<ul>
+<li>divide-and-conquer</li>
+<li>greeedy</li>
+<li>dynamic programming</li>
+<li>depth- and breadth-first search</li>
+<li>local search</li>
+<li>linear programming</li>
+</ul>
+<h3 id="e.g.-maximum-problem">e.g. Maximum problem</h3>
+<p>Given an array <span class="math inline">\(A\)</span> of <span class="math inline">\(n\)</span> integers, find the maximum element in <span class="math inline">\(A\)</span>.</p>
+<pre><code>FindMaximum(A = [ A[0], ..., A[n-1] ]) {
+  max = A[0]
+  for i in 1..(n-1) {
+    if A[i] &gt; max
+      max = A[i]
+  }
+  return max
+}</code></pre>
+<h4 id="correctness">Correctness</h4>
+<p>Loop invariant: <span class="math inline">\(max = \max(A[0..i])\)</span></p>
+<p>Prove the claim by induction:</p>
+<ul>
+<li>Base case <span class="math inline">\(i=2\)</span> is obvious</li>
+<li>Assume it is true for <span class="math inline">\(i=j, 2 \leq j \leq n-1\)</span>, and probe the claim is true for <span class="math inline">\(i=j+1\)</span>
+</li>
+<li>When <span class="math inline">\(j=n\)</span> we are done and correctness is proven</li>
+</ul>
+<h4 id="analysis">Analysis</h4>
+<p>It will always require <span class="math inline">\(n-1\)</span> comparisons, so the algorithm is <span class="math inline">\(\Theta(n)\)</span>. This is the lower bound for any algorithm solving Maximum:</p>
+<ul>
+<li>assume <span class="math inline">\(n\)</span> elements are distinct</li>
+<li>construct a graph on <span class="math inline">\(n\)</span> vertices<ul><li>create an edge <span class="math inline">\(i,j\)</span> if <span class="math inline">\(A[i\)</span> is compared to <span class="math inline">\(A[j]\)</span> at some point during the execution of the algorithm</li></ul>
+</li>
+<li>if there are less than <span class="math inline">\(n-1\)</span> comparisons, then there are less than <span class="math inline">\(n-1\)</span> edges<ul>
+<li>If a graph has fewer than <span class="math inline">\(n-1\)</span> edges, the graph is not connected</li>
+<li>the graph therefore is not connected</li>
+<li>this means the components of the graph are never compared. If there are, for example, two components <span class="math inline">\(C_1\)</span> and <span class="math inline">\(C_2\)</span>, the algorithm can't determine which one contains the maximum</li>
+<li>This is a contradiction, so the number of comparisons must be at least <span class="math inline">\(n-1\)</span>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="e.g.-max-min">e.g. Max-min</h3>
+<p>Given an array <span class="math inline">\(A\)</span> of <span class="math inline">\(n\)</span> integers, find the maximum and minimul element in <span class="math inline">\(A\)</span>.</p>
+<pre><code>FindMaximum(A = [ A[0], ..., A[n-1] ]) {
+  max = A[0]
+  min = A[0]
+  for i in 1..(n-1) {
+    if A[i] &gt; max
+      max = A[i]
+    if A[i] &lt; min
+      min = A[i]
+  }
+  return (max, min)
+}</code></pre>
+<p>The <strong>complexity</strong> is optimal, but there may be algorithms that require less <strong>comparisons</strong>:</p>
+<ul>
+<li>Suppose <span class="math inline">\(n\)</span> is even and we consider elements <strong>two at a time</strong>.</li>
+<li>Initially, compare first two elements to initialize a max and min</li>
+<li>For each new pair, compare the larger with the max and the smaller with the min</li>
+<li>This algorithm requires a total of <span class="math inline">\(\frac{3n}{2}-2\)</span> comparisons</li>
+</ul>
+<h3 id="e.g.-3sum-problem">e.g. 3SUM problem</h3>
+<p>Given an array <span class="math inline">\(A\)</span> of <span class="math inline">\(n\)</span> distinct integers, do there exist three elements in <span class="math inline">\(A\)</span> that sum to 0?</p>
+<pre><code>Trivial3SUM(A) {
+  for i = 0..(n-3) {
+    for j = (i+1)..(n-2) {
+      for k = (j+1)..(n-1) {
+        if A[i] + A[j] + A[k] == 0 {
+          return (i, j, k)
+        }
+      }
+    }
+  }
+  return nil
+}</code></pre>
+<p>Alternative 1:</p>
+<ul>
+<li>Pre-sort the array</li>
+<li>Instead of 3 nested loops, try with 2</li>
+<li>Binary search for an <span class="math inline">\(A[k]\)</span> which equals <span class="math inline">\(-A[i] - A[j]\)</span>
+</li>
+<li>Now we have <span class="math inline">\(O(n\log{n} + n^2 \log{n}) = O(n^2 \log{n})\)</span>
+</li>
+</ul>
+<p>Alternative 2:</p>
+<ul>
+<li>Also pre-sort the array</li>
+<li>Simultaneously scan from both ends of <span class="math inline">\(A\)</span> looking for <span class="math inline">\(A[j]+A[k]=-A[i]\)</span>
+</li>
+</ul>
+<pre><code>Trivial3SUM(A) {
+  sort(A)
+  for i = 0..(n-3) {
+    var j = i+1
+    var k = n-1
+    while j &lt; k {
+      var sum = A[i] + A[j] + A[k]
+      if S &lt; 0 {
+        j = j+1
+      } else if S &gt; 0 {
+        k = k-1
+      } else { // found the triple
+        return (i, j, k)
+      }
+    }
+  }
+  return nil
+}</code></pre>
+<p>Complexity is <span class="math inline">\(O(n^2)\)</span>.</p>
+<p>Best-known algorithm has complexity <span class="math inline">\(O\left(n^2 \left(\frac{\log{\log{n}}}{\log{n}}\right)^2\right)\)</span></p>
+<h2 id="problems">Problems</h2>
+<ul>
+<li>
+<strong>Instance</strong> is the input for the problem</li>
+<li>
+<strong>Solution</strong> is the output for the problem</li>
+<li>
+<span class="math inline">\(Size(I)\)</span> is the number of bits required to store the instance <span class="math inline">\(I\)</span>
+</li>
+<li>Integers<ol>
+<li>Fixed size, e.g. use one word of memory</li>
+<li>large ints, with no bound on size</li>
+</ol>
+</li>
+</ul>
+<h3 id="running-time-complexity">Running time, complexity</h3>
+<ul>
+<li>Running time of a program: <span class="math inline">\(T_M(I)\)</span> is running time in seconds of a program <span class="math inline">\(M\)</span> on problem instance <span class="math inline">\(I\)</span>
+</li>
+<li>Worst-case running time: <span class="math inline">\(T_M(n) = \max\left\{T_M(I) : Size(I) = n\right\}\)</span>
+</li>
+<li>Worst-case complexity: <span class="math inline">\(T_M(n) \in \Theta(f(n))\)</span>
+</li>
+<li>Avg-case complexity: <span class="math inline">\(T_M^{avg}(n) \in \Theta(f(n))\)</span>
+</li>
+</ul>
+<p>We can determine the complexity of an algorithm <strong>without implementing it</strong>.</p>
+<h3 id="o-notation">
+<span class="math inline">\(O\)</span>-Notation</h3>
+<p><span class="math inline">\(\exists c \gt 0, n_0 \gt 0 \mid 0 \le f(n) \le cg(n) \forall n \ge n_0 \Rightarrow F(n) \in O(g(n))\)</span></p>
+<h3 id="omega-notation">
+<span class="math inline">\(\Omega\)</span>-Notation</h3>
+<p><span class="math inline">\(\exists c \gt 0, n_0 \gt 0 \mid 0 \le cg(n) \le f(n) \forall n \ge n_0 \Rightarrow F(n) \in \Omega(g(n))\)</span></p>
+<h3 id="theta-notation">
+<span class="math inline">\(\Theta\)</span>-Notation</h3>
+<p><span class="math inline">\(f(n) \in O(g(n)) \land f(n) \in \Omega(g(n)) \Rightarrow F(n) \in \Theta(g(n))\)</span></p>
+<h3 id="rules">Rules</h3>
+<p><span class="math display">\[f(n) \in \Omega(g(n)) \Leftrightarrow g(n) \in \Theta(f(n))\]</span><br>
+<span class="math display">\[f(n) \in O(g(n)), g(n) \in O(h(n)) \Rightarrow f(n) \in O(h(n))\]</span></p>
+<h4 id="maximums">Maximums</h4>
+<p><span class="math display">\[O(f(n) + g(n)) = O(\max\{f(n), g(n)\})\]</span><br>
+<span class="math display">\[\Omega(f(n) + g(n)) = \Omega(\max\{f(n), g(n)\})\]</span><br>
+<span class="math display">\[\Theta(f(n) + g(n)) = \Theta(\max\{f(n), g(n)\})\]</span></p>
+<h4 id="sums-for-infinite-only">Sums (for infinite only)</h4>
+<p><span class="math display">\[O\left(\sum_{i \in I} f(i)\right) = \sum_{i \in I} O(f(i))\]</span><br>
+<span class="math display">\[\Omega\left(\sum_{i \in I} f(i)\right) = \sum_{i \in I} \Omega(f(i))\]</span><br>
+<span class="math display">\[\Theta\left(\sum_{i \in I} f(i)\right) = \sum_{i \in I} \Theta(f(i))\]</span></p>
+<h4 id="sequences">Sequences</h4>
+<p>Arithmetic:<br>
+<span class="math display">\[\sum_{i=0}^{n-1}(a+di) = na+\frac{dn(n-1)}{2} \in \Theta(n^2)\]</span></p>
+<p>Geometric<br>
+<span class="math display">\[\sum_{i=0}^{n-1} ar^i = \begin{cases}
+a \frac{r^n-1}{r-1} \in \Theta(r^n), &amp; \gt 1 \\
+na \in \Theta(n), &amp;r=1 \\
+a\frac{1-r^n}{1-r} \in \Theta(1), &amp;0 \lt r \lt 1
+\end{cases}\]</span></p>
+<p>Arithmetic-geometric<br>
+<strong>TODO finish</strong><br>
+<span class="math display">\[
+\sum_{i=0}^{n-1} (a+di)r^i = \frac{a}{1-r}
+\]</span></p>
+<h3 id="from-first-principles">From first principles</h3>
+<p>e.g. Prove from first principles that:</p>
+<p><span class="math display">\[\begin{align*}
+\text{Given } 
+f(n) &amp;= n^2 - 7n - 30 \\
+\text{and } g(n) &amp;= n^2 \text{,} \\
+f(n) &amp;\in O(g(n)) \\
+\\
+f(n) &amp;\leq c \cdot g(n) \\
+\text{Take } c&amp;=1 \text{. Then:}\\
+n^2 -7n-30 &amp;\leq n^2 \forall n \gt 0\\
+\\
+\\
+f(n) &amp;= (n-10)(n+3) \\
+f(n) &amp;\ge 0 \text{ if  } n \ge 10 \\
+\\
+\text{Let } n_0 &amp;= \max\{0, 10\} = 10 \\
+\text{Then } 0 &amp;\le f(n) \le g(n) \text{ if  } n \ge n_0 = 10
+\end{align*}\]</span></p>
+<p>e.g. Prove from first principles that:</p>
+<p><span class="math display">\[\begin{align*}
+\text{Given } 
+f(n) &amp;= n^2 - 7n - 30 \\
+\text{and } g(n) &amp;= n^2 \text{,} \\
+f(n) &amp;\in \Omega(g(n)) \\
+\\
+\text{We want } cn^2 &amp;\le n^2-7n-30\\
+\text{Any value of } c &amp;&lt; 1 \text{ will work }
+\end{align*}\]</span></p>
+<p>e.g. Prove from first principles that:<br>
+<span class="math display">\[\begin{align*}
+\text{Given } 
+f(n) &amp;= n^2 + n \\
+\text{and } g(n) &amp;= n \\
+f(n) &amp;\notin \Omega(g(n)) \\
+\\
+f(n) \gt cg(n) \text{ iff } n^2 + n \gt cn \\
+\text{iff } n+1 \gt c, n \gt 0\\
+\text{iff } n \gt c-1\\
+\\
+\text{Let } n &amp;= \max\{c, n_0\} \text{ and the equality holds. }
+\end{align*}\]</span></p>
+<h3 id="techniques">Techniques</h3>
+<h4 id="limits">Limits</h4>
+<p>Suppose <span class="math inline">\(f(n) &gt; 0\)</span> and <span class="math inline">\(g(n) &gt; 0 \quad \forall n \ge n_0\)</span>. Suppose that:<br>
+<span class="math display">\[L=\lim_{n \rightarrow \infty} \frac{f(n)}{g(n)}\]</span></p>
+<p>Then:</p>
+<ul>
+<li>
+<span class="math inline">\(F(n) \in o(g(n))\)</span> if <span class="math inline">\(L=0\)</span>
+</li>
+<li>
+<span class="math inline">\(F(n) \in \Theta(g(n))\)</span> if <span class="math inline">\(0 \lt L \lt \infty\)</span>
+</li>
+<li>
+<span class="math inline">\(F(n) \in \omega(g(n))\)</span> if <span class="math inline">\(L = \infty\)</span>
+</li>
+</ul>
+<p>e.g. using L'Hospital's Rule<br>
+<span class="math display">\[\begin{align*}
+f(n)=(\ln n)^2 \\
+g(n) = n^{\frac{1}{2}} \\
+\\
+&amp;\lim_{n \rightarrow \infty} \frac{(\ln n)^2}{n^{\frac{1}{2}}} \\
+= &amp;\lim_{n \rightarrow \infty} \frac{2(\ln n)\frac{1}{n}}{\frac{1}{2} n^{-\frac{1}{2}}} \\
+= &amp;\lim_{n \rightarrow \infty} \frac{4(\ln n)}{n^{\frac{1}{2}}} \\
+= &amp;\lim_{n \rightarrow \infty} \frac{4\frac{1}{n}}{\frac{1}{n} n^{-\frac{1}{2}}} \\
+= &amp;\lim_{n \rightarrow \infty} \frac{8}{n^{\frac{1}{2}}} \\
+= &amp;0
+\end{align*}\]</span></p>
+<h4 id="general-rules">General rules</h4>
+<ul>
+<li><span class="math inline">\((\ln n)^c \in o(n^\delta) \quad \forall c \gt 0, \delta \gt 0\)</span></li>
+<li><span class="math inline">\(n^c \in o(d^n) \quad \forall c \gt 0, d \gt 1\)</span></li>
+</ul>
+<p>e.g.<br>
+<span class="math display">\[
+f(n) = (3+(-1)^n)n
+\]</span></p>
+<p>This means <span class="math inline">\(f(n) = 4n\)</span> if <span class="math inline">\(n\)</span> is even, or <span class="math inline">\(2n\)</span> if <span class="math inline">\(n\)</span> is odd</p>
+<p><span class="math display">\[
+g(b) = n \]</span></p>
+<p><span class="math display">\[
+\frac{f(n)}{g(n)} = \begin{cases} 4, &amp;n \text{ is even } \\
+2, &amp; n \text{ is odd }\end{cases} \\
+\lim_{n \rightarrow \infty} \frac{f(n)}{g(n)} \text{ does not exist }
+\]</span></p>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

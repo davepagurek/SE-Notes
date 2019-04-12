@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+<title>Distributed Filesystems</title>
+</head>
+<body>
+
+<h1 id="distributed-filesystems">Distributed Filesystems</h1>
+<a href="index.html">Back to ece454</a>
+<div id="TOC">
+
+<ul>
+<li><a href="#accessing-remote-files">Accessing remote files</a></li>
+<li><a href="#distributing-large-files">Distributing large files</a></li>
+<li><a href="#semantics-of-file-sharing">Semantics of file sharing</a></li>
+</ul>
+</div>
+<h2 id="accessing-remote-files">Accessing remote files</h2>
+<ul>
+<li>remote access model<ul><li>Any read/write uses an RPC to push or pull data, which always stays on the server</li></ul>
+</li>
+<li>upload/download model<ul><li>Files are moved to the client and then back to the server</li></ul>
+</li>
+<li>Network file system (NFS)<ul>
+<li>Unix-like systems rely on NFS. E.g. your home directory on <code>ecelinux</code> is mounted remotely using NFSv4.</li>
+<li>"Leases" (delegates) the file to the client, but can recall the delegation</li>
+<li>Uses RPCs internally</li>
+<li>Server decides which portion to export, to only give a window of visibility to clients</li>
+</ul>
+</li>
+</ul>
+<h2 id="distributing-large-files">Distributing large files</h2>
+<ul><li>Each file might be on one server, or each could be striped across multiple servers<ul>
+<li>Striping usually allows higher throughput for large requests issued one at a time</li>
+<li>Many small requests issued in parallel, one file per server is ok</li>
+</ul>
+</li></ul>
+<h2 id="semantics-of-file-sharing">Semantics of file sharing</h2>
+<ul>
+<li>
+<strong>Unix semantics</strong>: In a centralized setting, there is strict time ordering, so applications always read their own writes</li>
+<li>
+<strong>Session semantics</strong>: Local version of file is only propagated when the file is closed, and the last client to close the file sets the final version.</li>
+<li>NFS v4 implements session semantics and byte range file locking<ul>
+<li>byte range file locking is used to prevent inconsistencies</li>
+<li>Requests to read a file will stall until a block is released</li>
+</ul>
+</li>
+<li>Immutable files<ul>
+<li>no updates possible</li>
+<li>delete/replace is possible</li>
+<li>in reality (GFS, HDFS), append is also supported</li>
+</ul>
+</li>
+<li>Transactions are a thing too</li>
+</ul>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

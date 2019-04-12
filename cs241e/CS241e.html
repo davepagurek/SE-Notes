@@ -1,0 +1,2015 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+<title>CS 241e</title>
+</head>
+<body>
+
+<h1 id="cs-241e">CS 241e</h1>
+<a href="index.html">Back to cs241e</a>
+<div id="TOC">
+
+<ul>
+<li><a href="#foundations-of-sequential-programs-enriched">Foundations of Sequential Programs Enriched</a></li>
+<li>
+<a href="#introduction">Introduction</a><ul>
+<li><a href="#bits">Bits</a></li>
+<li><a href="#our-computer">Our Computer</a></li>
+<li><a href="#mips">MIPS</a></li>
+</ul>
+</li>
+<li>
+<a href="#compiler-features">Compiler features</a><ul>
+<li><a href="#labels">Labels</a></li>
+<li><a href="#variables">Variables</a></li>
+<li><a href="#evaluating-expressions">Evaluating expressions</a></li>
+<li><a href="#inference-graph">Inference graph</a></li>
+<li><a href="#control-structures">Control structures</a></li>
+<li><a href="#procedures">Procedures</a></li>
+<li><a href="#eliminating-variable-accesses-a5">Eliminating variable accesses (A5)</a></li>
+<li><a href="#nested-procedures">Nested Procedures</a></li>
+<li><a href="#midterm">Midterm</a></li>
+<li><a href="#first-class-functions">First-Class Functions</a></li>
+<li><a href="#tail-calls">Tail calls</a></li>
+</ul>
+</li>
+<li>
+<a href="#formal-languages">Formal Languages</a><ul>
+<li><a href="#deterministic-finite-automata">Deterministic Finite Automata</a></li>
+<li><a href="#non-deterministic-finite-automata">Non-Deterministic Finite Automata</a></li>
+<li><a href="#regular-expressions">Regular Expressions</a></li>
+<li><a href="#kleenes-theorem">Kleene's Theorem</a></li>
+<li><a href="#scanning">Scanning</a></li>
+<li><a href="#context-free-languages">Context-free Languages</a></li>
+<li><a href="#context-sensitive-analysis">Context-Sensitive Analysis</a></li>
+<li><a href="#assignment-10">Assignment 10</a></li>
+</ul>
+</li>
+<li>
+<a href="#memory-management">Memory Management</a><ul>
+<li><a href="#heap">Heap</a></li>
+<li><a href="#cheneys-copying-garbage-collector-1970">Cheney's Copying Garbage Collector, 1970</a></li>
+<li><a href="#generational-gc">Generational GC</a></li>
+</ul>
+</li>
+<li><a href="#the-lambda-calculus">The Lambda Calculus</a></li>
+</ul>
+</div>
+<h3 id="foundations-of-sequential-programs-enriched">Foundations of Sequential Programs Enriched</h3>
+<p>Prof. Ondr̂ej Lhoták</p>
+<h2 id="introduction">Introduction</h2>
+<h3 id="bits">Bits</h3>
+<ul><li>Have no assigned meaning by themselves</li></ul>
+<h4 id="conventions">Conventions</h4>
+<p>There are infinitely many integers, but only 2<sup>32</sup> can be represented on a 32-bit system, so arithmetic is done on the finite ring of equivalence classes mod 2<sup>32</sup>.</p>
+<h4 id="numeric-interpretation">Numeric Interpretation</h4>
+<ul>
+<li>As an unsigned integer, there are 2<sup>32-1</sup> integers in a 32-bit int</li>
+<li>In Two's Complement signed integers, the first bit is the sign bit<ul>
+<li>Addition, multiplication, and subtraction are the same as on integers</li>
+<li>Division and magnitude comparison need separate operations for unsigned and Two's Complement numbers</li>
+</ul>
+</li>
+</ul>
+<h3 id="our-computer">Our Computer</h3>
+<p>The computer we're using happens to have state equivalent to {0, 1}<sup>2<sup>26</sup> + 32 * 34</sup></p>
+<pre><code>+------------------------------------------------+          Memory
+|                                                |            32
+|                            Registers           |    0 +-----------+
+|   +-----------------+          32              |    4 |           |
+|   |   Control Unit  |    +---------------+     |    8 |           |
+|   |                 |   1| 0 1 0 ...     |     |    12|           |
+|   +-----------------+   2| 1             |     | -&gt;   |           |
+|   |       ALU       |   .| 0             |     |      |           |
+|   |                 |   .|               |34   |      |           |
+|   |                 |  31|               |     |    . |           |
+|   |                 |  LO|               |     |    . |           |
+|   |                 |  HI|               |     |    . |           |
+|   +-----------------+  PC+---------------+     |      |           |
+|                                                |      +-----------+
++------------------------------------------------+   2^24-4</code></pre>
+<p>PC = program counter (the register we're on)</p>
+<p>The CPU implements a function <code>step</code>:</p>
+<pre><code>step: state -&gt; state
+s_(i+1) = step(s_i)
+Def: step*(s) = if (step(s) defined) step*(step(s)) else s
+
+input
+  | encode
+  v       step*
+  s_0 -----------&gt; s_n
+
+Want:
+For all i, f(i) = decode(step*(encode(i)))
+
+(program, input)           (program, data)      
+       |                         ^
+       | encode (compiler)       | decode
+       |                         |
+       v         step*           |
+       s_0 -------------------&gt; s_n</code></pre>
+<h4 id="definitions">Definitions</h4>
+<p>A <strong>stored program computer (von Neumann machine)</strong> includes the program as part of its input</p>
+<ul><li>
+<code>step</code> should be general<ul>
+<li><code>sem*(program, input) = decode( step*( encode(program, input) ) )</code></li>
+<li>
+<code>sem ((lambda (x) e) v)</code><ul>
+<li><code>[x |-&gt; v] e</code></li>
+<li>
+<code>x</code> gets sustituted with <code>v</code> in <code>e</code>
+</li>
+</ul>
+</li>
+</ul>
+</li></ul>
+<p><strong>Semantics</strong>: meaning of a program</p>
+<ul><li>
+<strong>operational semantics</strong>: semantics defined in terms of a function that transforms state<ul><li>an interpreter, basically</li></ul>
+</li></ul>
+<h4 id="defining-step-functions">Defining step functions</h4>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">def</span> <span class="fu">step</span>(state) = {
+
+  <span class="co">// fetch</span>
+  instruction = state.<span class="fu">memory</span>[state.<span class="fu">register</span>[PC]]
+
+  <span class="co">// increment PC</span>
+  state2 = state.<span class="fu">setRegister</span>(PC, state.<span class="fu">register</span>(PC)+<span class="dv">4</span>)
+
+  <span class="co">// decode, execute</span>
+  instruction.<span class="fu">match</span> {
+    <span class="co">// ...</span>
+  }
+}</code></pre></div>
+<h3 id="mips">MIPS</h3>
+<p>Reference: <a href="https://www.student.cs.uwaterloo.ca/~cs241/mips/mipsref.pdf" class="uri">https://www.student.cs.uwaterloo.ca/~cs241/mips/mipsref.pdf</a></p>
+<ul>
+<li>When a word is stored to memory location 0xffff000c, the least-significant byte (eight bits) of the word are sent to the standard output.</li>
+<li>Loading a word from memory location 0xffff0004 places the next byte from standard input into the least-significant byte of the destination register.</li>
+</ul>
+<p>Definitions:</p>
+<ul>
+<li>An <strong>opcode</strong> is a short name for a machine language instruction</li>
+<li>
+<strong>Assembly language</strong> is a language for writing machine language programs with opcodes</li>
+<li>An <strong>assembler</strong> is a program that translates assembly language to machine language</li>
+</ul>
+<h2 id="compiler-features">Compiler features</h2>
+<h3 id="labels">Labels</h3>
+<p>An abstraction of memory addresses</p>
+<p>e.g.: absolute value</p>
+<pre class="assembly"><code>SLT 2, 1, 0
+BEQ 2, 0, 1
+SUB 1, 0, 1
+JR 31</code></pre>
+<p>Same example, using labels:</p>
+<pre class="assembly"><code>SLT 2, 1, 0
+BEQ 2, 0, label
+SUB 1, 0, 1
+Define label
+JR 31</code></pre>
+<p>e.g. a procedure</p>
+<pre class="assembly"><code>... ; main
+... ; program
+LIS 1
+USE label
+JALR 1
+...
+
+DEFINE label
+... ; procedure
+...
+...
+JR 31</code></pre>
+<p>To compile out labels, we need two passes:</p>
+<ol>
+<li>Determine the address of each label</li>
+<li>Generate code for all the instructions with labels converted to their corresponding addresses</li>
+</ol>
+<h4 id="relocation-linking">Relocation, Linking</h4>
+<p>An <strong>object file</strong> is a file that contains:</p>
+<ul>
+<li>machine language code</li>
+<li>metadata recording how labels were used before the translation to machine language</li>
+</ul>
+<p><strong>Relocation</strong> is the process of adjusting machine language code using object file metatada so that it can be loaded at a different address by:</p>
+<ul>
+<li>reverse-engineering labels</li>
+<li>reassembling at a new address</li>
+</ul>
+<p><strong>Linking</strong> is the process of combining multiple object files into a machine code program</p>
+<ul>
+<li>To link assembly language files, just concatenate them together</li>
+<li>To link object files:<ul>
+<li>reverse-engineer the labels from the metadata</li>
+<li>relocation, label resolution across different files</li>
+<li>concatenate assembly language programs</li>
+<li>reassemble them to machine language</li>
+</ul>
+</li>
+</ul>
+<p>Typical C build process:</p>
+<pre><code>C source              Assembly        Object
+files              files           files
+a.c -----------&gt; a.s -----------&gt; a.o ---+
+   Compiler (cc)    Assembler (as)       |
+                                         |
+b.c -----------&gt; b.s -----------&gt; b.o ---+--&gt; linker (ld) ------&gt; executable machine language program
+                                         |
+                                         |
+c.c -----------&gt; c.s -----------&gt; c.o ---+</code></pre>
+<h3 id="variables">Variables</h3>
+<p>A <strong>variable</strong> is an abstraction of a storage location (register, <em>fixed</em> or <em>dynamically determined</em> address in memory) that can hold a value</p>
+<p>Read from address ALPHA to $1:</p>
+<pre class="assembly"><code>LIS 2
+WORD ALPHA ; Saves address ALPHA into register 2
+LW 1, 0, 2 ; Loads value from memory address ALPHA into register 1</code></pre>
+<h4 id="variable-instances">Variable instances</h4>
+<p>e.g.</p>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">def</span> <span class="fu">fact</span>(x: Int): Int = <span class="kw">if</span> (x &lt; <span class="dv">2</span>) <span class="dv">1</span> <span class="kw">else</span> x*<span class="fu">fact</span>(x<span class="dv">-1</span>)
+<span class="fu">fact</span>(<span class="dv">3</span>)
+<span class="co">// fact(3) = 3 * fact(2) = 3 * 2 * fact(1) = 3*2*1 = 6</span>
+<span class="co">// Three instances of x occur in this execution</span></code></pre></div>
+<pre><code>               fact(1)
+               +--------+
+       fact(2) |        |
+       +-------+        +-------+
+fact(3)|                        |
+-------+                        +--------
+                 time --&gt;</code></pre>
+<p>The <strong>extent</strong> of a variable instance is the time interval in which it can be accessed</p>
+<p>e.g.</p>
+<ul>
+<li>procedure-level variable: execution of procedure</li>
+<li>global variable: entire execution of program</li>
+<li>field of object/record: from he time that object is allocated to time it is deallocated/freed (explicitly or automatically with GC)</li>
+</ul>
+<h4 id="the-stack">The Stack</h4>
+<p>The extent of local variables begin and end in a <strong>last in, first out</strong> order. A <strong>stack</strong> allows us to create and destroy storage locations this way.</p>
+<h5 id="implementation">Implementation</h5>
+<ul>
+<li>Designate a variable (register, usually; R30 in this course) to hold the address at the top of the stack (the <strong>stack pointer</strong>)</li>
+<li>To push to stack: decrement stack pointer by 4</li>
+<li>To pop from stack: increment stack pointer by 4</li>
+</ul>
+<p>After entering a procedure with variables a, b, c</p>
+<pre><code>                  memory
+               +-----------+
+               |           |
+               +-----------+
+               |    42     |
+               +-----------+
+      SP = 100 |     a     | \
+               +-----------+ |
+           104 |     b     | | stack frame (all local
+               +-----------+ | vars from procedure)
+           108 |     c     | /
+               +-----------+
+           112 |   stack   |
+               +-----------+</code></pre>
+<p>e.g. read variable c at offset 8 from SP</p>
+<pre class="assembly"><code>LW 1, 8, 30 ; 8, 30 = offset, register</code></pre>
+<p>Definitions</p>
+<ul>
+<li>
+<strong>Symbol table</strong>: a map from variables to offsets</li>
+<li>
+<strong>Frame pointer</strong>: a copy of the stack pointer that stays fixed for the duration of a procedure call. It enables us to use the stack for other purposes within the procedure</li>
+<li>Convention: use R30 for stack pointer, R29 for frame pointer; bottom of stack is at the end of memory</li>
+</ul>
+<p>In this course, all data in memory will be in <strong>chunks</strong></p>
+<ul>
+<li>areas of consecutive memory locations</li>
+<li>indexed by variables (symbol table)</li>
+<li>base register</li>
+<li>can generate code to read/write variables</li>
+</ul>
+<h3 id="evaluating-expressions">Evaluating expressions</h3>
+<p>e.g. <code>a*b + c*d</code></p>
+<h4 id="technique-1-stack">Technique 1 (stack)</h4>
+<pre><code>t1 = a*b
+t2 = c*d
+t3 = t1+t2</code></pre>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">def</span> <span class="fu">evaluate</span>(e1, op, e2): Code = {
+  <span class="fu">evaluate</span>(e1)
+  push $<span class="dv">3</span>
+  <span class="fu">evaluate</span>(e2)
+  pop $<span class="dv">4</span>
+  $<span class="dv">3</span> = $<span class="dv">4</span> op $<span class="dv">3</span>
+}
+<span class="kw">def</span> <span class="fu">evaluateVar</span>(v: Variable): Code = read <span class="fu">v</span> (into $<span class="dv">3</span>)</code></pre></div>
+<ul>
+<li>general</li>
+<li>inefficient</li>
+<li>difficult to transform further</li>
+</ul>
+<h4 id="technique-2-temporary-variables">Technique 2 (temporary variables)</h4>
+<pre><code>t1 = a*b
+t2 = c*d    // generate code to eval e1 op e2, put result in some variable
+t3 = t1+t2  // return code, variable</code></pre>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">def</span> <span class="fu">evaluate</span>(e1, op, e2): (Code, Variable) = {
+  (code1, var1) = <span class="fu">evaluate</span>(e1)
+  (code2, var2) = <span class="fu">evaluate</span>(e2)
+  v3 = <span class="kw">new</span> Variable
+  code = <span class="fu">block</span>(code1, code2, var3 = var1 op var2)
+  <span class="kw">return</span> (code, var3)
+}</code></pre></div>
+<ul>
+<li>flexible, easy to transform</li>
+<li>machine language operations require registers, so many variables means inefficient use of memory/registers</li>
+</ul>
+<p><strong>Register allocation</strong> is the process of assigning variables to real registers or memory addresses (abstract)</p>
+<ul><li>Minimize the number of registers/memory locations used by <strong>sharing them</strong> among non-interfering variables.</li></ul>
+<pre><code>+------------------+                 +----------------+
+|       Code       |                 | IR with real   |
+|Intermediate      |----------------&gt;| registers      |
+|Representation    |  register       | addresses/     |
+|with virtual regs |  allocation     | offsets        |
++------------------+                 +----------------+</code></pre>
+<h4 id="technique-3-hybrid-temp-vars-but-operations-on-real-registers">Technique 3 (hybrid) (temp vars, but operations on real registers)</h4>
+<pre><code>t1 = a*b  // $4 = a, $3 = b, $3 = $4 * $3, t1 = $3
+t2 = c*d
+t3 = t1+t2</code></pre>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="co">// generated code leaves result in $3</span>
+<span class="kw">def</span> <span class="fu">evaluate</span>(e1 op e2):Code = {
+  <span class="kw">val</span> t1 = <span class="kw">new</span> Variable
+  <span class="fu">block</span>(
+    <span class="fu">evaluate</span>(e1),
+    <span class="fu">write</span>(t1, <span class="dv">3</span>),
+    <span class="fu">evaluate</span>(e2),
+    <span class="fu">read</span>(<span class="dv">4</span>, t1),
+    $<span class="dv">3</span> = $<span class="dv">4</span> op $<span class="dv">3</span>
+  )
+}</code></pre></div>
+<h4 id="register-allocation">Register allocation</h4>
+<p>e.g. a+b+c+d+e</p>
+<ul>
+<li>A variable is <strong>live at program point p</strong> if the value that it holds at p may be read sometime after p.</li>
+<li>The <strong>live range</strong> of a variable is the set of program points where it is live.<ul>
+<li>The start of a live range is always just after a write</li>
+<li>The end of a live range is always just after a read</li>
+</ul>
+</li>
+<li>Two variables can share the same register iff their live ranges do not intersect.</li>
+</ul>
+<h5 id="e.g.">e.g.</h5>
+<p>t1 = a * b</p>
+<ul>
+<li>t1 live<br>
+t2 = c * d</li>
+<li>t1, t2 live<br>
+t3 = t1 * t2</li>
+<li>t3 live<br>
+e = t3</li>
+</ul>
+<h5 id="e.g.-1">e.g.</h5>
+<p>t1 = a * b</p>
+<ul>
+<li>t1 live<br>
+t2 = c * d</li>
+<li>t1, t2<br>
+t3 = t1 + t2</li>
+<li>t3<br>
+t4 = e * f</li>
+<li>t3, t4<br>
+t5 = t3 - t4</li>
+<li><p>t3, t5<br>
+g = t3 + t5</p></li>
+<li>reg1: t1, t3</li>
+<li><p>reg2: t2, t4, t5</p></li>
+<li><p>r1 = a * b</p></li>
+<li>r2 = c * d</li>
+<li>r1 = r1 + r2</li>
+<li>r2 = e * f</li>
+<li>r2 = r1 - r2</li>
+<li><p>g = r1 + r2</p></li>
+</ul>
+<h3 id="inference-graph">Inference graph</h3>
+<ul>
+<li>Vertices are variables</li>
+<li>Edge from (v1 - v2) if v1 and v2 conflict (both live at the same program point)</li>
+<li>A <strong>colouring</strong> assigns a colour to each vertex so that every edge connects vertices of distinct colours<ul>
+<li>each colour corresponds to a register, so colouring is a register assignment</li>
+<li>Finding a minimal colouring of an arbitrary graph is NP-hard.</li>
+</ul>
+</li>
+<li>A simple greedy algorithm (not optimal):<ul><li>For each vertex v, colour v with the smallest colour not yet used by its neighbours</li></ul>
+</li>
+<li>Many graphs (SSA form inference graphs) have special structure that enables efficient algorithms</li>
+</ul>
+<h3 id="control-structures">Control structures</h3>
+<p>If statements</p>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">if</span> (e1, op, e2, then, <span class="kw">else</span>) =&gt; {
+  withTempVar{t1 =&gt;
+    <span class="fu">evaluate</span>(e1)
+    t1 = $<span class="dv">3</span>
+    <span class="fu">evaluate</span>(e2)
+    $<span class="dv">4</span> = t1
+    evaluate op
+    T
+    beq
+    <span class="fu">define</span>(<span class="kw">else</span>)
+    E
+    <span class="fu">define</span>(end)
+  }
+}</code></pre></div>
+<h3 id="procedures">Procedures</h3>
+<p>A <strong>Procedure</strong> is an abstraction that encapsulates a reusable sequence of code</p>
+<ul>
+<li>calling code and procedure agree on conventions<ul>
+<li>where (memory/registers) to pass arguments and return value</li>
+<li>which registers procedures may modify (caller-save) or preserve (callee-save)</li>
+</ul>
+</li>
+<li>calling code <strong>transfers control</strong> to the procedure (modifies PC)</li>
+<li>calling code passes arguments for parameters</li>
+<li>procedure transfers control back to caller</li>
+<li>returns a value</li>
+</ul>
+<h4 id="e.g.-2">e.g.</h4>
+<table>
+<thead><tr class="header">
+<th>Caller</th>
+<th>Procedure (callee)</th>
+</tr></thead>
+<tbody>
+<tr class="odd"><td><code>Define(proc)</code></td></tr>
+<tr class="even"><td><code>Reg.savedParamPtr = Reg.allocated</code></td></tr>
+<tr class="odd"><td><code>stack.allocate(frame)</code></td></tr>
+<tr class="even">
+<td>evaluate args in temp vars</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>Stack.allocate(parameters)</code></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>copy arguments from temp vars into parameter chunk</td>
+<td></td>
+</tr>
+<tr class="odd"><td>
+<code>dynamicLink = Reg.fp</code> (29)</td></tr>
+<tr class="even"><td>
+<code>savedPC = Reg.savedPC</code> (31)</td></tr>
+<tr class="odd"><td>
+<code>Reg.fp = Reg.allocated</code> (6)</td></tr>
+<tr class="even"><td>
+<code>paramPtr = Reg.savedParamPtr</code> (get it out of a register)</td></tr>
+<tr class="odd">
+<td><code>LIS(Reg.targetPC)</code></td>
+<td><code>body</code></td>
+</tr>
+<tr class="even">
+<td><code>Use(proc)</code></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>JALR(Reg.targetPC)</code></td>
+<td><code>Reg.savedPC = savedPC</code></td>
+</tr>
+<tr class="even"><td><code>Reg.fp = dynamicLink</code></td></tr>
+<tr class="odd"><td><code>stack.pop //frame</code></td></tr>
+<tr class="even"><td><code>stack.pop //parameters</code></td></tr>
+<tr class="odd"><td><code>JR(31)</code></td></tr>
+</tbody>
+</table>
+<p>A <strong>prologue/epilogue</strong> are the instructions at the beginning or end of a procedure</p>
+<h4 id="conventions-1">Conventions:</h4>
+<ul>
+<li>Modifies: 31, 6, 5, all others</li>
+<li>Preserves: 30 (sp), 29 (fp)</li>
+<li>Caller allocates chunk for arguments<ul><li>puts address in Reg.allocated</li></ul>
+</li>
+<li>Callee allocates and frees chunk for variables</li>
+</ul>
+<h3 id="eliminating-variable-accesses-a5">Eliminating variable accesses (A5)</h3>
+<ul>
+<li>If v is a variable (including a temp var) of the procedure:<ul><li>Access v in the frame chunk (A3)</li></ul>
+</li>
+<li>Otherwise, v is a parameter:<ul>
+<li>read param pointer from normal chunk into Reg.scratch (4)</li>
+<li>access v in parameter chunk (with base register Reg.scratch that param ptr was read into)</li>
+</ul>
+</li>
+</ul>
+<h3 id="nested-procedures">Nested Procedures</h3>
+<p>e.g.<br>
+As a loop:</p>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">def</span> <span class="fu">m</span>() = {
+  <span class="kw">var</span> i = <span class="dv">0</span>
+  <span class="kw">var</span> j = <span class="dv">0</span>
+  <span class="kw">while</span> (i &lt; <span class="dv">10</span>) {
+    i = i + <span class="dv">1</span>
+    j = j + i
+  }
+  i + j
+}</code></pre></div>
+<p>As a procedure:</p>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">def</span> <span class="fu">m</span>() = {
+  <span class="kw">var</span> i = <span class="dv">0</span>
+  <span class="kw">var</span> j = <span class="dv">0</span>
+  <span class="kw">def</span> <span class="fu">loop</span>() = {
+    <span class="kw">if</span> (i &lt; <span class="dv">10</span>) {
+      i = i + <span class="dv">1</span>
+      j = j + i
+      <span class="fu">loop</span>()
+    }
+  }
+  <span class="fu">loop</span>()
+  i + j
+}</code></pre></div>
+<p>e.g.</p>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">def</span> <span class="fu">f</span>() = {
+  <span class="kw">val</span> x = <span class="dv">2</span>
+  <span class="kw">val</span> w = <span class="dv">5</span>
+  <span class="kw">def</span> <span class="fu">g</span>() = {
+    <span class="kw">val</span> y = <span class="dv">3</span>
+    <span class="kw">val</span> w = <span class="dv">7</span>
+    x + y + <span class="fu">h</span>()
+  }
+  <span class="kw">def</span> <span class="fu">h</span>() = {
+    <span class="kw">val</span> z = <span class="dv">4</span>
+    z + w
+  }
+  <span class="fu">g</span>()
+}</code></pre></div>
+<ul>
+<li>A <strong>dynamic link</strong> is a pointer to the frame of the procedure that called the currently executing procedure.</li>
+<li>
+<strong>static (lexical) scope:</strong> names are resolved in statically enclosing procedures in source code<ul><li>For this course, we will implement static scope</li></ul>
+</li>
+<li>
+<strong>dynamic scope:</strong> names resolved in dynamically calling procedures (in the runtime stack of calls)</li>
+</ul>
+<pre><code>        Frame
+      +--------+
+   h  |        |      Params
+      |   pp   | --&gt; +-------+
+      |   dl   |     |       |
+      +--------+     |  sl   | ------+
+          |          +-------+       |
+          v                          |
+      +--------+                     |
+   g  |        |                     |
+      |   pp   | --&gt; +-------+       |
+      |   dl   |     |       |       |
+      +--------+     |  sl   | ------+
+          |          +-------+       |
+          v                          |
+      +--------+ &lt;-------------------+
+   f  |        |
+      |   pp   | --&gt; +-------+
+      |   dl   |     |       |
+      +--------+     |  sl   |
+                     +-------+</code></pre>
+<ul>
+<li>The <strong>static link</strong> is a pointer to the frame of the statically enclosing procedure (of the currently executing procedure)</li>
+<li>The <strong>nesting depth</strong> of a procedure is the number of outer procedures that it is nested in<ul><li>
+<em>TODO:</em> Add <code>nestingDepth</code> to <code>Procedure</code>
+</li></ul>
+</li>
+</ul>
+<pre><code>f()={
+  g()={}
+  h()={
+    k()={}
+  }
+}</code></pre>
+<ul><li>To compute the static link at a call site:<ul>
+<li><code>depth(sl target) = depth(call target) - 1</code></li>
+<li><code>let n = depth(current procedure) - depth(sl target)</code></li>
+<li><code>n == depth(current procedure) - depth(sl target)</code></li>
+<li><code>n == depth(current procedure) - depth(call target) + 1</code></li>
+<li>If <code>n == 0</code>, pass fp as sl.</li>
+<li>Otherwise, follow sl n times, and pass the result as sl</li>
+<li>e.g.<ul>
+<li>f calls g: n=0, pass fp as sl of g</li>
+<li>g calls h: n=1, pass sl of g as sl of h</li>
+<li>k calls g: n=2, pass sl of sl of k as the sl of g</li>
+<li>f calls k: n=-1, not allowed</li>
+</ul>
+</li>
+</ul>
+</li></ul>
+<h4 id="variable-access-eliminatevaraccessesa6">Variable Access (eliminateVarAccessesA6)</h4>
+<pre><code>let n = depth(current procedure) - depth(proc declaring var)</code></pre>
+<p>Follow static link n times, then look for variable</p>
+<h3 id="midterm">Midterm</h3>
+<p>Review: Oct 28 in the tutorial</p>
+<h4 id="topics">Topics</h4>
+<ul>
+<li>bits, binary, two's complement</li>
+<li>MIPS, CPU/registers/memory<ul><li>step fetch/increment/execute</li></ul>
+</li>
+<li>machine language</li>
+<li>operational semantics</li>
+<li>labels/assembly language/symbol table</li>
+<li>relocation/linking</li>
+<li>variables, extent</li>
+<li>stack, frame pointer</li>
+<li>evaluating expressions, if, while</li>
+<li>register allocationlive variables</li>
+<li>procedures: conventions, prologue/epilogue, calling of</li>
+<li>nested procedures, static link</li>
+</ul>
+<h3 id="first-class-functions">First-Class Functions</h3>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">def</span> <span class="fu">procedure</span>(x: Int) = { x + <span class="dv">1</span> }
+<span class="kw">var</span> increase: (Int)=&gt;Int = procedure
+increase = { x =&gt; x<span class="dv">+2</span> }
+<span class="kw">def</span> <span class="fu">twice</span>(fun: (Int)=&gt;Int): (Int)=&gt;Int = {
+  x =&gt; <span class="fu">fun</span>(<span class="fu">fun</span>(x))
+}
+increase = <span class="fu">twice</span>(increase)
+<span class="kw">def</span> <span class="fu">increaseBy2</span>(increment: Int): (Int)=&gt;Int {
+  <span class="kw">def</span> <span class="fu">procedure</span>(x: Int) = {x + increment}
+  procedure
+}</code></pre></div>
+<h4 id="free-variables">Free variables</h4>
+<p>A <strong>free variable</strong> in some expression is a variable that is not bound (defined) in that expression.</p>
+<ul>
+<li>
+<code>x</code> is free in <code>x + increment</code>
+</li>
+<li>
+<code>x</code> is not free in <code>{x =&gt; x + increment}</code>
+</li>
+<li>
+<code>increment</code> is free in <code>{x =&gt; x + increment}</code>
+</li>
+<li>
+<code>increment</code> is no longer free in <code>def increaseBy(increment: Int): (Int)=&gt;Int = {x =&gt; x + increment}</code>
+</li>
+</ul>
+<p>An expression is <strong>closed</strong> if it contains no free variables.</p>
+<ul><li>A <strong>closure</strong> is a pair of:<ul>
+<li>a function value</li>
+<li>an environment for the free variables in the function body</li>
+</ul>
+</li></ul>
+<p>The closure <strong>closes over</strong> its environment</p>
+<h4 id="stack-vs-heap">Stack vs Heap</h4>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">def</span> <span class="fu">constructor</span>(a: Int): (Int)=&gt;Int = {
+  <span class="kw">var</span> b = a*<span class="dv">2</span>
+  <span class="kw">def</span> <span class="fu">procedure</span>(c: Int): Int = {
+    a+b+c
+  }
+  procedure <span class="co">//closure creation: will be represented by a `Closure` for us</span>
+}
+<span class="kw">var</span> functionValue: (Int)=&gt;Int = <span class="fu">constructor</span>(<span class="dv">42</span>)
+<span class="fu">functionValue</span>(<span class="dv">5</span>)</code></pre></div>
+<ul>
+<li>
+<code>constructor(42)</code> is a regular call (<code>Call</code> in our compiler), specifies a <code>Procedure</code>
+</li>
+<li>
+<code>functionValue(5)</code> is a closure call (<code>CallClosure</code> in our compiler)</li>
+</ul>
+<p>The extent of <code>a</code> and <code>b</code>:</p>
+<ul>
+<li>begins at the beginning of the constructor</li>
+<li>ends when all copies of the closure have been lost/overwritten, <em>not</em> when the constructor finishes</li>
+<li>Therefore we can't put the frame from the constructor on the stack<br>
+The <strong>heap</strong> is a data structure that manages memory so that it can be allocated and freed at arbitrary times</li>
+</ul>
+<h4 id="implementation-1">Implementation</h4>
+<p>After closure creation, store:</p>
+<ul>
+<li>Address of code that implements the closure<ul><li>Label</li></ul>
+</li>
+<li>environment<ul><li>static link</li></ul>
+</li>
+</ul>
+<p>To call a closure, pass environment as the static link.</p>
+<ul>
+<li><p>Compute the environment/static link in the same way as if we were calling the procedure at the closure creation site</p></li>
+<li>A closure can access frames of all procedures that it is nested in</li>
+<li>If <code>p</code> is nested in <code>p'</code> and we ever create a closure from <code>p</code>, then the frame of <code>p'</code> must be on the heap (and all of the outer procedures of <code>p'</code>)<ul><li>A better compiler does lifetime analysis<ul>
+<li>determine the extent of each variable</li>
+<li>split the frame between stack and heap</li>
+</ul>
+</li></ul>
+</li>
+</ul>
+<h4 id="objects">Objects</h4>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">class</span> Counter {
+  <span class="kw">private</span> <span class="kw">var</span> value = <span class="dv">0</span>
+  <span class="kw">def</span> <span class="fu">get</span>() = value
+  <span class="kw">def</span> <span class="fu">incrementBy</span>(amount: Int) = {
+    value = value + amount
+  }
+}
+
+<span class="kw">val</span> c = <span class="kw">new</span> Counter
+c.<span class="fu">incrementBy</span>(<span class="dv">42</span>)
+c.<span class="fu">incrementBy</span>(-<span class="dv">5</span>)
+c.<span class="fu">get</span>()
+
+<span class="kw">def</span> newCounter: (()=&gt;Int, (Int)=&gt;Unit) = {
+  <span class="kw">var</span> value = <span class="dv">0</span>
+  <span class="kw">def</span> <span class="fu">get</span>() = value
+  <span class="kw">def</span> <span class="fu">incrementBy</span>(amount: Int) = {
+    value = value + amount
+  }
+  (get, incrementBy)
+}
+<span class="kw">val</span> c2 = newCounter
+c2.<span class="fu">_2</span>(<span class="dv">42</span>)
+c2.<span class="fu">_2</span>(-<span class="dv">5</span>)
+c2.<span class="fu">_1</span>()</code></pre></div>
+<ul>
+<li>An <strong>object</strong> is a data structure that has:<ul>
+<li>state (data)</li>
+<li>behaviour (procedures)</li>
+</ul>
+</li>
+<li>Alternatively, an object is jist:<ul>
+<li>a collection of closures (procedures)</li>
+<li>a common environment (data)</li>
+</ul>
+</li>
+</ul>
+<h3 id="tail-calls">Tail calls</h3>
+<p>This will overflow the stack if there's a large number of recursion and we don't make it a tail call:</p>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">def</span> <span class="fu">m</span>() = {
+  <span class="kw">var</span> i = <span class="dv">0</span>
+  <span class="kw">var</span> j = <span class="dv">0</span>
+  <span class="kw">def</span> <span class="fu">loop</span>() = {
+    <span class="kw">if</span> (i &lt; <span class="dv">10000000</span>) {
+      i = i + <span class="dv">1</span>
+      j = j + i
+      <span class="fu">loop</span>()
+    }
+  }
+  <span class="fu">loop</span>()
+  i + j
+}</code></pre></div>
+<p>A call is a <strong>tail call</strong> if it is the last action before the epilogure</p>
+<ul>
+<li>may be nested inside multiple <code>if</code>s</li>
+<li>tail call transformation is <em>not safe</em> if calling a nested procedure</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">def</span> <span class="fu">f</span>() = {
+  <span class="kw">var</span> v = ???
+  <span class="kw">def</span> <span class="fu">g</span>() = {
+    <span class="co">// do something with v</span>
+  }
+  <span class="co">// epilogue?</span>
+  <span class="fu">g</span>()
+}</code></pre></div>
+<h4 id="implementation-2">Implementation</h4>
+<table style="width:67%;">
+<colgroup>
+<col width="11%">
+<col width="45%">
+<col width="9%">
+</colgroup>
+<thead><tr class="header">
+<th>Before</th>
+<th>After tail call transformation</th>
+<th>Notes</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>evaluate arguments</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>(call loop)</td>
+<td>allocate parameters (1) (of callee/target)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>evaluate arguments</td>
+<td>write arguments into parameters</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>allocate parameters</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>write arguments into parameters</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>LIS(8)</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>Use(label)</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>JALR(8)</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>(epilogue)</td>
+<td>(epilogue)</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>Reg.savedPC = savedPC</code></td>
+<td><code>Reg.savedPC = savedPC</code></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>Reg.fp = dynamicLink</code></td>
+<td><code>Reg.fp = dynamicLink</code></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>pop (frame)</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>pop (parameters)</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>JR(31)</code></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>pop (new parameters (1))</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>pop (frame)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>pop (parameters of caller)</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>allocate parameters (2) (of callee/target)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>copy parameters (1) to (2)</td>
+<td>This is ok because nothing should have written to this memory space yet</td>
+</tr>
+<tr class="even">
+<td></td>
+<td>Also, make sure you copy from the bottom up to make sure you don't overwrite anything</td>
+</tr>
+<tr class="odd">
+<td><code>LIS(8)</code></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>Use(label)</code></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>JR(31)</code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>What if the caller and/or callee frame is on the heap instead of the stack?</p>
+<ul><li>don't pop from the stack when the frame is actually on the heap<br>
+<strong>Tail recursion</strong> is a special case of a tail call that calls the same caller procedure (the procedure calls itself)</li></ul>
+<h2 id="formal-languages">Formal Languages</h2>
+<p>(CS 360, 365, 462)</p>
+<ul>
+<li>specification (prove/disprove word is in the language)</li>
+<li>recognition (language, word) =&gt; Boolean (not always possible)<ul><li>autogenerate recognizer from specification</li></ul>
+</li>
+<li>interpretation (language, word) =&gt; meaning (data structure)</li>
+</ul>
+<p><strong>alphabet(Σ)</strong>: finite set of symbols<br>
+e.g. {a, b, c, ..., z}, {0, 1, ..., 9}, {0, 1}, {def, var, val, ..., =, (, ), ...}</p>
+<p><strong>word</strong> (over Σ): finite sequence of symbols<br>
+e.g. hello, 42, 1010101, def proc(), ε (sequence of length 0 - empty word)</p>
+<p><strong>language</strong>: set of words (possibly infinite)<br>
+e.g.</p>
+<ul>
+<li>all binary strings of 32 bits</li>
+<li>all prime numbers written in decimal</li>
+<li>all correct solutions to A6, A7</li>
+<li>{} != {ε}</li>
+</ul>
+<p>A <strong>language class</strong> is a collection of languages</p>
+<ul>
+<li>finite languages</li>
+<li>regular languages</li>
+<li>context-free languages</li>
+<li>undecidable languages</li>
+</ul>
+<h3 id="deterministic-finite-automata">Deterministic Finite Automata</h3>
+<pre><code>                   v──┐
+start ┌──┐  a   ╔═══╗ │b   ┌──────┐
+   ──&gt;│  ├─────&gt;║   ╟─┘    │      │
+      │  │      ║   ╟─────&gt;│error │
+      └──┘      ╚═══╝      └──────┘
+              accepting/
+              final state
+</code></pre>
+<ul>
+<li>If each letter in the word goes to another state, it is in the language</li>
+<li>If the word doesn't end in an accepting state, it is not in the language</li>
+<li><p>If the word requires a transition that doesn't exist, it is not in the language</p></li>
+<li>Σ = { a,b }<ul>
+<li>abb ∈ L</li>
+<li>a ∈ L</li>
+<li>aa ∉ L</li>
+<li>Ε ∉ L</li>
+</ul>
+</li>
+</ul>
+<p>e.g.<br>
+Σ = {a, b} where all words with an even number of <code>a</code>s are in the language</p>
+<pre><code>    ┌─────┐  ┌───────────┐
+   b│     │  v     a     │
+    │   ┌─┴────┐       ╔═╧════╗
+ ───┴──&gt;│ odd  │       ║ even ║&lt;──┐
+        └────┬─┘       ╚════╤═╝   │
+             │     a     ^  │     │b
+             └───────────┘  └─────┘</code></pre>
+<p>A <strong>DFA</strong> is a 5-tuple (Σ, Q, q<sub>0</sub>, A, δ) where:</p>
+<table style="width:38%;">
+<colgroup>
+<col width="11%">
+<col width="13%">
+<col width="12%">
+</colgroup>
+<thead><tr class="header">
+<th>Symbol</th>
+<th>Meaning</th>
+<th>Example</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Σ</td>
+<td>input alphabet</td>
+<td>Σ = { a, b }</td>
+</tr>
+<tr class="even">
+<td>Q</td>
+<td>a <em>finite</em> set of states</td>
+<td>Q = { odd, even }</td>
+</tr>
+<tr class="odd">
+<td>q<sub>0</sub> ∈ Q</td>
+<td>start state</td>
+<td>q<sub>0</sub> = even</td>
+</tr>
+<tr class="even">
+<td>δ : Q x × → Q</td>
+<td>transition function (partial, not defined for all of domain)</td>
+<td>δ(even, a) = odd</td>
+</tr>
+<tr class="odd">
+<td></td>
+<td>δ(even, b) = even</td>
+</tr>
+<tr class="even">
+<td></td>
+<td>δ(odd, a) = even</td>
+</tr>
+<tr class="odd">
+<td></td>
+<td>δ(odd, b) = odd</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>δ* : Q × Ε* → Q</li>
+<li>δ*(q, ε) = q</li>
+<li><p>δ*(q, first::rest) = δ*(δ(q, first), rest)</p></li>
+<li>A word w is <strong>accepted by the DFA</strong> if δ*(q<sub>0</sub>, w) ∈ A</li>
+<li>The <strong>language specified by the DFA</strong> is the set of all words accepted by the DFA</li>
+<li>A language is <strong>regular</strong> if there exists some DFA specifying that language<ul>
+<li>Every finite language is regular</li>
+<li>Given a language, there may be multiple DFAs specifying it, but the minimal DFA (minimum number of states) for the language is unique</li>
+</ul>
+</li>
+</ul>
+<h3 id="non-deterministic-finite-automata">Non-Deterministic Finite Automata</h3>
+<p>e.g.</p>
+<pre><code>DECIMAL NUMBERS
+        ┌───┐ 0 ╔══╗
+      ┌─┴┐  └──&gt;║  ║
+   ──&gt;│  │      ╚══╝
+      └─┬┘        v──┐
+        └───┐   ╔══╗ │0-9
+         1-9└──&gt;║  ╟─┘
+                ╚══╝
+
+HEXADECIMAL NUMBERS
+                    ┌──┐
+                    v  │0-9,A-F
+    ┌──┐ 0 ┌──┐ x ╔══╗ │
+ ──&gt;│  ├──&gt;│  ├──&gt;║  ╟─┘
+    └──┘   └──┘   ╚══╝
+
+ALL NUMBERS
+        ┌───┐ 0 ╔══╗
+      ┌─┴┐  └──&gt;║  ║
+   ──&gt;│  │      ╚══╝
+      └┬┬┘        v──┐
+      ┌┘└───┐   ╔══╗ │0-9
+      │  1-9└──&gt;║  ╟─┘
+      │         ╚══╝
+     0│             ┌──┐
+      └─────v       v  │0-9,A-F
+           ┌──┐ x ╔══╗ │
+           │  ├──&gt;║  ╟─┘
+           └──┘   ╚══╝</code></pre>
+<p><strong>Non-determinism</strong> is when the algorithm has a choice of multiple paths<br>
+How does one choose the right path?</p>
+<ul>
+<li>Assume there exists an "oracle" who knows the right path</li>
+<li>Try all paths</li>
+</ul>
+<p>An NFA is a 5-tuple (Σ, Q, q<sub>0</sub>, A, δ), same as a DFA, <em>except:</em></p>
+<ul>
+<li>DFA: δ: Q × Σ → Q</li>
+<li>NFA: δ: Q × Σ → 2<sup>Q</sup> (set of states)<ul>
+<li>δ*: Q × Σ* → 2<sup>Q</sup>
+</li>
+<li>δ*(q, ε) = {q}</li>
+<li>δ*(q, first::rest) = ∪<sub>q' ∈ δ(q, first)</sub> δ*(q', rest)<ul><li>This means for every q' ∈ δ(q, first), take the union of δ*(q', rest)</li></ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>A word is <strong>accepted by the NFA</strong> if δ*(q<sub>0</sub>, w) ∩ A ≠ {}</p>
+<h4 id="-transitions">ε Transitions</h4>
+<p>Whenever we are in state A, we may (but don't have to) move to state B. (E = ε in the diagram)</p>
+<ul><li>For every transition into A, add the same transition into B, then remove the ε-transition.</li></ul>
+<pre><code>  ┌───┐ E ┌───┐
+  │ A ├──&gt;│ B │
+  └───┘   └───┘
+        ║
+        ║
+        v
+    ┌─────────────┐
+  ┌─┤             v
+  └─┴───&gt;┌───┐   ╔═══╗
+         │ A │   ║ B ║
+  ┌─┬───&gt;└───┘   ╚═══╝
+  └─┤             ^
+    └─────────────┘
+</code></pre>
+<h3 id="regular-expressions">Regular Expressions</h3>
+<table>
+<thead><tr class="header">
+<th>Regular Expression</th>
+<th>Meaning</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>ε</td>
+<td>L(ε) = {ε}</td>
+</tr>
+<tr class="even">
+<td>R<sub>1</sub> \</td>
+<td>R<sub>2</sub> where R<sub>1</sub>, R<sub>2</sub> are REs</td>
+</tr>
+<tr class="odd">
+<td>R<sub>1</sub>R<sub>2</sub> where R<sub>1</sub>, R<sub>2</sub> are REs</td>
+<td>L(R<sub>1</sub>R<sub>2</sub>) = {xy \</td>
+</tr>
+<tr class="even">
+<td>R* where R is a RE</td>
+<td>L(R*) = {x<sub>1</sub>, x<sub>2</sub>, ..., x<sub>n</sub> \</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead><tr class="header">
+<th>Example</th>
+<th>Meaning</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>(a*)\</td>
+<td>(b*)</td>
+</tr>
+<tr class="even">
+<td>a*b*</td>
+<td>some number of <code>a</code>s followed by some number of <code>b</code>s</td>
+</tr>
+<tr class="odd">
+<td>(a\</td>
+<td>b)*</td>
+</tr>
+<tr class="even">
+<td>a(a*)</td>
+<td>1 or more <code>a</code>s</td>
+</tr>
+<tr class="odd">
+<td>(aa)*</td>
+<td>even number of <code>a</code>s</td>
+</tr>
+<tr class="even">
+<td>(a\</td>
+<td>b)*aa(a\</td>
+</tr>
+<tr class="odd">
+<td>(b\</td>
+<td>ab)*(a\</td>
+</tr>
+</tbody>
+</table>
+<h3 id="kleenes-theorem">Kleene's Theorem</h3>
+<p>For a language L, the following statements are equivalent:</p>
+<ol>
+<li>∃ a DFA specifying L</li>
+<li>∃ an NFA without ε-transitions specifying L</li>
+<li>∃ an NFA with ε-expressions specifying L</li>
+<li>∃ a regular expression specifying L</li>
+<li>L is a regular language</li>
+</ol>
+<h3 id="scanning">Scanning</h3>
+<ul>
+<li>
+<strong>Recognition</strong>: is a word w in the language L?</li>
+<li>
+<strong>Scanning</strong>: split a string into tokens<ul>
+<li>input: string w, language L</li>
+<li>output: sequence of words w<sub>1</sub>, w<sub>2</sub>, ..., w<sub>n</sub> such that<ul>
+<li>w<sub>1</sub>w<sub>2</sub>...w<sub>n</sub> = w, and</li>
+<li>∀i . w<sub>i</sub> ∈ L</li>
+<li>for each i, w<sub>i</sub> is the longest prefix of w<sub>i</sub>w<sub>i+1</sub>...w<sub>n</sub> that is still in L</li>
+</ul>
+</li>
+<li>A word w can be scanned if and only if w ∈ L*<ul><li>Or, w ∈ L(R*), where R is a Regular Expression for L</li></ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>Scanning output is not always unique</p>
+<ul>
+<li>L = {a, aa}</li>
+<li>If w = aa, the scan result can be [aa] or [a, a]</li>
+</ul>
+<h4 id="maximal-munch-greedy-scanning">maximal Munch (Greedy) Scanning</h4>
+<p>A common hack: Bite off the largest piece of w possible at each step</p>
+<ul>
+<li>Pros<ul><li>Finds a unique solution</li></ul>
+</li>
+<li>Cons<ul><li>A w that could be scanned could possibly not be scanned<ul><li>e.g. L = {a, ab, bc}; w = abc will not be split into [a, bc]</li></ul>
+</li></ul>
+</li>
+</ul>
+<p>Algorithm:</p>
+<ol>
+<li>Run DFA on remaining input until it gets stuck</li>
+<li>If in a non-accepting state, backtrack to the last seen accepting state<ul><li>If no accepting state was found, then the input can't be scanned with Maximal Munch</li></ul>
+</li>
+<li>Output a token corresponding to the current (accepting) state</li>
+<li>Set DFA state to start state, and repeat from step 1</li>
+</ol>
+<p>In A7:</p>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">def</span> <span class="fu">scanOne</span>(input: List[Char], state: State, backtrack: (List[Char], State)): (List[Char], State) = ???
+<span class="co">// Arguments:</span>
+<span class="co">//  input: rest of input to scan</span>
+<span class="co">//  state: current state of DFA</span>
+<span class="co">// Return value: (rest of input after token, accepting state reached on token)</span></code></pre></div>
+<h3 id="context-free-languages">Context-free Languages</h3>
+<p>e.g. A DFA for arithmetic, such as <code>a + b * c - d</code></p>
+<p>(this only parses singly nested brackets)</p>
+<pre><code>          a-z
+      ┌────────v
+   ┌──┴┐       ┌───┐
+ ─&gt;│   │       │   │
+   └┬──┘       └┬──┘
+    │ ^─────────┘ ^
+   (│   v,-,*,/   │)
+    v ┌─────────v │
+   ┌──┴┐  a-z  ┌──┴┐
+   │   │       │   │
+   └───┘       └┬──┘
+      ^─────────┘
+        v,-,*,/</code></pre>
+<p>Regular expressions can't express unlimited recursive structures. We want nesting in programming languages, so we need something more powerful than regular languages.</p>
+<h4 id="context-free-grammars">Context-free Grammars</h4>
+<p>Regular Expressions use iteration, Context-free Grammars use recursion</p>
+<p>e.g.</p>
+<ul>
+<li>expr → ID \| expr op expr \| (expr)</li>
+<li>op → + \| - \| * \| /</li>
+<li>ID → a \| b \| c</li>
+</ul>
+<p>Parsing of <code>(a+b)*c</code></p>
+<pre><code>                 expr
+                  │
+           ┌──────┴──────────────┬───────────────┐
+           │                     │               │
+          expr                  op              expr
+           │                     │               │
+   ┌───────┼─────────────────┐   *               ID
+   │       │                 │                   │
+   (      expr               )                   c
+           │
+     ┌─────┴─────┬────────┐
+     │           │        │
+    expr         op      expr
+     │           │        │
+     ID          +        ID
+     │                    │
+     a                    b
+</code></pre>
+<p>A <strong>context-free grammar (CFG)</strong> is a 4-tuple (V, Ε P, S) where:</p>
+<ul>
+<li>V is a finite set of non-terminal symbols (variables) e.g. {expr, op}</li>
+<li>Σ is a finite set of terminal symbols e.g. {ID, +, -, +, /, (, )}</li>
+<li>P is a finite set of production rules</li>
+<li>S ∈ V is the start non-terminated e.g. S = expr</li>
+</ul>
+<p>Let:</p>
+<ul>
+<li>a, b, c, d, ∈ Σ (terminal)</li>
+<li>A, B, C, D, ∈ V (non-terminal)</li>
+<li>W, X, Y, Z ∈ Σ ∪ V (terminal or non-terminal)</li>
+<li>w, x, y, z ∈ Σ* (string of terminals)</li>
+<li>α, β, γ, δ ∈ (Σ ∪ V)* (string of terminal and non-terminal symbols)</li>
+</ul>
+<p>αAβ <strong>directly derives</strong> αγβ if A → γ ∈ P</p>
+<ul>
+<li>Use ⇒ as a shorthand</li>
+<li>e.g. expr ⇒ expr op expr ⇒ ID op expr</li>
+<li>Only one substitution is allowed per direct derivation. Multiple direct derivations are needed for multiple substitutions</li>
+</ul>
+<p>α <strong>derives</strong> α<sub>n</sub> (0 or more ⇒ steps) if α<sub>1</sub> ⇒ ... ⇒ α<sub>n</sub></p>
+<ul>
+<li>Use ⇒* as a shorthand</li>
+<li>e.g. expr ⇒* ID + ID</li>
+</ul>
+<p>The <strong>language generate/specified by</strong> G=(V, Σ, P, S) is L(G) = { w ∈ Σ* \| S ⇒* w }</p>
+<ul>
+<li>A language is <strong>context-free</strong> if there exists a grammar G that generates it</li>
+<li>A language may be specified by multiple grammars<ul><li>It is undecidable whether two CFGs generate the same language</li></ul>
+</li>
+</ul>
+<pre><code>e.g. 1+2*3 = 7 or 9?
+
+  WRONG
+
+              e
+              │
+   ┌───┬──────┴──┐
+   │   │         │
+   │   │         │
+   e   op        e
+   │   │         │                 
+   │   │     ┌───┴──┬─────┐
+   ID  +     │      │     │
+            expr    op    e
+             │      │     │
+             │      │     │
+             ID     *     ID
+
+  RIGHT
+
+              e
+              │
+        ┌─────┴────────┬───────┐
+        │              │       │
+        e              op      e
+        │              │       │
+   ┌────┼─────┐        │       │
+   │    │     │        *       ID
+   e    op    e
+   │    │     │
+   │    │     │
+   ID   +     ID
+</code></pre>
+<p>A CFG is <strong>ambiguous</strong> if it allows multiple parse trees for the same input string</p>
+<ul>
+<li>To specify languages precisely, we want unambiguous parse trees for the same input</li>
+<li>it is undecidable whether a grammar is ambiguous</li>
+</ul>
+<p>We can design a grammar for desired <strong>precedence</strong> and <strong>associativity</strong></p>
+<p>e.g. unambiguous for the examples used:</p>
+<ul>
+<li>expr → expr + term \| term \| expr - term</li>
+<li>term → term * factor \| factor</li>
+<li>
+<p>factor → ID</p>
+<pre><code>left-associativity: (3-2)-1 = 0 or 2?
+
+              e
+              │
+  ┌──────┬────┴──────────┐
+  │      │               │
+  e      +               t
+  │                      │
+  │               ┌─────┬┴───┐
+  t               │     │    │
+  │               t     *    f
+  │               │          │
+  f               │          │
+  │               f          ID
+  │               │
+  ID              │
+                  ID</code></pre>
+</li>
+</ul>
+<h4 id="cyk-cocke-younger-kasami-parsing">CYK (Cocke, Younger, Kasami) Parsing</h4>
+<ul>
+<li>input: grammar G, input string w</li>
+<li>output: w ∈ L(G)? S ⇒* w? (output parse tree or derivation)</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="fu">parse</span>(alpha, w) = { <span class="co">// returns a sequence of parse trees if alpha =&gt;* w for symbols in alpha</span>
+  <span class="kw">if</span> (alpha.<span class="fu">isEmpty</span>) {
+    <span class="kw">if</span> (w.<span class="fu">isEmpty</span>) Some(Seq()) <span class="kw">else</span> None
+  } <span class="kw">else</span> <span class="kw">if</span> (alpha == a,beta) { <span class="co">// starts with terminal</span>
+    <span class="kw">if</span> (w == a,z &amp;&amp; <span class="fu">parse</span>(beta, z)) Some(a +: <span class="fu">parse</span>(beta, z).<span class="fu">get</span>) <span class="co">// Create a new tree node here</span>
+    <span class="kw">else</span> None
+  } <span class="kw">else</span> <span class="kw">if</span> (alpha == A) {
+    (A -&gt; gamma in P).<span class="fu">forEach</span> {
+      <span class="kw">if</span> (<span class="fu">parse</span>(gamma, w)) <span class="kw">return</span> Some(Seq(tree A where children are <span class="fu">parse</span>(gamma, w).<span class="fu">get</span>)) <span class="co">// Create new tree node here</span>
+    }
+    None
+  } <span class="kw">else</span> { <span class="co">// alpha = A, beta</span>
+    <span class="fu">split</span>(w == u,v).<span class="fu">forEach</span> { <span class="co">// for each ways of splitting w into u and v</span>
+      <span class="kw">if</span> (<span class="fu">parse</span>(A, u) &amp;&amp; <span class="fu">parse</span>(beta, v)) <span class="kw">return</span> Some(<span class="fu">parse</span>(A, u).<span class="fu">get</span> ++ <span class="fu">parse</span>(beta, v).<span class="fu">get</span>)
+    }
+    None
+  }
+}</code></pre></div>
+<pre><code>p(expr, ID + ID)
+│ 
+├─ p(ID, ID + ID)
+│    p(epsilon, + ID) X
+│
+└─p(expr op expr, ID + ID) // u = epsilon (*&lt;=expr), u = ID + ID (*&lt;=op expr)
+  ├─ p(expr, epsilon)    &lt;────────────────────────────────────┐
+  │  │                                                        │
+  │  ├─p(ID, epsilon) X                                       │
+  │  │                                                        │
+  │  └─p(expr op expr, epsilon) // u = epsilon, u = epsilon   │
+  │      p(expr, epsilon) X (memo) ───────────────────────────┘
+  │        ...infinite loop
+  └┬─p(expr, ID)
+   │   p(ID, ID) √
+   │
+   └─p(op expr, ID)</code></pre>
+<p>Remember (memoize) values at (α, w) → Boolean (for validity testing) or Option[Seq[Tree]] (for parse tree)</p>
+<ul><li>Possible values of α, w:<ul>
+<li>α = S or a suffix of a right-hand side of a production rule</li>
+<li>w = substring of input</li>
+<li>parse(α, w) ⇆ recur(α, from, length)</li>
+<li>parse(α, input[from..from+length-1])</li>
+<li>Possible values:<ul>
+<li>α, O(1), from: O(\|input\|), length: O(\|input\|), table of size: O(\|input\|<sup>2</sup>)</li>
+<li>Running time: O(\|input\|<sup>3</sup>)</li>
+</ul>
+</li>
+</ul>
+</li></ul>
+<p>Using the table (memoization):</p>
+<ul>
+<li>whenever <code>recur</code> returns, record result in table</li>
+<li>at the beginning of recur, check the table for current input before trying to compute a result</li>
+<li>before starting a computation, record it in the table as false</li>
+</ul>
+<p>Parser comparison:</p>
+<table style="width:71%;">
+<colgroup>
+<col width="12%">
+<col width="8%">
+<col width="12%">
+<col width="19%">
+<col width="18%">
+</colgroup>
+<thead><tr class="header">
+<th>Category</th>
+<th>CYK</th>
+<th>Earley</th>
+<th>LR(k) LR(1)</th>
+<th>LL(k) LL(1)</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>time</td>
+<td>O(n<sup>3</sup>)</td>
+<td>O(n<sup>3</sup>) for ambiguous, O(n<sup>2</sup>) for unambiguous, O(n) for almost all LR(1) grammars</td>
+<td>O(n)</td>
+<td>O(n)</td>
+</tr>
+<tr class="even">
+<td>grammars</td>
+<td>all</td>
+<td>all</td>
+<td>most unambiguous grammars, test if it's LR(1) to see if it's unambiguous (approximate test)</td>
+<td>very few practical grammars, no left-associativity</td>
+</tr>
+<tr class="odd">
+<td>difficulty</td>
+<td>1 lecture</td>
+<td>1.5 weeks</td>
+<td>3 weeks</td>
+<td>1.5 weeks</td>
+</tr>
+</tbody>
+</table>
+<p>Let w = xaz ∉ L be an incorrect input.</p>
+<ul>
+<li>Suppose ∃ y . xy ∈ L</li>
+<li>but ∀ v . xaV ∉ L<ul><li>a is the point where the error is</li></ul>
+</li>
+<li>A parser has the <strong>Correct Prefix Property (CPP)</strong> if it rejects xaz as soon as it processes xa.</li>
+</ul>
+<p>To <strong>augment</strong> a grammar G with start symbol S means:</p>
+<ul>
+<li>add terminals BOF, EOF to Σ</li>
+<li>add a new start non-terminal S'</li>
+<li>add a rule S' → BOF S EOF<ul><li>This means anything derived from S' will always have a terminal in it</li></ul>
+</li>
+</ul>
+<h4 id="lr1-parsing">LR(1) parsing</h4>
+<ul>
+<li>Let D = { α ⇒ β \| α ⇒ β is a step in some right-canonical derivation of some input w }<ul>
+<li>A derivation is <strong>right-canonical</strong> if each derivation step expends the right-most nonterminal</li>
+<li>e.g. expr ⇒ expr op expr<ul>
+<li>Next step in right-canonical derivation would be expr op ID</li>
+<li>Next step in left-canonical derivation would be ID op expr</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Let b be some terminal in α that is not followed by any non-terminals</li>
+<li>Decompose α = γby and β = δby</li>
+<li>Define F(δb) = { γ \| ∃ z . γbz ⇒ δbz ∈ D }<ul>
+<li>In the set D of all derivation steps of all derivations, this one appears, starting with δb, coming from something starting from γb</li>
+<li>α ∈ F(δb)</li>
+</ul>
+</li>
+<li>If for all α ⇒ σby ∈ D, \|F(σb)\| = 1, then the gramm ar is LR(1).</li>
+</ul>
+<p>Algorithm (rough idea)</p>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala">let beta = input string
+<span class="kw">while</span> (beta != S) {
+  find alpha element of <span class="fu">F</span>(beta)
+  output s<span class="st">"$alpha =&gt; &amp;beta"</span>
+  beta = alpha
+}</code></pre></div>
+<p>What needs to be added:</p>
+<ul>
+<li>efficient implementation of the algorithm</li>
+<li>algorithm to compute F(β)</li>
+</ul>
+<h3 id="context-sensitive-analysis">Context-Sensitive Analysis</h3>
+<p>Purpose</p>
+<ul>
+<li>reject programs that satisfy a grammar but are still invalid</li>
+<li>compute information needed to generate code</li>
+</ul>
+<p>For Lacs:</p>
+<ol>
+<li>Resolve names/symbols<ul>
+<li>Connect uses of symbols/names to the declarations<ul><li>Symbol tables</li></ul>
+</li>
+<li>detect undeclare/duplicate names</li>
+</ul>
+</li>
+<li>compute and check types<ul><li>What is a type?<ul>
+<li>a set of values (in the real world)</li>
+<li>an interpretation of sequences of bits</li>
+<li>proof that a value is in a certain set</li>
+</ul>
+</li></ul>
+</li>
+</ol>
+<p>Uses of types</p>
+<ul>
+<li>ensure consistent use of operations (e.g. <code>1 + "foo"</code>)</li>
+<li>give meaning to operations (e.g. <code>1 + 2</code> vs <code>"1" + "2"</code>)</li>
+<li>keep track of intended interpretation of bits</li>
+<li>ensure correctness of programs</li>
+</ul>
+<p>Lacs types</p>
+<ul>
+<li>Int<ul><li>integers between -2<sup>31</sup> to 2<sup>31</sup>-1 with arithmetic modulo 2<sup>32</sup>
+</li></ul>
+</li>
+<li>(type, ...) =&gt; type<ul><li>functions that take arguments of the specified types, return a value of the specified type</li></ul>
+</li>
+</ul>
+<p>A <strong>type system</strong> is a set of rules that compute the type of an expression from the types of its subexpressions.</p>
+<ul><li>A type system is <strong>sound</strong> if, when it computes a type τ for expression e (e:τ), then e evaluates to a value v ∈ τ<ul>
+<li>If e: τ and e →* v, then v ∈ τ<ul><li>typing rules ... operational semantics</li></ul>
+</li>
+<li>In our implementation, a <strong>symbol table</strong> maps names to either variables or procedures</li>
+</ul>
+</li></ul>
+<h4 id="lacs-type-inference-rules">Lacs type inference rules</h4>
+<pre><code>  Premises
+__________            means if premises then conclusion
+Conclusion                                              
+
+|¬ |- e : tau         means in scope |¬, e has type tau
+
+hastype(|¬, e, tao)   means the same
+
+
+
+__________
+ NUM: Int
+
+
+|¬(ID) = tau
+_____________
+|¬ |- ID : tau
+
+
+Let E in {expras, expra, expr, term, factor}
+
+                |¬ |- E1 : Int
+                |¬ |- E2 : Int
+_______________________________
+      |¬ |- E1 + E2 : Int
+               -
+               *
+               /
+               %
+
+
+               |¬(ID) = tau
+              |¬ |- E : tau
+____________________________
+     |¬ |- ID = E : tau
+
+
+        |¬ |- E1 : tau1   
+        |¬ |- E2 : tau2
+________________________
+  |¬ |- E1 ; E2 : tau2
+
+
+                        |¬ |- E1 : Int
+                        |¬ |- E2 : Int
+                        |¬ |- E3 : tau
+                        |¬ |- E4 : tau
+______________________________________
+ |¬ |- if (E1 == E2) E3 else E4 : tau
+              !=
+              &gt;=
+              &lt;=
+
+
+ |¬ |- E' : (tau-) =&gt; tau'
+  forall i . |¬ |- Ei : Ti
+___________________________
+       |¬ |- E' (E-)
+
+
+forall i . |¬, vardef-, vardef'-, defdef- |- defdef i wf
+             |¬, vardef-, vardef'-, defdef- |- E : tau
+_____________________________________________________
+    def ID(vardef-): tau = {vardef- defdef- E} wf
+
+
+forall i . defdef- |- defdef i wf
+_________________
+empty env |- defdef- wf</code></pre>
+<h3 id="assignment-10">Assignment 10</h3>
+<pre><code>
+    +----------+                +-------------+                    ++
+    |          |  A7 (scanner)  |             |   A8 (parser)     ++++
+    | program  +---------------&gt;|   tokens    +---------------&gt;  ++  ++  A9 (parse tree)
+    |          |                |             |                 ++    ++     
+    +----------+                +-------------+                -+--+---+-
+                                                                   |
+                                         context-sensitive &lt;-------+
+                                            information           A10
+                                         scopes and types  --------+
+                                                                   |
+                                                                   v
+                                                        +--------------------+
+                                                        |                    |
+                                                        |    intermediate    |
+                                                        |   representation   |
+                                                        |       (code)       |
+                                                        |                    |
+                                                        +----------+---------+
+                                                                   |
+                                                                   |
+                             +-----------------------+             |  A1-6
+                             |                       |             |
+                             |   machine language    |&lt;------------+
+                             |                       |
+                             +-----------------------+
+</code></pre>
+<h2 id="memory-management">Memory Management</h2>
+<h3 id="heap">Heap</h3>
+<p>A <strong>heap</strong> is a data structure to manage memory that can be allocated/freed at any time</p>
+<ul>
+<li>Operations:<ul>
+<li>allocate, new, malloc<ul><li>size determined at runtime</li></ul>
+</li>
+<li>free, delete</li>
+</ul>
+</li>
+<li>Extra memory is needed for metadata to keep track of what is used/free</li>
+</ul>
+<p>Which blocks are used/free?</p>
+<ol>
+<li>add a bit in the header of each block to indicate if it is free or used</li>
+<li>linked list of free blocks</li>
+</ol>
+<pre><code>1.
+ +-+-------------+
+ | | size        |
+ +-+-------------+
+ |^ free/used    |
+ |     bit       |
+ |               |
+ |               |
+ |               |
+ |               |
+ |               |
+ +---------------+
+
+2.
+freelist
+ V
+ +---------------+  
+ | size          |
+ +---------------+
+ | next          +--+
+ +---------------+  |
+ |               |  |
+ |               |  |
+ | free          |  |
+ |               |  |
+ +---------------+  |
+                    |
+                    |
+ +---------------+  |
+ | size          |  |
+ +---------------+  |
+ | next          |  |
+ +---------------+  |
+ |               |  |
+ |               |  |
+ | used          |  |
+ |               |  |
+ +---------------+  |
+                    |
+                    |
+ +---------------+  |
+ | size          | &lt;+
+ +---------------+  
+ | next          +-------|
+ +---------------+  
+ |               |  
+ |               |  
+ | free          | 
+ |               |  
+ +---------------+</code></pre>
+<pre><code>      +-----------------+
+  100 | 8               |
+      +-----------------+
+  104 | freelist        +--+
+      +-----------------+  |
+  108 | 36              | &lt;+
+      +-----------------+
+  112 |                 +--+
+      +-----------------+  |
+      |                 |  |
+      |                 |  |
+      |                 |  |
+  140 |                 |  |
+      +-----------------+  |
+  144                 &lt;----+
+</code></pre>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">def</span> <span class="fu">size</span>(block) = <span class="fu">deref</span>(block)
+<span class="kw">def</span> <span class="fu">next</span>(block) = <span class="fu">deref</span>(block<span class="dv">+4</span>)
+<span class="kw">def</span> <span class="fu">setSize</span>(block, size) = <span class="fu">assignToAddr</span>(block, size)
+<span class="kw">def</span> <span class="fu">setNext</span>(block, next) = <span class="fu">assignToAddr</span>(block<span class="dv">+4</span>, next)
+<span class="kw">def</span> <span class="fu">init</span>() = {
+  <span class="kw">val</span> block = heapStart + <span class="dv">8</span> <span class="co">// 100 + 8</span>
+  <span class="fu">setSize</span>(heapStart, <span class="dv">8</span>)
+  <span class="fu">setNext</span>(heapStart, block)
+  <span class="fu">setSize</span>(block, heapSize - <span class="dv">8</span>) <span class="co">// 44 - 8</span>
+  <span class="fu">setNext</span>(block, heapStart + heapSize)
+}
+
+<span class="kw">def</span> <span class="fu">malloc</span>(wanted) = {
+  <span class="kw">def</span> <span class="fu">find</span>(previous) = {
+    <span class="kw">val</span> current = <span class="fu">next</span>(previous)
+    <span class="kw">if</span> (<span class="fu">size</span>(current) &lt; wanted + <span class="dv">4</span>) {
+      <span class="fu">find</span>(current)
+    } <span class="kw">else</span> {
+      <span class="kw">if</span> (<span class="fu">size</span>(current) &gt; wanted + <span class="dv">12</span>) {
+        <span class="co">//split block</span>
+        <span class="kw">val</span> newBlock = current + wanted + <span class="dv">4</span>
+        <span class="fu">setSize</span>(newBlock, <span class="fu">size</span>(current) - <span class="fu">size</span>(wanted + <span class="dv">4</span>))
+        <span class="fu">setNext</span>(newBlock, <span class="fu">next</span>(current))
+        <span class="fu">setSize</span>(current, wanted + <span class="dv">4</span>)
+        <span class="fu">setNext</span>(previous, newBlock)
+      } <span class="kw">else</span> {
+        <span class="fu">setNext</span>(previous, <span class="fu">next</span>(current))
+      }
+      <span class="fu">setNext</span>(previous, <span class="fu">next</span>(current))
+      current
+    }
+  }
+}
+
+<span class="kw">def</span> <span class="fu">free</span>(toFree) = {
+  <span class="kw">def</span> <span class="fu">find</span>(previous) = {
+    <span class="kw">val</span> current = <span class="fu">next</span>(previous)
+    <span class="kw">if</span> (current &lt; toFree) {
+      <span class="fu">find</span>(current)
+    } <span class="kw">else</span> {
+      <span class="kw">if</span> (toFree + <span class="fu">size</span>(toFree) == current &amp;&amp; current &lt; heapStart + heapSize) {
+        <span class="co">// merge with current</span>
+        <span class="fu">setSize</span>(toFree, <span class="fu">size</span>(toFree)+<span class="fu">size</span>(current))
+        <span class="fu">setNext</span>(toFree, <span class="fu">next</span>(current))
+      } <span class="kw">else</span> {
+        <span class="fu">setNext</span>(toFree, current)
+      }
+      <span class="kw">if</span> (previous + <span class="fu">size</span>(previous) == toFree &amp;&amp; previous != heapStart) {
+        <span class="co">// merge with previous block</span>
+        <span class="fu">setSize</span>(previous, <span class="fu">size</span>(previous) + <span class="fu">size</span>(toFree))
+        <span class="fu">setNext</span>(previous, <span class="fu">next</span>(toFree))
+      } <span class="kw">else</span> {
+        <span class="fu">setNext</span>(previous, toFree)
+      }
+    }
+  }
+}</code></pre></div>
+<p>A heap is <strong>fragmented</strong>if the free space is split into small blocks.</p>
+<ul>
+<li>We can't allocate one large block even though there is enough free total space.</li>
+<li>Fragmentation can make an arbitrary fraction of the heap unuseable</li>
+</ul>
+<p>Compaction</p>
+<ul>
+<li>copy all used blocks to the beginning of the heap</li>
+<li>update all pointers in the used blocks to the new locations</li>
+</ul>
+<p>We need to identify which words in memory are addresses, so we need sound types.</p>
+<ul><li>For Lacs variables, this means ones with <code>isPointer</code> set</li></ul>
+<p>New chunk diagram:</p>
+<pre><code>+---------------+
+| size          |
++---------------+
+| 3 (number of  |
+|    pointers)  |
++---------------+
+|               |
+| pointer vars  |
+|               |
++---------------+
+|               |
+|  other vars   |
+|               |
++---------------+</code></pre>
+<p>After compaction, allocation is simple/constant time (increment a pointer).</p>
+<ul>
+<li>The cost per allocation/free operation is small.</li>
+<li>However, compaction takes time, so it is not ideal for real-time uses.</li>
+</ul>
+<p>Which blocks should we compact? A block is <strong>live</strong> or <strong>dead</strong> if it will or will not be accessed in the future.</p>
+<ul>
+<li>The goal is to identify dead blocks automatically</li>
+<li>A block is <strong>reachable</strong> if:<ul>
+<li>its address is stored in the stack (or register), or</li>
+<li>its address is stored in some other reachable block</li>
+</ul>
+</li>
+<li>live ⇒ reachable</li>
+<li>unreachable ⇒ dead</li>
+</ul>
+<h3 id="cheneys-copying-garbage-collector-1970">Cheney's Copying Garbage Collector, 1970</h3>
+<ul>
+<li>compact blocks pointed to by the <strong>roots</strong> (stack, registers, but only stack for A11)</li>
+<li>compact by the already compacted blocks</li>
+<li>split heap into two <strong>semi-spaces</strong><ul>
+<li>allocate in the <strong>from-space</strong>
+</li>
+<li>compact and copy to the <strong>to-space</strong>
+</li>
+<li>switch them after each garbage collection (compaction) run</li>
+</ul>
+</li>
+</ul>
+<pre><code>              +------------+
+              |            |
+              | code       |
+              |            |
+              +------------+
+    heapStart | used       |
+              |............|
+              |            | heapPointer
+              | from-space |
+              |            |
+              +------------+
+   heamMiddle | to-space   | semiSpaceTop
+              |            |
+              +------------+
+      heapTop |            |
+              | stack      |
+              |            |
+              +------------+</code></pre>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">def</span> init = {
+  heapPointer = heapStart
+  semiSpaceTop = heapMiddle
+}
+<span class="kw">def</span> <span class="fu">allocate</span>(wanted) = {
+  <span class="kw">if</span> (heapPointer + wanted &gt; semispaceTop) {
+    <span class="fu">gc</span>()
+  }
+  <span class="kw">val</span> ret = heapPointer
+  heapPointer = heapPointer + wanted
+  ret
+}
+<span class="kw">def</span> gc = {
+  <span class="co">// Swap segments of memory</span>
+  <span class="kw">val</span> newBottom =
+    <span class="kw">if</span> (semiSpaceTop == heapMiddle) heapMiddle
+    <span class="kw">else</span> heapStart
+  <span class="kw">var</span> free = newBottom
+  <span class="kw">var</span> scan = dynamicLink <span class="co">// top of stack</span>
+  <span class="kw">while</span> (scan &lt; memSize) {
+    <span class="fu">forwardPtrs</span>(scan) <span class="co">// will also increment free</span>
+    scan = scan + <span class="fu">size</span>(scan)
+  }
+  scan = newBottom
+  <span class="kw">while</span> (scan &lt; free) {
+    <span class="fu">forwardPtrs</span>(scan)
+    scan = scan + <span class="fu">size</span>(scan)
+  }
+  semispaceTop = newBottom + semiSpaceSize
+  heapPointer = free
+}
+
+<span class="kw">def</span> <span class="fu">forwardPtrs</span>(block) = {
+  <span class="kw">for</span> each offset o in block that holds a pointer {
+    <span class="fu">assignToAddr</span>(block + o, <span class="fu">copy</span>(<span class="fu">deref</span>(block + o)))
+  }
+}
+
+<span class="kw">def</span> <span class="fu">copy</span>(block) = {
+  <span class="kw">if</span> (block is not in from-space) {
+    block;
+  } <span class="kw">else</span> {
+    <span class="kw">if</span> (<span class="fu">size</span>(block) &gt;= <span class="dv">0</span>) { <span class="co">// not yet copied</span>
+      <span class="fu">copyChunk</span>(free, block)
+      <span class="fu">setNext</span>(block, free) <span class="co">// forwarding address</span>
+      <span class="fu">setSize</span>(block, -<span class="fu">size</span>(block))
+      free = free + <span class="fu">size</span>(free)
+    }
+    <span class="fu">next</span>(block)
+  }
+}</code></pre></div>
+<ul>
+<li>make size variable in chunk negative to indicate that it has been moved</li>
+<li>save new location in number-of-pointers variable</li>
+<li>this is ok because it's in the from space anyway</li>
+</ul>
+<p>Time complexity</p>
+<ul>
+<li>Allocation: O(1)</li>
+<li>GC: O(\|reachable memory\|), often less than O(\|heap\|)<ul>
+<li>Cost per allocation depends on frequency of GC</li>
+<li>this depends on fraction of the heap that is reachable</li>
+</ul>
+</li>
+</ul>
+<h3 id="generational-gc">Generational GC</h3>
+<ul>
+<li>observation: most memory lives long or dies young</li>
+<li>idea: more than 2 semispaces<ul>
+<li>small ones for blocks that die young, collect frequently</li>
+<li>larger ones for blocks that live long, collected rarely</li>
+</ul>
+</li>
+</ul>
+<h2 id="the-lambda-calculus">The Lambda Calculus</h2>
+<p>e → v \| λv.e \| e e</p>
+<ul>
+<li>λv.e is the <strong>lambda abstraction</strong>
+</li>
+<li>e e is the <strong>function application</strong>
+</li>
+</ul>
+<p>(λv.e<sub>1</sub>) e<sub>2</sub> → e<sub>1</sub>[e<sub>2</sub>/v]</p>
+<ul>
+<li>[e<sub>2</sub>/v] is a <strong>substitution</strong>
+</li>
+<li>this rule is called <strong>β-reduction</strong>
+</li>
+<li>e.g. (λv . v v d) ((a b) c)<ul><li>( (a b) c ) ( (a b) c ) d</li></ul>
+</li>
+</ul>
+<pre><code>e1 --&gt; e1'
+______________
+e1e2 --&gt; e1'e2
+
+e2 --&gt; e2'
+______________
+e1e2 --&gt; e1e2'
+
+e --&gt; e'
+__________________________
+lambda v.e --&gt; lambda v.e'</code></pre>
+<div class="sourceCode"><pre class="sourceCode scala"><code class="sourceCode scala"><span class="kw">abstract</span> <span class="kw">class</span> Expr
+<span class="kw">case</span> <span class="kw">class</span> <span class="fu">Var</span>(name: String) <span class="kw">extends</span> Expr
+<span class="kw">case</span> <span class="kw">class</span> <span class="fu">Lambda</span>(name: String, expr: Expr) <span class="kw">extends</span> Expr
+<span class="kw">case</span> <span class="kw">class</span> <span class="fu">Apply</span>(function: Expr, argument: Expr) <span class="kw">extends</span> Expr
+
+<span class="kw">val</span> ID = <span class="fu">Lambda</span>(<span class="st">"x"</span>, <span class="fu">Var</span>(<span class="st">"x"</span>)) <span class="co">// lambda x . x</span>
+<span class="kw">val</span> IDID = <span class="fu">Apply</span>(ID, ID) <span class="co">// (lambda x . x) (lambda x . x)</span>
+
+<span class="kw">val</span> step: PartialFunction[Expr, Expr] = {
+  <span class="kw">case</span> <span class="fu">Apply</span>(<span class="fu">Lambda</span>(variable, e1), e2) =&gt;
+    <span class="fu">subst</span>(e1, variable, e2)
+}
+<span class="kw">def</span> <span class="fu">subst</span>(expr: Expr, name: String, replacement: Expr): Expr = expr <span class="kw">match</span> {
+  <span class="kw">case</span> <span class="fu">Var</span>(name2) =&gt;
+    <span class="kw">if</span> (name == name2) replacement
+    <span class="kw">else</span> expr
+  <span class="kw">case</span> <span class="fu">Apply</span>(e1, e2) =&gt; <span class="fu">Apply</span>(
+    <span class="fu">subst</span>(e1, name, replacement),
+    <span class="fu">subst</span>(e2, name, replacement)
+  )
+  <span class="kw">case</span> <span class="fu">Lambda</span>(name2, expr2) =&gt;
+}</code></pre></div>
+<ul>
+<li>TRUE is a function that takes two arguments and returns the first<ul><li>TRUE = λx.λy.x</li></ul>
+</li>
+<li>FALSE is a function that takes two arguments and returns the second<ul><li>FALSE = λx.λy.y</li></ul>
+</li>
+<li>An if statement is a function that takes a condition, a then, and an else, and applies either the then or else depending on the result of condition<ul>
+<li>IF = λcond.λthen.λelse cond then else</li>
+<li>e.g. (λcond.λthen.λelse cond then else) TRUE t f ⇒ t</li>
+</ul>
+</li>
+<li>A number n is a function call applied n times. The n+1<sup>st</sup> number is n applied once more<ul>
+<li>e.g. ZERO = λf.λx.x</li>
+<li>e.g. ONE = λf.λx.f x</li>
+<li>e.g. TWO = λf.λx.f (f x)</li>
+<li>e.g. SUCC = λ.n.λf.λx.f (n f x)</li>
+<li>e.g. THREE = (SUCC) TWO</li>
+</ul>
+</li>
+<li>Addition of m and x is done by applying x m-times<ul><li>e.g. PLUS = λm.λn.λf;λx.n f (m f x)</li></ul>
+</li>
+</ul>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

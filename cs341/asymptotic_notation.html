@@ -1,0 +1,162 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<title>Asymptotic Notation</title>
+</head>
+<body>
+
+<h1 id="asymptotic-notation">Asymptotic Notation</h1>
+<a href="index.html">Back to cs341</a>
+<div id="TOC">
+
+<ul><li><a href="#common-growth-rates">Common growth rates</a></li></ul>
+</div>
+<h2 id="common-growth-rates">Common growth rates</h2>
+<p>(increasing order)</p>
+<ul>
+<li><span class="math inline">\(\Theta(1)\)</span></li>
+<li><span class="math inline">\(\Theta(\log n)\)</span></li>
+<li><span class="math inline">\(\Theta(\sqrt{n})\)</span></li>
+<li><span class="math inline">\(\Theta(n)\)</span></li>
+<li><span class="math inline">\(\Theta(n^2)\)</span></li>
+<li><span class="math inline">\(\Theta(n^c)\)</span></li>
+<li>
+<span class="math inline">\(\Theta(n^\sqrt{n} \log n)\)</span> (best known algorithm for graph isomorphism)</li>
+<li>
+<span class="math inline">\(\Theta(c^{c(\log n)^{1/3}(\log \log n)^{2/3}})\)</span> (factoring algorithm)</li>
+<li><span class="math inline">\(\Theta(1.1^n)\)</span></li>
+<li><span class="math inline">\(\Theta(2^n)\)</span></li>
+<li><span class="math inline">\(\Theta(c^n)\)</span></li>
+<li><span class="math inline">\(\Theta(n!)\)</span></li>
+<li><span class="math inline">\(\Theta(c^n)\)</span></li>
+</ul>
+<h1 id="loop-analysis">Loop analysis</h1>
+<h3 id="e.g.-1">e.g. 1</h3>
+<p><img src="img/loop.png"></p>
+<h4 id="using-theta">Using <span class="math inline">\(\Theta\)</span>
+</h4>
+<ul>
+<li>Loop on <span class="math inline">\(k\)</span>: <span class="math inline">\(\Theta(1)\)</span><ul>
+<li>number of iterations: <span class="math inline">\(j-i+1\)</span>
+</li>
+<li>Complexity is <span class="math inline">\(Theta(j-i+1)\)</span>
+</li>
+</ul>
+</li>
+<li>Loop on <span class="math inline">\(j\)</span>:<ul>
+<li>Complexity: <span class="math inline">\(\sum_{j=i}^n \Theta(j-i+1) = \Theta(i+2+...+n(n-i+1))\)</span>
+</li>
+<li><span class="math inline">\(\Theta\left(\frac{(n-i+1)(n-i+2)}{2}\right)\)</span></li>
+<li><span class="math inline">\(\Theta(n^3)\)</span></li>
+</ul>
+</li>
+</ul>
+<h4 id="using-separate-upper-and-lower-bounds-modified-loop-structures">Using separate upper and lower bounds: Modified loop structures</h4>
+<ul>
+<li>Loop 1<ul>
+<li><span class="math inline">\(i = 1, ..., \frac{n}{3}\)</span></li>
+<li><span class="math inline">\(j=\frac{2n}{3},...,n\)</span></li>
+<li><span class="math inline">\(k=\frac{2n}{3},...,n\)</span></li>
+<li><span class="math inline">\(\Omega(\frac{n}{3} \cdot \frac{n}{3} \cdot \frac{n}{3}) = \Omega(n^3)\)</span></li>
+</ul>
+</li>
+<li>Loop 2<ul>
+<li><span class="math inline">\(i=1,...,n\)</span></li>
+<li><span class="math inline">\(j=i+1,...,n\)</span></li>
+<li><span class="math inline">\(k=i,...,j\)</span></li>
+<li><span class="math inline">\(1 \le i \le k \le j \le n\)</span></li>
+</ul>
+</li>
+<li>Loop 3<ul>
+<li><span class="math inline">\(i=1,...,n\)</span></li>
+<li><span class="math inline">\(j=1,...,n\)</span></li>
+<li><span class="math inline">\(k=1,...,n\)</span></li>
+<li><span class="math inline">\(O(n^3)\)</span></li>
+</ul>
+</li>
+<li><span class="math inline">\(L1 \subseteq L2 \subseteq L3\)</span></li>
+<li><span class="math inline">\(\Theta(n^3)\)</span></li>
+</ul>
+<h3 id="e.g.-2">e.g. 2</h3>
+<p><img src="img/loop2.png"></p>
+<ul><li>
+<span class="math inline">\(j = i, \frac{i}{2}, \frac{i}{4}, \frac{i}{8}, ..., 1\)</span><ul>
+<li>Number of iterations: <span class="math inline">\(\log_{2} i\)</span>
+</li>
+<li><span class="math inline">\(\Theta(\log(1*2*3*...*n))\)</span></li>
+<li><span class="math inline">\(\Theta(\log(n!))\)</span></li>
+<li><span class="math inline">\(\Theta(n\log n)\)</span></li>
+</ul>
+</li></ul>
+<h2 id="recurrence-relations">Recurrence Relations</h2>
+<p>A formula expressing the general term <span class="math inline">\(a_n\)</span> in terms of previous terms. <strong>Solving</strong> refers to finding a formula that is not recursive</p>
+<h2 id="recursion-tree-method">Recursion tree method</h2>
+<p>e.g. for a recurrence relation:<br>
+<span class="math display">\[T(n) = \begin{cases}
+aT\left(\frac{n}{b}\right) + cn, &amp;n &amp;gt 1\\
+d, &amp;\text{otherwise}
+\end{cases}\]</span></p>
+<ol>
+<li>Start with one node tree having the value <span class="math inline">\(T(n)\)</span>
+</li>
+<li>Grow to <span class="math inline">\(a\)</span> children. Each of these have values <span class="math inline">\(\frac{n}{b}\)</span>.</li>
+<li>Repeat recursively until you reach <span class="math inline">\(T(1) = d\)</span>
+</li>
+</ol>
+<h3 id="e.g.-mergesort">e.g. Mergesort</h3>
+<p>For the relation:<br>
+<span class="math display">\[T(n) = \begin{cases}
+2T\left(\frac{n}{2}\right) + cn, &amp;n &amp;gt 1 \text{ is a power of 2 }\\
+d, n=1
+\end{cases}\]</span></p>
+<p><img src="img/recursion_tree.png"></p>
+<p>Row <span class="math inline">\(i\)</span> has <span class="math inline">\(2^i\)</span> nodes with value <span class="math inline">\(\frac{cn}{2^i}\)</span>.</p>
+<p>Given <span class="math inline">\(n=2^j\)</span> for some <span class="math inline">\(j\)</span>, the tree wil have <span class="math inline">\(j\)</span> rows.</p>
+<p><span class="math display">\[\begin{align*}
+\text{Total} &amp;= j(c) + d2^j\\
+&amp;= (\log_{2} n)c + dn
+\end{align*}\]</span></p>
+<h2 id="master-theorem">Master theorem</h2>
+<p>For a recurrence relation in the form:</p>
+<p><span class="math display">\[T(n) = aT\left(\frac{n}{b}\right) + \Theta(n^y), \quad a\ge 1, b \gt 1\]</span></p>
+<p>Where <span class="math inline">\(n\)</span> is a power of <span class="math inline">\(b\)</span>. Define <span class="math inline">\(x=\log_b{a}\)</span>. Then:</p>
+<p><span class="math display">\[T(n) \in \begin{cases}
+\Theta(n^x), &amp;y \lt x\\
+\Theta(n^x \log n), &amp;y = x\\
+\Theta(n^y), &amp;y \gt x\\
+\end{cases}\]</span></p>
+<h3 id="modified-general-version">Modified general version</h3>
+<p>For a recurrence relation in the form:</p>
+<p><span class="math display">\[T(n) = aT\left(\frac{n}{b}\right) + f(n)\]</span></p>
+<p>Where <span class="math inline">\(n\)</span> is a power of <span class="math inline">\(b\)</span>. Define <span class="math inline">\(x=\log_b{a}\)</span>. Then:</p>
+<p><span class="math display">\[T(n) \in \begin{cases}
+\Theta(n^x), &amp;\exists \epsilon \gt 0 \mid f(n) \in O(n^{x-\epsilon})\\
+\Theta(n^x \log n), &amp;f(n) \in \Theta(n^x)\\
+\Theta(f(n)), &amp;\exists \epsilon &gt; 0 \mid \frac{f(n)}{n^{x+\epsilon}} \text{ is increasing }\\
+\end{cases}\]</span></p>
+<h3 id="e.g.">e.g.</h3>
+<p><span class="math display">\[T(n) = 3T\left(\frac{n}{4}\right) + n\log n\]</span></p>
+<p><span class="math display">\[\begin{align*}
+x &amp;= \log_b a\\
+&amp;= \log_4 3\\
+&amp;\approx 0.793\\
+\\
+\text{Let } \epsilon &amp;= 0.1\\
+\\
+\frac{f(n)}{n^{x+\epsilon}} &amp;= \frac{n^1 \log n}{n^{0.793+\epsilon}}\\
+&amp;= \frac{n^1 \log n}{n^{0.893}}\\
+\text{This is an increasing function,} &amp;\therefore \text{ case 3 applies }\\
+&amp;\Rightarrow T(n) \in \Theta(n\log(n))\\
+\end{align*}\]</span></p>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

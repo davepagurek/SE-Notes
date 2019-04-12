@@ -1,0 +1,287 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<title>Frequency Domain Methods for Stability Analysis</title>
+</head>
+<body>
+
+<h1 id="frequency-domain-methods-for-stability-analysis">Frequency Domain Methods for Stability Analysis</h1>
+<a href="index.html">Back to se380</a>
+<div id="TOC">
+
+<ul>
+<li>
+<a href="#cauchys-principle-of-the-argument">8.1 Cauchy's Principle of the Argument</a><ul>
+<li><a href="#e.g.-8.1.1">e.g. 8.1.1</a></li>
+<li><a href="#e.g.-8.1.2">e.g. 8.1.2</a></li>
+<li><a href="#e.g.-8.1.3">e.g. 8.1.3</a></li>
+<li><a href="#theorem">Theorem</a></li>
+</ul>
+</li>
+<li><a href="#nyquist-contour">Nyquist Contour</a></li>
+<li>
+<a href="#nyquist-stability-criterion">Nyquist stability criterion</a><ul>
+<li><a href="#theorem-1">Theorem</a></li>
+<li><a href="#proof-1">Proof</a></li>
+<li><a href="#remarks">Remarks</a></li>
+<li><a href="#procedure-for-applying-the-nyquist-criterion">Procedure for applying the Nyquist criterion</a></li>
+</ul>
+</li>
+<li>
+<a href="#stability-margins-revisited">Stability margins, revisited</a><ul>
+<li><a href="#phase-margin">Phase margin</a></li>
+<li><a href="#e.g.-8.4.1">e.g. 8.4.1</a></li>
+<li><a href="#gain-margin">Gain Margin</a></li>
+<li><a href="#e.g.-8.4.3">e.g. 8.4.3</a></li>
+<li><a href="#stability-margin">Stability Margin</a></li>
+<li><a href="#e.g.-8.4.5">e.g. 8.4.5</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="cauchys-principle-of-the-argument">8.1 Cauchy's Principle of the Argument</h2>
+<p>Consider a closed curve in the <span class="math inline">\(s\)</span>-plane with no self-intersections and with negative (clockwise) orientation.</p>
+<p><img src="img/cauchycurve.png"></p>
+<p>Now let <span class="math inline">\(G(s) \in \mathbb{R}(s)\)</span>. For each <span class="math inline">\(s \in \mathbb{C}\)</span>, <span class="math inline">\(G(s)\)</span> is another complex number, so <span class="math inline">\(G: \mathbb{C} \rightarrow \mathbb{C}\)</span></p>
+<p>If <span class="math inline">\(\Gamma_s\)</span> doesn't pass through any poles of <span class="math inline">\(G\)</span>, then as <span class="math inline">\(s\)</span> makes a circuit around <span class="math inline">\(\Gamma_s\)</span>, <span class="math inline">\(G(s)\)</span> traces out a different closed curve that we'll call <span class="math inline">\(\Gamma_G\)</span>.</p>
+<h3 id="e.g.-8.1.1">e.g. 8.1.1</h3>
+<p><span class="math display">\[G(s) = s-1\]</span><br>
+<img src="img/eg811.png"></p>
+<p>Since <span class="math inline">\(\Gamma_s\)</span> encircles a zero of <span class="math inline">\(G\)</span>, the angle of <span class="math inline">\(G\)</span> will change by <span class="math inline">\(-2\pi\)</span> as <span class="math inline">\(s\)</span> makes a circuit around <span class="math inline">\(\Gamma_s\)</span>.</p>
+<h3 id="e.g.-8.1.2">e.g. 8.1.2</h3>
+<p><span class="math display">\[G(s) = s-1\]</span></p>
+<p><img src="img/eg812.png"></p>
+<p>Now the net change in <span class="math inline">\(\angle G(s)= \angle(s-1)\)</span> as <span class="math inline">\(s\)</span> moves around <span class="math inline">\(\Gamma_s\)</span> is zero. This means that <span class="math inline">\(\Gamma_G\)</span> does not encircle the origin.</p>
+<h3 id="e.g.-8.1.3">e.g. 8.1.3</h3>
+<p><span class="math display">\[G(s) = \frac{1}{s-1}\]</span></p>
+<p><img src="img/eg813.png"></p>
+<p><span class="math inline">\(\angle(s-a) = -\angle G\)</span> because the pole is in the denominator.</p>
+<p>Now, <span class="math inline">\(\angle (s-1)\)</span> changes by <span class="math inline">\(-(-2\pi)=2\pi\)</span> as the point makes a circuit aorund <span class="math inline">\(\Gamma_s\)</span>. Therefore, <span class="math inline">\(\Gamma_G\)</span> must have a net angular change of <span class="math inline">\(2\pi\)</span> as <span class="math inline">\(s\)</span> moves around <span class="math inline">\(\Gamma_s\)</span>. <span class="math inline">\(\Gamma_G\)</span> must encircle the origin once.</p>
+<h3 id="theorem">Theorem</h3>
+<p>Suppose <span class="math inline">\(G(s) \in \mathbb{R}(s)\)</span> has no poles or zeroes on <span class="math inline">\(\Gamma_s\)</span>, but <span class="math inline">\(\Gamma_s\)</span> encircles <span class="math inline">\(n\)</span> poles of <span class="math inline">\(G\)</span> and <span class="math inline">\(m\)</span> zeroes of <span class="math inline">\(G\)</span>. Then, <span class="math inline">\(\Gamma_g\)</span> has <span class="math inline">\(n-m\)</span> counter-clockwise encirclements of the origin.</p>
+<h4 id="proof">Proof</h4>
+<p>Write <span class="math inline">\(G\)</span> like so:<br>
+<span class="math display">\[G(s) = K \frac{\prod_i (s-z_i)}{\prod_i (s - p_i)}\]</span><br>
+<span class="math inline">\(K\)</span> is a real gain, <span class="math inline">\(z_i\)</span> are zeroes, and <span class="math inline">\(p_i\)</span> are poles. Then, for each <span class="math inline">\(s\)</span> on <span class="math inline">\(\Gamma_s\)</span>:<br>
+<span class="math display">\[\angle G(s) = \angle K + \sum \angle(s-z_i) - \sum \angle (s-p_i)\]</span></p>
+<p>If the zero <span class="math inline">\(z_i\)</span> is enclosed by <span class="math inline">\(\Gamma_s\)</span>, the net change in the term <span class="math inline">\(\angle(s-z_i)\)</span> after one circuit around <span class="math inline">\(\Gamma_s\)</span> is <span class="math inline">\(-2\pi\)</span>. If <span class="math inline">\(z_i\)</span> isn't enclosed, the net change is zero.</p>
+<p>So, the net change in <span class="math inline">\(\angle G\)</span> is <span class="math inline">\(m(-2\pi) - n(-2\pi) = (n-m)2\pi\)</span>.</p>
+<p><span class="math inline">\(\Gamma_G\)</span> must encircle the origin <span class="math inline">\(n-m\)</span> times in the counterclockwise direction.</p>
+<p><img src="img/cachyeg.png"></p>
+<h2 id="nyquist-contour">Nyquist Contour</h2>
+<p>Take <span class="math inline">\(\Gamma_s\)</span> to encircle the whole right-half plane</p>
+<p><img src="img/nyquist.png"></p>
+<p>For this choice of <span class="math inline">\(\Gamma_S\)</span>, the corresponding curve <span class="math inline">\(\Gamma_G\)</span> is called the <strong>Nyquist plot</strong> of <span class="math inline">\(G\)</span>. If <span class="math inline">\(G\)</span> has no poles or zeroes <strong>on</strong> <span class="math inline">\(\Gamma_s\)</span>, then by the principle of the argument, the Nyquist plot will encircle the origin <span class="math inline">\(n-m\)</span> times in counterclockwise direction.</p>
+<p><span class="math inline">\(n\)</span> is the number of poles of <span class="math inline">\(G\)</span> with <span class="math inline">\(\Re(s) \gt 0\)</span>, <span class="math inline">\(m\)</span> is the number of zeroes of <span class="math inline">\(G\)</span> with <span class="math inline">\(\Re(s) \gt 0\)</span>.</p>
+<p>If <span class="math inline">\(G\)</span> has poles on <span class="math inline">\(j\mathbb{R}\)</span>, we'll indent around them.</p>
+<p><img src="img/nyquistndent.png"></p>
+<h2 id="nyquist-stability-criterion">Nyquist stability criterion</h2>
+<p><img src="img/nyquiststabilitysystem.png"></p>
+<p>Assuming <span class="math inline">\(C,P\)</span> are rational:</p>
+<ol>
+<li>
+<span class="math inline">\(P,C\)</span> are proper, <span class="math inline">\(CP\)</span> strictly proper</li>
+<li>No unstable pole-zero cancellations</li>
+<li><span class="math inline">\(K \ne 0\)</span></li>
+</ol>
+<p>Key idea: if the system is IO stable, then the poles of <span class="math inline">\(\frac{Y(s)}{R(s)} = \frac{KC(s)P(s)}{1+KC(s)P(s)}\)</span> must all be in <span class="math inline">\(\mathbb{C}^-\)</span>. So, we'll work with the transfer function <span class="math inline">\(G(s)=1+KC(s)P(s)\)</span>.</p>
+<h3 id="theorem-1">Theorem</h3>
+<p>Let <span class="math inline">\(n\)</span> denote the number of poles of <span class="math inline">\(C(s)P(s)\)</span> in <span class="math inline">\(\mathbb{C}^+\)</span>. Construct the Nyquist plot of <span class="math inline">\(C(s)P(s)\)</span> indenting to the right around any poles on the imaginary axis. The feedback system is IO stable if and only if the Nyquist plot doesn't pass through <span class="math inline">\(\frac{-1}{K}\)</span> and encircles <span class="math inline">\(\frac{-1}{K}\)</span> exactly <span class="math inline">\(n\)</span> times counterclockwise.</p>
+<h3 id="proof-1">Proof</h3>
+<p><span class="math display">\[\frac{Y(s)}{R(s)} = \frac{KC(s)P(s)}{G(s)}\]</span><br>
+Since we've assumed no unstable pole-zero cancellations, IO stability is equivalent to <span class="math inline">\(G(s)\)</span> having no zeroes with <span class="math inline">\(\Re(s) \ge 0\)</span>. (See Theorem 5.2.10.)</p>
+<p>I.O. stability <span class="math inline">\(\Leftrightarrow \frac{KC(s)P(s)}{G(s)}\)</span> has no poles with <span class="math inline">\(\Re(s) \ge 0 \Leftrightarrow G(s)\)</span> has no <strong>zeroes</strong> with <span class="math inline">\(\Re(s) \ge 0\)</span>.</p>
+<p>Since <span class="math inline">\(G(s)=1+K\frac{N_c(s)}{D_c(s)} \frac{N_p(s)}{D_p(s)} = \frac{D_cD_p+KN_cN_p}{D_cD_p}\)</span>, so <span class="math inline">\(G\)</span> has the same poles as <span class="math inline">\(CP\)</span>. Therefore, <span class="math inline">\(G\)</span> has <span class="math inline">\(n\)</span> poles with <span class="math inline">\(\Re(s) \gt 0\)</span>.</p>
+<p>Since <span class="math inline">\(\Gamma_s\)</span> indents around poles on <span class="math inline">\(j\mathbb{R}\)</span> and since <span class="math inline">\(G\)</span> is proper, <span class="math inline">\(\Gamma_s\)</span> doesn't pass through any poles of <span class="math inline">\(G\)</span>. By the principle of the argument, <span class="math inline">\(\Gamma_G\)</span> will encircle the origin <span class="math inline">\(n-m\)</span> times in the counterclockwise direction.</p>
+<p>Since we need <strong>no</strong> zeroes with <span class="math inline">\(\Re(s) \gt 0\)</span>, we need <span class="math inline">\(m=0\)</span> for stability. Since <span class="math inline">\(C(s)P(s) = \frac{1}{K}G(s) - \frac{1}{K}\)</span>, the Nyquist plot of <span class="math inline">\(CP\)</span> is going to be the Nyquist plot of <span class="math inline">\(G\)</span> scaled (possibly by <span class="math inline">\(K\)</span>) and then shifted to the left by <span class="math inline">\(\frac{-1}{K}\)</span>.</p>
+<p>Conclusion: IO stability exists if and only if the Nyquist plot of <span class="math inline">\(CP\)</span> encircles <span class="math inline">\(\frac{-1}{K}\)</span> <span class="math inline">\(n\)</span> times in the counterclockwise direction.</p>
+<h3 id="remarks">Remarks</h3>
+<p><img src="img/nyquistremarks.png"></p>
+<p>Since <span class="math inline">\(C(s)P(s)\)</span> is rational, we have:</p>
+<ul>
+<li><span class="math inline">\(|C(j\omega)P(j\omega)| = |C(-j\omega)P(-j\omega)|\)</span></li>
+<li><span class="math inline">\(\angle C(j\omega)P(j\omega) = -\angle C(-j\omega)P(-j\omega)\)</span></li>
+<li>So the image of <span class="math inline">\(\Gamma_s\)</span> along the negative imaginary axis is a reflection about the real axis of the positive imaginary axis</li>
+<li>We see that a Nyquist plot is (aside from indentations) a polar plot of <span class="math inline">\(C(s)P(s)\)</span>. It's a plot of the curve <span class="math inline">\(\omega \rightarrow C(j\omega)P(j\omega)\)</span> as <span class="math inline">\(\omega\)</span> goes from 0 to <span class="math inline">\(\infty\)</span>
+</li>
+<li>The Bode plot of <span class="math inline">\(C(s)P(s)\)</span> is just <span class="math inline">\(20\log|C(j\omega)P(j\omega)|\)</span> and <span class="math inline">\(\angle C(j\omega)P(j\omega)\)</span> versus <span class="math inline">\(\log\omega\)</span>
+</li>
+</ul>
+<h3 id="procedure-for-applying-the-nyquist-criterion">Procedure for applying the Nyquist criterion</h3>
+<p><strong>Expect a question on the final asking to apply this</strong></p>
+<ol>
+<li>Pick <span class="math inline">\(\Gamma_s\)</span> as the Nyquist contour, indenting to the right if necessary</li>
+<li>Draw the image of <span class="math inline">\(\Gamma_s\)</span> under the map <span class="math inline">\(C(s)P(s)\)</span>
+</li>
+<li>Observe <span class="math inline">\(N\)</span>, the number of counterclockwise encirclements of <span class="math inline">\(\frac{-1}{K}\)</span> made by the Nyquist plot</li>
+<li>Apply the Principle of the Argument:<ul>
+<li><span class="math inline">\(N = n-m = \text{open loop poles in } \mathbb{C}^+ - \text{closed loop poles in } \mathbb{C}^+\)</span></li>
+<li>
+<span class="math inline">\(n\)</span> is known, <span class="math inline">\(m\)</span> is unknown</li>
+</ul>
+</li>
+<li>We have input-output stability if and only if <span class="math inline">\(N = n\)</span>
+</li>
+</ol>
+<h4 id="e.g.">e.g.</h4>
+<p><span class="math display">\[C(s)P(s)=\frac{1}{s+10}\]</span></p>
+<p><img src="img/simplenyquisteg.png"></p>
+<ul>
+<li>On segment A, we have <span class="math inline">\(s=j\omega, \omega \in [0, \infty)\)</span><ul>
+<li><span class="math inline">\(C(j\omega)P(j\omega)=\frac{1}{j\omega+10}=\frac{10-j\omega}{\omega^2+10^2}=\frac{10}{\omega^2+10}-\frac{j\omega}{\omega^2+10}\)</span></li>
+<li>Start by finding the point that 0 translates to, and seeing what direction it goes when you increase <span class="math inline">\(\omega\)</span>
+</li>
+<li>Figure out where it crosses the imaginary axis, if at all</li>
+</ul>
+</li>
+<li>Segment B: <span class="math inline">\(|s| = \infty\)</span>, so <span class="math inline">\(C(s)P(s) = 0\)</span>
+</li>
+<li>Secment C is just a reflection of segment A</li>
+<li>Set <span class="math inline">\(K=1\)</span> (for now) and observe the number <span class="math inline">\(N\)</span> of counterclockwise encirclements of <span class="math inline">\(\frac{-1}{K}\)</span> (<span class="math inline">\(N = 0\)</span>)</li>
+<li>
+<span class="math inline">\(N=n-m\)</span>, where in this case <span class="math inline">\(N=0, n=0\)</span>
+</li>
+<li>Since <span class="math inline">\(N=n\)</span>, we have closed loop stability</li>
+</ul>
+<p>We can also test for other values of <span class="math inline">\(K\)</span>:</p>
+<table style="width:11%;">
+<colgroup>
+<col width="2%">
+<col width="2%">
+<col width="2%">
+<col width="2%">
+</colgroup>
+<thead><tr class="header">
+<th></th>
+<th><span class="math inline">\(\frac{-1}{K} \in (-\infty, 0)\)</span></th>
+<th><span class="math inline">\(\frac{-1}{K} \in [0, 0.1]\)</span></th>
+<th><span class="math inline">\(\frac{-1}{K} \gt 0.1\)</span></th>
+</tr></thead>
+<tbody><tr class="odd">
+<td><span class="math inline">\(N\)</span></td>
+<td>0</td>
+<td>-1</td>
+<td>0</td>
+</tr></tbody>
+</table>
+<p>This implies it is stable for <span class="math inline">\(K \gt -10\)</span>.</p>
+<h4 id="e.g.-comparing-nyquist-to-bode">e.g. comparing Nyquist to Bode</h4>
+<p><span class="math display">\[C(s)P(s) = \frac{1}{s+10}\]</span></p>
+<p><img src="img/nyquistbodecomparison.png"></p>
+<ul>
+<li>From Bode, when <span class="math inline">\(\omega \ll 1\)</span>, <span class="math inline">\(20\log|CP| \approx -20\)</span>, i.e. <span class="math inline">\(|CP| \approx 0.1\)</span><ul><li>This is consistent with the Nyquist plot</li></ul>
+</li>
+<li>When <span class="math inline">\(\omega \ll 1\)</span>, <span class="math inline">\(\angle CP \approx 0^\circ\)</span>. Also consistent with Nyquist, which starts along the positive real axis.</li>
+<li>As <span class="math inline">\(\omega \rightarrow \infty\)</span>, <span class="math inline">\(20\log|CP| \rightarrow -\infty\)</span>, so <span class="math inline">\(|CP| \rightarrow 0\)</span>. This is consistent</li>
+<li>From Bode, <span class="math inline">\(\angle CP\)</span> is always between <span class="math inline">\(-90^\circ\)</span> and <span class="math inline">\(0^\circ\)</span>, which is consistent with the fact that Nyquist plot is always in quadrant 4.</li>
+</ul>
+<h4 id="e.g.-8.3.2">e.g. 8.3.2</h4>
+<p><span class="math display">\[C(s)P(s) = \frac{s+1}{s(s-1)}\]</span><br>
+<img src="img/eg832.png"></p>
+<p>Segment A:</p>
+<ul>
+<li>
+<span class="math inline">\(s=j\omega\)</span>, <span class="math inline">\(\omega \in [\epsilon, \infty)\)</span>, <span class="math inline">\(0\lt\epsilon\lt 1\)</span>.</li>
+<li><span class="math inline">\(C(j\omega)P(j\omega) = \frac{j\omega+1}{j\omega(j\omega-1)}=\frac{j-\omega}{\omega(1-j\omega)}=\frac{(j-\omega)(1+j\omega)}{\omega(1+\omega^2)}=\frac{-2}{1+\omega^2}+j\frac{1-\omega^2}{\omega(1+\omega^2)}\)</span></li>
+<li>When <span class="math inline">\(s = j\epsilon\)</span>, <span class="math inline">\(C(j\epsilon)P(j\epsilon) \approx -2 \underbrace{+}_\text{key!} j\infty\)</span>
+</li>
+<li>When <span class="math inline">\(\omega=1\)</span> (<span class="math inline">\(s=j\)</span>), <span class="math inline">\(C(j)P(j)=-1+0j\)</span>
+</li>
+<li>For all <span class="math inline">\(\omega \gt 1\)</span>, <span class="math inline">\(\Re(CP) \lt 0\)</span> and <span class="math inline">\(\Im(CP) \lt 0\)</span>
+</li>
+</ul>
+<p>Segment B:</p>
+<ul><li>
+<span class="math inline">\(|s|=\infty\)</span>, so <span class="math inline">\(|PC|=0\)</span>
+</li></ul>
+<p>Segment C:</p>
+<ul><li>Reflection of segment <span class="math inline">\(A\)</span> about the real axis</li></ul>
+<p>Segment D:</p>
+<ul>
+<li>
+<span class="math inline">\(s=\epsilon e^{j\theta}\)</span>, <span class="math inline">\(\theta \in [-\frac{\pi}{2}, \frac{\pi}{2}]\)</span>
+</li>
+<li>It's clear that <span class="math inline">\(|PC|=\infty\)</span> along segment D.</li>
+<li>We want to know if it moves clockwise or counterclockwise as <span class="math inline">\(\theta\)</span> goes from <span class="math inline">\(-\frac{\pi}{2}\)</span> to <span class="math inline">\(\frac{\pi}{2}\)</span>
+</li>
+<li><span class="math inline">\(C(\epsilon e^{j\theta})P(\epsilon e^{j\theta}) = \frac{\epsilon e^{j\theta}+1}{\epsilon e^{j\theta}(\epsilon e^{j\theta}-1)} \approx \frac{1}{\epsilon e^{j\theta}(-1)} = \frac{-1}{\epsilon e^{j\theta}} = \frac{-\epsilon e^{-j\theta}}{\epsilon} = \frac{e^{j\pi} e^{-j\theta}}{\epsilon}=\frac{e^{j(\pi-\theta)}}{\epsilon}\)</span></li>
+</ul>
+<p>Observe the number of counterclockwise encirclements of <span class="math inline">\(\frac{-1}{K}\)</span>:</p>
+<table style="width:11%;">
+<colgroup>
+<col width="2%">
+<col width="2%">
+<col width="2%">
+<col width="2%">
+</colgroup>
+<thead><tr class="header">
+<th></th>
+<th><span class="math inline">\(-\infty \lt \frac{-1}{K} \lt -1\)</span></th>
+<th><span class="math inline">\(-1 \lt \frac{-1}{K} \lt 0\)</span></th>
+<th><span class="math inline">\(0 \lt \frac{-1}{K} \lt \infty\)</span></th>
+</tr></thead>
+<tbody><tr class="odd">
+<td><span class="math inline">\(N\)</span></td>
+<td>-1</td>
+<td>+1</td>
+<td>0</td>
+</tr></tbody>
+</table>
+<p>Since we have <span class="math inline">\(n=1\)</span>, we need <span class="math inline">\(N=1\)</span> for input-output stability. Therefore, <span class="math inline">\(K \gt 1\)</span>.</p>
+<h2 id="stability-margins-revisited">Stability margins, revisited</h2>
+<p>If a system is stable, how stable?</p>
+<h3 id="phase-margin">Phase margin</h3>
+<p>Nominal model: <span class="math inline">\(\phi=0\)</span>, input-output stability</p>
+<p>How much phase change <span class="math inline">\(\phi\)</span> can I tolerate before losing IO stability? Recall that <span class="math inline">\(|e^{j\phi}|=1\)</span>, <span class="math inline">\(\angle e^{j\phi}=\phi\)</span></p>
+<h3 id="e.g.-8.4.1">e.g. 8.4.1</h3>
+<p><span class="math display">\[L(s) = \frac{1}{(s+1)^2}\]</span></p>
+<p><span class="math inline">\(n=0\)</span>, so we need zero counterclockwise encirclements of -1 to get IO stability.</p>
+<p><img src="img/eg841.png"></p>
+<ul>
+<li>If we rotate the Nyquist plot by <span class="math inline">\(-\frac{\pi}{2}\)</span>, we get <span class="math inline">\(N=1\)</span> and lose IO stability.</li>
+<li>Therefore the phase margin is around 90 degrees</li>
+</ul>
+<p><img src="img/eg841bode.png"></p>
+<h3 id="gain-margin">Gain Margin</h3>
+<p>Nominal design: <span class="math inline">\(K=1\)</span>, IO stable. How much gain can we change <span class="math inline">\(K\)</span> by before we lose stability?</p>
+<h3 id="e.g.-8.4.3">e.g. 8.4.3</h3>
+<p><span class="math display">\[ L(s)=\frac{2}{(s+1)^2\left(\frac{s}{10}+1\right)}\]</span></p>
+<p><span class="math inline">\(n=0\)</span> (no open-loop unstable poles), so we need <span class="math inline">\(N=0\)</span> counterclockwise encirclements of -1 for IO stability.</p>
+<p><img src="img/eg843.png"></p>
+<p>From the Nyquist criterion, the nominal model is IO stable. The system remains stable so long as <span class="math inline">\(\frac{-1}{K} \lt \frac{-1}{12.1}\)</span>. This means we can increase <span class="math inline">\(K\)</span> up to 12.1 before losing stability. This value of <span class="math inline">\(K\)</span> is called the gain margin.</p>
+<p><img src="img/eg843bode.png"></p>
+<h3 id="stability-margin">Stability Margin</h3>
+<p>Phase margin is related to the distance on the Nyquist plot from to -1, measured as a rotation along the unit circle.</p>
+<p>Gain margin is the distance on the Nyquist plot to -1 along the real axis.</p>
+<p>More generally, we'll want to use the Euclidean <strong>distance</strong> from the Nyquist plot to -1 as a measure of stability.</p>
+<h3 id="e.g.-8.4.5">e.g. 8.4.5</h3>
+<p><span class="math display">\[L(s) = \frac{0.38(s^2+0.1s+0.55)}{s(s+1)(s^2+0.06s+0.5)}\]</span></p>
+<p><span class="math inline">\(n=0\)</span> so we need <span class="math inline">\(N=0\)</span> counterclockwise encirclements of -1.</p>
+<p><img src="img/eg845.png"></p>
+<ul>
+<li>good phase margin (<span class="math inline">\(\approx 70^\circ\)</span>)</li>
+<li>infinite gain margin (<span class="math inline">\(K_{gm}=\infty\)</span>)</li>
+<li>based on the above, we would conclude that the design is robust</li>
+<li>from the Nyquist plot we see that we're actually pretty close to encircling -1.</li>
+</ul>
+<p>Consider for a moment our normal feedback system with no disturbances. The transfer function from <span class="math inline">\(r\)</span> to <span class="math inline">\(e\)</span>:<br>
+<span class="math display">\[\frac{E(s)}{R(s)} = \frac{1}{1+P(s)C(s)} =: S(s)\]</span></p>
+<p>Assume IO stability. Then the distance from <span class="math inline">\(L=CP\)</span> to -1 is:<br>
+<span class="math display">\[\begin{align}
+\min_\omega \left|-1-L(j\omega)\right| &amp;= \min_\omega \left|-1-CP\right|\\
+&amp;= \left(\max_\omega \left|\frac{1}{1+CP}\right|\right)^{-1}\\
+&amp;= \left(\max_\omega \left|S(j\omega)\right|\right)^{-1}\\
+\end{align}\]</span></p>
+<p>So, the distance from the Nyquist plot to -1 is the reciprocal of the peak magnitude of the Bode plot of <span class="math inline">\(S\)</span>. We'll call this <span class="math inline">\(S_m\)</span>, for <strong>stability margin</strong>.</p>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

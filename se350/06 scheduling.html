@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+<title>Uniprocessor Scheduling</title>
+</head>
+<body>
+
+<h1 id="uniprocessor-scheduling">Uniprocessor Scheduling</h1>
+<a href="index.html">Back to se350</a>
+<div id="TOC">
+
+<ul>
+<li><a href="#priority-queueing">Priority Queueing</a></li>
+<li>
+<a href="#multiprogramming">Multiprogramming</a><ul>
+<li><a href="#first-come-first-served">First-come-first-served</a></li>
+<li><a href="#round-robin-time-slicing">Round Robin (Time Slicing)</a></li>
+<li><a href="#shortest-process-next">Shortest process next</a></li>
+<li><a href="#shortest-remaining-time">Shortest Remaining Time</a></li>
+<li><a href="#highest-response-ratio-next">Highest Response Ratio Next</a></li>
+<li><a href="#feedback-based">Feedback-based</a></li>
+<li><a href="#fair-share">Fair Share</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="priority-queueing">Priority Queueing</h2>
+<ul>
+<li>scheduler will always choose higher priority processes over lower priority ones</li>
+<li>use multiple ready queues to represent multiple leverls of priority</li>
+<li>lower priority may be starved</li>
+</ul>
+<h2 id="multiprogramming">Multiprogramming</h2>
+<ul>
+<li>nonpreemptive: once a process is in the running state, it continues until it terminates or gets blocked</li>
+<li>preemptive: current process may be interrupted and moved to ready state by OS. allows for better service since no one can monopolize the processor for too long</li>
+<li>cooperative</li>
+</ul>
+<h3 id="first-come-first-served">First-come-first-served</h3>
+<ul>
+<li>Non-preemptive</li>
+<li>each process joins the ready queue</li>
+<li>when the current process finishes, the oldest one in the queue is picked to run next</li>
+<li>short process may have to wait a long time before execution</li>
+<li>favors CPU-bound processes</li>
+</ul>
+<h3 id="round-robin-time-slicing">Round Robin (Time Slicing)</h3>
+<ul>
+<li>Uses clock-based preemption</li>
+<li>Clock interrupt is generated at periodic intervals</li>
+<li>when interrupt occurs, the currently running process is put in the ready queue and next job is selected</li>
+<li>quantum size should be around the same size as the typical time of what they do between calls (e.g. UI)</li>
+</ul>
+<h3 id="shortest-process-next">Shortest process next</h3>
+<ul>
+<li>non preemptive</li>
+<li>process with shortest expected processing time is selected next based on estimation</li>
+<li>shorter porcesses jump ahead of larger ones</li>
+<li>predicatability of longer processes is reduced</li>
+<li>if estimation isn't correct, the OS can abort the process</li>
+<li>possible starvation of larger processe</li>
+<li>limitation: knowing service time</li>
+</ul>
+<h3 id="shortest-remaining-time">Shortest Remaining Time</h3>
+<ul>
+<li>preemptive version of SPN policy</li>
+<li>Must estimate processing time</li>
+<li>starvation of long processes still</li>
+</ul>
+<h3 id="highest-response-ratio-next">Highest Response Ratio Next</h3>
+<ul>
+<li>Choose next process with greatest ratio of time spent waiting to how much time the system will spend executing</li>
+<li>accounts for aging to prevent starvation</li>
+</ul>
+<h3 id="feedback-based">Feedback-based</h3>
+<p>penalize jobs that run longer<br>
+each time you are preemptive you go into a lower and lower priority queue</p>
+<h3 id="fair-share">Fair Share</h3>
+<ul><li>schedules processes as groups so if something spawns a bunch of processes, it doesnt get better treatement in the scheduler</li></ul>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

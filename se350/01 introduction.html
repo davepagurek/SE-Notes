@@ -1,0 +1,180 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+<title>What is an OS?</title>
+</head>
+<body>
+
+<h1 id="what-is-an-os">What is an OS?</h1>
+<a href="index.html">Back to se350</a>
+<div id="TOC">
+
+<ul>
+<li>
+<a href="#registers">Registers</a><ul>
+<li><a href="#user-visible-registers">User-visible registers</a></li>
+<li><a href="#control-and-status-registers">Control and status registers</a></li>
+<li><a href="#condition-codes-and-flags">Condition codes and Flags</a></li>
+</ul>
+</li>
+<li>
+<a href="#instruction-execution">Instruction execution</a><ul><li><a href="#instruction-register">Instruction Register</a></li></ul>
+</li>
+<li>
+<a href="#interrupts">Interrupts</a><ul>
+<li><a href="#new-processor-flow">New processor flow</a></li>
+<li><a href="#direct-memory-access-dma">Direct Memory Access (DMA)</a></li>
+</ul>
+</li>
+<li>
+<a href="#memory-hierarchy">Memory Hierarchy</a><ul>
+<li><a href="#cache-memory">Cache memory</a></li>
+<li><a href="#symmetric-multiprocessing-smp">Symmetric Multiprocessing (SMP)</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<ul>
+<li>Originally, hardware is expensive, people are cheap<ul><li>Goal: maximize hardware usage</li></ul>
+</li>
+<li>Now, we have cheap hardware, people are expensive<ul>
+<li>Optimize for making things easier to use for people</li>
+<li>Provides a common way of doing things / interface</li>
+</ul>
+</li>
+</ul>
+<p>An OS is a standardized abstraction: a VM implemented on the underlying machine</p>
+<p>What do you need in a computer?</p>
+<ul>
+<li>One or more CPUs</li>
+<li>memory</li>
+<li>I/O modules</li>
+<li>timer(s)</li>
+<li>interrupt controller</li>
+<li>system bus connecting them</li>
+</ul>
+<h2 id="registers">Registers</h2>
+<h3 id="user-visible-registers">User-visible registers</h3>
+<ul>
+<li>Enable programmer to minimize references to memory</li>
+<li>available to all programs</li>
+<li>depends on computer architecture</li>
+<li>maybe be referenced by machine language</li>
+<li>Usually controlled by the compiler</li>
+<li>Two types:<ul>
+<li>
+<strong>Data registers:</strong> stores data (results from calculations, etc)</li>
+<li>
+<strong>Address registers:</strong> points to memory<ul>
+<li>Indexed addressing (Add an index to a base value to get an effective address)</li>
+<li>Segmented pointer (when memory is divided into segments, memory is referenced with a segment + offset)</li>
+<li>Stack pointer</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="control-and-status-registers">Control and status registers</h3>
+<ul>
+<li>Invisible to the user on most architectures</li>
+<li>used by processor to control operating of computer</li>
+<li>Used by privileged OS routines to control execution</li>
+</ul>
+<h3 id="condition-codes-and-flags">Condition codes and Flags</h3>
+<ul>
+<li>Part of Program Status Word (PSW)</li>
+<li>Bits set by processor hardware as a result of operations</li>
+<li>e.g. positive, negative, zero, overflow as results of arithmetic</li>
+<li>Conditional branching uses this</li>
+<li>Only implicitly accessible on most architectures</li>
+</ul>
+<h2 id="instruction-execution">Instruction execution</h2>
+<p>Simple:</p>
+<ol>
+<li>Processor fetches from memory</li>
+<li>Processor executes</li>
+<li>Goto 1</li>
+</ol>
+<p>Reality:</p>
+<ul>
+<li>Pipeline</li>
+<li>Very Long Instruction Word</li>
+<li>superscalar architectures</li>
+</ul>
+<h3 id="instruction-register">Instruction Register</h3>
+<ul>
+<li>Fetched instruction put in IR</li>
+<li>action category dictated by instruction</li>
+</ul>
+<h2 id="interrupts">Interrupts</h2>
+<ul>
+<li>Most IO devices are slower than processor by a LOT<ul><li>Processor must pause to wait</li></ul>
+</li>
+<li>Interrupts help improve processor utilization</li>
+<li>Changes normal processor sequence</li>
+<li>types:<ul>
+<li>program (condition that occurs as a result of an instruction execution, e.g. division by zero)</li>
+<li>timer (from timer in processor)</li>
+<li>IO (from IO controller)</li>
+<li>hardware failure (e.g. power failure)</li>
+</ul>
+</li>
+</ul>
+<h3 id="new-processor-flow">New processor flow</h3>
+<ul>
+<li>Processor checks for interrupts</li>
+<li>If interrupt:<ul>
+<li>suspend program execution (store snapshot)</li>
+<li>execute interrupt handler routine</li>
+<li>resume execution (restore snapshot)</li>
+</ul>
+</li>
+</ul>
+<p>This is a simplified version, does not account for nested interrupts, interrupt priorities, counting interrupts, etc</p>
+<h3 id="direct-memory-access-dma">Direct Memory Access (DMA)</h3>
+<ul>
+<li>allows hardware subsystems to access RAM without going through the CPU</li>
+<li>transfers block of memory directly to device</li>
+</ul>
+<h2 id="memory-hierarchy">Memory Hierarchy</h2>
+<p>Traversing heirarchy:</p>
+<ul>
+<li>Decreasing cost per bit</li>
+<li>increasing capacity</li>
+<li>increasing access time</li>
+<li>decreasing frequency of access</li>
+</ul>
+<h3 id="cache-memory">Cache memory</h3>
+<ul>
+<li>typically invisible to OS</li>
+<li>Processor accesses memory at least once per instruction cycle</li>
+<li>Executing is limited by memory cycle time<ul><li>hint: figure out what flash wait states are for your project MCU</li></ul>
+</li>
+<li>Use locality for small, fast memory<ul><li>memory accesses close in time typically are close in space</li></ul>
+</li>
+<li>Caches contain a copy of a portion of main memory</li>
+<li>Processor first checks cache, and if not found, block is read into cache</li>
+<li>Has a replacement algorithm (e.g. least recently used, least frequently used, etc)</li>
+<li>Has a write policy (e.g. write back, write through)</li>
+</ul>
+<h3 id="symmetric-multiprocessing-smp">Symmetric Multiprocessing (SMP)</h3>
+<ul>
+<li>Processors share:<ul>
+<li>same main memory</li>
+<li>access to IO</li>
+</ul>
+</li>
+<li>connected by bus</li>
+<li>integrated operating system provides interaction between processors and their programs</li>
+</ul>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

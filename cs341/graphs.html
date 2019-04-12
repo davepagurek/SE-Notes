@@ -1,0 +1,367 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<title>Graph Algorithms</title>
+</head>
+<body>
+
+<h1 id="graph-algorithms">Graph Algorithms</h1>
+<a href="index.html">Back to cs341</a>
+<div id="TOC">
+
+<ul>
+<li>
+<a href="#adjacency-matrices">Adjacency Matrices</a><ul><li><a href="#properties">Properties</a></li></ul>
+</li>
+<li><a href="#adjacency-lists">Adjacency Lists</a></li>
+<li>
+<a href="#breadth-first-search">Breadth-first Search</a><ul>
+<li><a href="#shortest-paths">Shortest paths</a></li>
+<li><a href="#bipartite-graphs">Bipartite graphs</a></li>
+</ul>
+</li>
+<li>
+<a href="#depth-first-search">Depth-first Search</a><ul>
+<li><a href="#classification-of-edges">Classification of edges</a></li>
+<li><a href="#properties-1">Properties</a></li>
+<li><a href="#topological-orderings">Topological orderings</a></li>
+<li><a href="#strongly-connected-components">Strongly connected components</a></li>
+</ul>
+</li>
+<li>
+<a href="#minimum-spanning-trees-prims-algorithm">Minimum Spanning Trees (Prim's Algorithm)</a><ul>
+<li><a href="#algorithm">Algorithm</a></li>
+<li><a href="#implementation">Implementation</a></li>
+</ul>
+</li>
+<li><a href="#single-source-shortest-path">Single Source Shortest Path</a></li>
+<li><a href="#shortest-path-in-dag">Shortest path in DAG</a></li>
+<li>
+<a href="#all-pairs-shortest-paths">All Pairs Shortest Paths</a><ul><li><a href="#algorithms">Algorithms</a></li></ul>
+</li>
+</ul>
+</div>
+<p>In general, we call the number of vertices <span class="math inline">\(n\)</span> and the number of edges <span class="math inline">\(m\)</span>. Edges <span class="math inline">\(E\)</span> consist of sets of two vertices <span class="math inline">\(\{u,w\}, u \ne w\)</span>. The number of edges <span class="math inline">\(m \le \binom{n}{2}\)</span>. A graph can be defined as vertices and edges, <span class="math inline">\(G=(V,E)\)</span>.</p>
+<p>A <strong>Directed graph</strong> or <strong>digraph</strong> has edges (called <strong>arcs</strong> in this case) as an ordered pair <span class="math inline">\((u,w)\)</span> instead of a set, with the arrow going from the tail <span class="math inline">\(u\)</span> to the head <span class="math inline">\(w\)</span>.</p>
+<p><span class="math inline">\(m \le n^2\)</span>.</p>
+<h2 id="adjacency-matrices">Adjacency Matrices</h2>
+<p>The adjacency matrix of a graph <span class="math inline">\(G\)</span> is an <span class="math inline">\(n \times n\)</span> matrix <span class="math inline">\(A=(a_{u,v})\)</span>, which is indexed by <span class="math inline">\(V\)</span>, such that:<br>
+<span class="math display">\[a_{u,v} = \begin{cases}
+1, &amp;\{u,v\} \in E\\
+0, &amp;\text{otherwise}
+\end{cases}\]</span></p>
+<p>There are exactly <span class="math inline">\(2m\)</span> etries in <span class="math inline">\(A\)</span> equal to 1.</p>
+<p>If <span class="math inline">\(G\)</span> is a digraph, then:<br>
+<span class="math display">\[a_{u,v}=\begin{cases}
+1, &amp;(u,v) \in E\\
+0, &amp;\text{otherwise}
+\end{cases}\]</span></p>
+<p>Storage requirement: <span class="math inline">\(O(n^2)\)</span>.</p>
+<h3 id="properties">Properties</h3>
+<ul>
+<li>Every element in the matrix is either 0 or 1 (are these vertices connected or not)</li>
+<li>In undirected graphs, the matrix is symmetric (<span class="math inline">\(u\)</span> is connected to <span class="math inline">\(v\)</span> and <span class="math inline">\(v\)</span> is connected to <span class="math inline">\(u\)</span> for an edge <span class="math inline">\(uv\)</span>)</li>
+<li>For undirected graphs, diagonal entries are all 0 because a vertex can't be connected to itself by an edge. We allow loops in directed graphs.</li>
+<li>In undirected graphs, the number of 1s int he graph is equal to <span class="math inline">\(2m\)</span>. In directed graphs, the number of 1s is equal to <span class="math inline">\(m\)</span>.</li>
+</ul>
+<h2 id="adjacency-lists">Adjacency Lists</h2>
+<p>The adjacency list of <span class="math inline">\(G\)</span> is <span class="math inline">\(n\)</span> linked lists. For every <span class="math inline">\(u \in V\)</span>, there is a linked list named <span class="math inline">\(Adj[u]\)</span>.</p>
+<p>For every <span class="math inline">\(v \in V\)</span> such that <span class="math inline">\(uv \in E\)</span>, there is a node in <span class="math inline">\(Adj[u]\)</span> labelled <span class="math inline">\(v\)</span> (for both graphs and digraphs).</p>
+<p>In an undirected graph, every edge <span class="math inline">\(uv\)</span> corresponds to a node in two linked lists: for edge <span class="math inline">\(uv, \exists v \in Adj[u]\)</span> and <span class="math inline">\(\exists u \in Adj[v]\)</span>.</p>
+<p>In a directed graph, every edge corresponds to a node in only one adjacency list.</p>
+<h2 id="breadth-first-search">Breadth-first Search</h2>
+<ul>
+<li>Uses a queue</li>
+<li>Looks at elements in one layer of the graph at a time before going to the next layer down (visiting the children of the nodes in the previous layer), starting from vertex <span class="math inline">\(s\)</span>
+</li>
+<li>A vertex is white if undiscovered</li>
+<li>A vertex is grey if it has been discovered, but we are still processing its adjacent vertices</li>
+<li>A vertex is black when all adjacent vertices have been process</li>
+<li>If <span class="math inline">\(G\)</span> is connected, every vertex will eventually be black</li>
+<li>When we explore an edge <span class="math inline">\(\{u,v\}\)</span> starting from <span class="math inline">\(u\)</span>:<ul>
+<li>if <span class="math inline">\(v\)</span> is white, then <span class="math inline">\(uv\)</span> is a <strong>tree edge</strong> and <span class="math inline">\(\pi[v]=u\)</span> is the <strong>predecessor</strong> of <span class="math inline">\(v\)</span> in the bfs tree</li>
+<li>otherwise, <span class="math inline">\(uv\)</span> is a <strong>cross edge</strong>
+</li>
+</ul>
+</li>
+<li>BFS tree consists of all the tree edges</li>
+<li>every vertex <span class="math inline">\(v \ne s\)</span> has a unique predecessor <span class="math inline">\(\pi[v]\)</span> in the BFS tree</li>
+</ul>
+<p><img src="img/bfs.png"></p>
+<h3 id="shortest-paths">Shortest paths</h3>
+<p><img src="img/bfs-shortestpath.png"></p>
+<p>The shortest path from <span class="math inline">\(s\)</span> (the source) to some other vertex <span class="math inline">\(v\)</span>:<br>
+<span class="math inline">\(v, \pi[v], \pi[\pi[v]], \pi[\pi[\pi[v]]], ...\)</span></p>
+<p>Runtime</p>
+<ul>
+<li>We go once through every adjacency list</li>
+<li>The total number of nodes in all the adjacency lists = <span class="math inline">\(2m\)</span>
+</li>
+<li>Complexity is therefore <span class="math inline">\(\Theta(n+2m) = \Theta(n+m)\)</span>
+</li>
+</ul>
+<h4 id="proof">Proof</h4>
+<h5 id="lemma-1">Lemma 1</h5>
+<p>If <span class="math inline">\(u\)</span> is discovered before <span class="math inline">\(v\)</span>, then <span class="math inline">\(dist[u] \le dist[v]\)</span></p>
+<p>Suppose <span class="math inline">\(u\)</span> is discovered before <span class="math inline">\(v\)</span>, but <span class="math inline">\(dist[u] \gt dist[v]\)</span>. Let <span class="math inline">\(dist[u]=d\)</span>, so <span class="math inline">\(dist[v] \le d-1\)</span>.</p>
+<p>With no loss of generality, choose the first pair of vertices where this happens, so let <span class="math inline">\(\pi[u]=u_1, \pi[v]=v_1\)</span>. Then:<br>
+<span class="math display">\[\begin{align*}
+d=dist[u]=dist[u_1]+1 &amp;\rightarrow dist[u_1]=d-1\\
+d-1 \ge dist[v]=dist[v_1]+1 &amp;\rightarrow dist[v_1]\le d-2 \lt dist[u_1]
+\end{align*}\]</span></p>
+<p>So <span class="math inline">\(v_1\)</span> was discovered before <span class="math inline">\(u_1\)</span>. This implies that <span class="math inline">\(Adj[v_1]\)</span> was processed before <span class="math inline">\(Adj[u_1]\)</span>. This only happens if <span class="math inline">\(v\)</span> was discovered before <span class="math inline">\(u\)</span>. This is a contradiction, so therefore if <span class="math inline">\(u\)</span> is discovered before <span class="math inline">\(v\)</span>, then <span class="math inline">\(dist[u] \le dist[v]\)</span>.</p>
+<h5 id="lemma-2">Lemma 2</h5>
+<p>If <span class="math inline">\(\{u,v\}\)</span> is <strong>any edge</strong>, then <span class="math inline">\(|dist[u]-dist[v]| \le 1\)</span></p>
+<p>Suppose <span class="math inline">\(u\)</span> is discovered before <span class="math inline">\(v\)</span> without any loss of generality. Then we are processing <span class="math inline">\(Adj[u]\)</span> when we encounter <span class="math inline">\(v\)</span> in the adjacency list. Then, we have three cases:</p>
+<ol>
+<li>
+<strong><span class="math inline">\(v\)</span> is white.</strong> In this case, <span class="math inline">\(dist[v]=dist[u]-1\)</span>.</li>
+<li><strong><span class="math inline">\(v\)</span> is grey.</strong></li>
+<li>
+<strong><span class="math inline">\(v\)</span> is black.</strong> This can't happen, since it would mean we have already processed the adjacency list for <span class="math inline">\(v\)</span>, and therefore would have encountered <span class="math inline">\(u\)</span> in the adjacency list for <span class="math inline">\(v\)</span>.</li>
+</ol>
+<p>For the second case, let <span class="math inline">\(\pi[v]=v_1\)</span>. This tells us that <span class="math inline">\(dist[v]=dist[v_1]+1\)</span> (1). So <span class="math inline">\(v\)</span> was discovered when <span class="math inline">\(Adj[v_1]\)</span> was being processed. Therefore <span class="math inline">\(v_1\)</span> was discovered before <span class="math inline">\(u\)</span>. This tells us that <span class="math inline">\(dist[v_1] \le dist[u]\)</span> (2). Finally, <span class="math inline">\(u\)</span> was discovered before <span class="math inline">\(v\)</span> from our assumption, so Lemma 1 says that <span class="math inline">\(dist[u] \le dist[v]\)</span>. (3). From (1), (2), and (3), we can say that <span class="math inline">\(|dist[u]-dist[v]| \le 1\)</span>.</p>
+<h5 id="theorem">Theorem</h5>
+<p><span class="math inline">\(dist[v]\)</span> is the length of the <strong>shortest path</strong> from <span class="math inline">\(s\)</span> to <span class="math inline">\(v\)</span></p>
+<p>Let <span class="math inline">\(\delta(v)\)</span> be the lenfth of the shortest path from <span class="math inline">\(s\)</span> to <span class="math inline">\(v\)</span>. We want to prove that <span class="math inline">\(\delta(v) = dist[v]\)</span>. We will prove <span class="math inline">\(\delta(v) \le dist[v]\)</span> and <span class="math inline">\(\delta(v) \ge dist[v]\)</span>.</p>
+<p>Consider the path <span class="math inline">\(v, \pi[v], \pi[\pi[v]], ..., s\)</span>. This is a path from <span class="math inline">\(s\)</span> to <span class="math inline">\(v\)</span> having length <span class="math inline">\(dist[v]\)</span>. Therefore <span class="math inline">\(\delta(v) \le dist[v]\)</span>.</p>
+<p>We prove <span class="math inline">\(\delta(v) \ge dist[v]\)</span> by induction in <span class="math inline">\(\delta(v)\)</span>.</p>
+<p>Base case: <span class="math inline">\(\delta(v) = 0 \rightarrow s=v\)</span>. We know <span class="math inline">\(dist[s]=0\)</span>, so <span class="math inline">\(dist[v]=\delta(v)\)</span>.</p>
+<p>Assumption: Suppose the inequality is true for <span class="math inline">\(\delta(v) \le d-1\)</span>.</p>
+<p>Consider <span class="math inline">\(v\)</span> such that <span class="math inline">\(\delta(v)=d\)</span>. Let <span class="math inline">\(S, v_1, v_2, ..., v_{d-1}, v_d = v\)</span> be the shortest path from <span class="math inline">\(s\)</span> to <span class="math inline">\(v\)</span> (length is <span class="math inline">\(d\)</span>). The section from <span class="math inline">\(s\)</span> to <span class="math inline">\(v_{d-1}\)</span> is a shortest path. By induction, <span class="math inline">\(d-1=\delta(v_{d-1})=dist[v_{d-1}]\)</span>.</p>
+<h3 id="bipartite-graphs">Bipartite graphs</h3>
+<p>A graph is <strong>bipartite</strong> if the vertex set can be partitioned as <span class="math inline">\(V=X \cup Y\)</span> such that all the edges have one end point in <span class="math inline">\(X\)</span> and one in <span class="math inline">\(Y\)</span>. This is the case if and only if there is not an odd cycle in the graph.</p>
+<p>We can use BFS to test if a graph is bipartite.</p>
+<ul>
+<li>If we enounter an edge <span class="math inline">\(\{u,v\}\)</span> with <span class="math inline">\(dist[u]=dist[v]\)</span>, then <span class="math inline">\(G\)</span> os not bipartite, whereas</li>
+<li>if no such edge is found, then define <span class="math inline">\(X = \{u : dist[u] \text{ is even}\}\)</span> and <span class="math inline">\(Y = \{u : dist[u] \text{ is odd}\}\)</span>, and <span class="math inline">\(X,Y\)</span> is the bipartition.</li>
+</ul>
+<p>Suppose <span class="math inline">\(G\)</span> is not bipartite (and assume it is connected). Let <span class="math inline">\(s\)</span> be any vertex.<br>
+Define <span class="math inline">\(X=\{v : dist[v] \text{ is even}\}, Y=\{v: dist[v] \text{ is odd}\)</span>.<br>
+Since <span class="math inline">\(G\)</span> is not bipartite, there is an edge <span class="math inline">\(uv\)</span> where <span class="math inline">\(u,v \in X\)</span> or <span class="math inline">\(u,v \in Y\)</span>. There is an edge <span class="math inline">\(uv\)</span> where <span class="math inline">\(dist[u]\)</span> and <span class="math inline">\(dist[v]\)</span> are both even or both odd. Since <span class="math inline">\(|dist[u]-dist[v]| \le 1\)</span>, we have <span class="math inline">\(dist[u]=dist[v]\)</span>. How do we find an odd cycle?</p>
+<p>Given a connected graph, we can use BFS to either:</p>
+<ol>
+<li>Find a bipartition <span class="math inline">\(X,Y\)</span> (<span class="math inline">\(G\)</span> is bipartite), or</li>
+<li>Find an odd length cycle (<span class="math inline">\(G\)</span> is not bipartite)</li>
+</ol>
+<p>Run BFS. IF we ever encounter <span class="math inline">\(v \in Adj[u]\)</span> where <span class="math inline">\(dist[u] = dist[v]\)</span>, then we can construct an odd cycle. If this doesn't happen, then <span class="math inline">\(X,Y\)</span> will be a bipartition.</p>
+<h2 id="depth-first-search">Depth-first Search</h2>
+<ul>
+<li>Uses a stack or recursion</li>
+<li>Looks at most deeply nested children first, then parents</li>
+</ul>
+<p><img src="img/dfs.png"><br>
+<img src="img/dfsvisit.png"></p>
+<h3 id="classification-of-edges">Classification of edges</h3>
+<p>Given <span class="math inline">\(uv\)</span>:</p>
+<ul>
+<li>
+<strong>Tree edge</strong>: <span class="math inline">\(u=\pi[v]\)</span>
+</li>
+<li>
+<strong>Forward edge</strong>: not a tree edge, and <span class="math inline">\(v\)</span> is a descendant of <span class="math inline">\(u\)</span> in a tree in the dfs forest</li>
+<li>
+<strong>Back edge</strong>: <span class="math inline">\(u\)</span> is a descendant of <span class="math inline">\(v\)</span> in a tree in the dfs forest</li>
+<li>
+<strong>Cross edge</strong>, otherwise</li>
+</ul>
+<h3 id="properties-1">Properties</h3>
+<p><img src="img/discovery_times.png"><br>
+Note that the intervals <span class="math inline">\((d[u], f[u])\)</span> and <span class="math inline">\((d[v], f[v])\)</span> never overlap. Two intervals are either disjoint or nested. This is called the <strong>parenthesis theorem.</strong></p>
+<h3 id="topological-orderings">Topological orderings</h3>
+<p>A directed graph <span class="math inline">\(G\)</span> is a <strong>directed acyclic graph</strong> (DAG) if <span class="math inline">\(G\)</span> contains no directed cycle.</p>
+<p>A directed graph <span class="math inline">\(G=(V,E)\)</span> has a <strong>topological ordering</strong>, or <strong>topological sort</strong> if there is a linear ordering of all the vertices in <span class="math inline">\(V\)</span> such that <span class="math inline">\(u \lt v\)</span> whenever <span class="math inline">\(uv \in E\)</span>.</p>
+<ul>
+<li>A DAG contains a vertex of indegree 0 (has no directed edges going into it)</li>
+<li>A directed graph <span class="math inline">\(G\)</span> has a topological ordering iff it is a DAG</li>
+<li>A directed graph <span class="math inline">\(G\)</span> is a DAG iff a DFS of G has no back edges</li>
+<li>If <em>uv</em> is an edge in DAG, then a DFS of <span class="math inline">\(G\)</span> has <span class="math inline">\(f[v] \lt f[u]\)</span>
+</li>
+</ul>
+<p><strong>Lemma.</strong> A DAG contains a vertex of indegree 0.</p>
+<p>Suppose there are no vertices od indegree 0. Pick any vertex <span class="math inline">\(v_1\)</span>. There must always be an edge going into it, so there is an edge <span class="math inline">\(v_2 v_1\)</span> There is also an edge <span class="math inline">\(v_3 v_2\)</span>. You can keep finding edges like this infinitely, and since there are not infinite points, there must therefore be a repatition. Therefore there is a directed cycle in the graph.</p>
+<p><strong>Theorem.</strong> A directed graph <span class="math inline">\(D\)</span> has a topological ordering iff it is a DAG.</p>
+<p>Suppose <span class="math inline">\(D\)</span> has a directed cycle. Then, <span class="math inline">\(v_1 \lt v_2 \lt ... \lt v_j \lt ... \lt v_!\)</span>. This is not a linear ordering.</p>
+<p>Suppose <span class="math inline">\(D\)</span> is a DAG. Let <span class="math inline">\(v_1\)</span> be a vertex of indegree 0. This will be the first vertex in the ordering.</p>
+<ul>
+<li>Delete edges incident with <span class="math inline">\(v_1\)</span>
+</li>
+<li>get a smaller DAG <span class="math inline">\(D_1\)</span> on <span class="math inline">\(n-1\)</span> vertices</li>
+<li>choose a vertex in <span class="math inline">\(D_1\)</span> with indegree 0</li>
+<li>repeat</li>
+</ul>
+<p><img src="img/topological_ordering.png"></p>
+<p><img src="img/topological_ordering2.png"></p>
+<p>We find a topoligical sort "efficiently" (<span class="math inline">\(O(m+n)\)</span>) without using DFS using Kahn's Algorithm.<br>
+Using an adjacency list representation:</p>
+<ol>
+<li>Compute <span class="math inline">\(deg(V)\)</span> for all <span class="math inline">\(v\)</span> (indegrees)</li>
+<li>For all <span class="math inline">\(v\)</span> with <span class="math inline">\(deg(v)=0\)</span>, put <span class="math inline">\(v\)</span> in a queue <span class="math inline">\(Q\)</span>
+</li>
+<li>Repeat <span class="math inline">\(n\)</span> times:a. If <span class="math inline">\(Q\)</span> is empty, quit, because <span class="math inline">\(G\)</span> is not a DAGb. Let <span class="math inline">\(v\)</span> be the first vertex in <span class="math inline">\(Q\)</span>. Delete it, and output <span class="math inline">\(v\)</span>c. <span class="math inline">\(\forall w \in Adj(v), deg^{-1}(w) = deg^{-1}(w)-1\)</span>. If <span class="math inline">\(deg^{-1}(w)=0\)</span>, then insert <span class="math inline">\(w\)</span> into <span class="math inline">\(Q\)</span>.</li>
+</ol>
+<p><strong>Lemma.</strong> <span class="math inline">\(G\)</span> is a DAG iff there are no back edges in a DFS.<br>
+<strong>Proof.</strong> A back edge implies a directed cycle. Conversely: Assume there is a directed cycle.<br>
+Let <span class="math inline">\(v_1v_2, ..., v_lv_1\)</span> be a directed cycle. Suppose <span class="math inline">\(v_1\)</span> is disconnected first. We calim <span class="math inline">\(v_lv_1\)</span> is a back edge: <span class="math inline">\(d(v_l) \gt d(v_1)\)</span>, so from the chart, <span class="math inline">\(v_lv_1\)</span> is a back edge or a cross edge. But can it be a cross edge? If it was, then <span class="math inline">\(v_1\)</span> would be black when <span class="math inline">\(v_lv_1\)</span> is processed (from the chart). But <span class="math inline">\(v_1\)</span> is not black at the time, it's grey, so <span class="math inline">\(v_lv_1\)</span> is a backk edge.</p>
+<p>Given that there are no back edges, the topological ordering is given by the vertuces in reverse order of finishing time. Why? Look at the chart: for any edge <span class="math inline">\(uv\)</span> that is not a back edge, <span class="math inline">\(f[u] \gt f[v]\)</span> (<span class="math inline">\(f\)</span> is finishing time).</p>
+<h3 id="strongly-connected-components">Strongly connected components</h3>
+<p>For two vertices <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> of digraph <span class="math inline">\(G\)</span>, define <span class="math inline">\(x \sim y\)</span> as <span class="math inline">\(x=y\)</span> or <span class="math inline">\(x \ne y\)</span> and there exists directed paths from <span class="math inline">\(x\)</span> to <span class="math inline">\(y\)</span> and <span class="math inline">\(y\)</span> to <span class="math inline">\(x\)</span>.</p>
+<p>The relation <span class="math inline">\(~\)</span> is an <strong>equivalence relation.</strong> The strongly connected components of <span class="math inline">\(G\)</span> are the equivalence classes of vertices defined by the relation <span class="math inline">\(\sim\)</span>.</p>
+<p>The <strong>component graph</strong> of <span class="math inline">\(G\)</span> is a directed graph whose vertices are strongly connected components of <span class="math inline">\(G\)</span>. There is an arc from <span class="math inline">\(C_i\)</span> to <span class="math inline">\(C_j\)</span> iff there is an arc in <span class="math inline">\(G\)</span> from some <span class="math inline">\(v \in C_i\)</span> to some <span class="math inline">\(u \in C_j\)</span>. For a stringly connected component <span class="math inline">\(C\)</span>, define <span class="math inline">\(f[C]=\max\{f[v] : v \in C\}\)</span> and <span class="math inline">\(d[C]=\min\{d[v] : v \in C\}\)</span></p>
+<p>Useful facts:</p>
+<ul>
+<li>Component graph of <span class="math inline">\(G\)</span> is a DAG</li>
+<li>If there is an edge <span class="math inline">\(C_iC_j\)</span> in the component graph, then <span class="math inline">\(f(C_i) \gt f(C_j)\)</span>.</li>
+</ul>
+<h4 id="given-a-directed-graph-find-its-strongly-connected-components.">Given a directed graph, find its strongly connected components.</h4>
+<p>First consider the <strong>undirected</strong> version of the problem. We can use DFS to solve the undirected problem. Each initial call to DFSVisit will "explore" a connected component. THe recursive calls to DFSVisit are the other vertices in the same component.</p>
+<p><strong>Lemma.</strong> If there is an edge <span class="math inline">\(C_iC_j\)</span> in the component graph, then <span class="math inline">\(f(C_i) \gt f(C_j)\)</span>.</p>
+<p><strong>Proof.</strong><br>
+Case 1: <span class="math inline">\(d(C_i) \lt d(C_j)\)</span><br>
+Case 2: <span class="math inline">\(d(C_i) \gt d(C_j)\)</span></p>
+<p>For case 2, we explore everything in <span class="math inline">\(C_j\)</span> before any vertex in <span class="math inline">\(C_i\)</span> is explored. So, <span class="math inline">\(f(C_i) \gt d(C_i) \gt f(G_j)\)</span>.</p>
+<p>For case 1, let <span class="math inline">\(u \in C_i\)</span> be the first discovered vertex. All vertices in <span class="math inline">\(C_i \cup C_j\)</span> are reachable from <span class="math inline">\(u\)</span>, so they are all descendants of <span class="math inline">\(u\)</span> in the DFS tree. So <span class="math inline">\(f(v) \lt f(u) \forall v \in C_i \cup C_j, u \ne v\)</span>, and therefore <span class="math inline">\(f(C_i) \gt f(C_j)\)</span>.</p>
+<p><strong>Algorithm</strong></p>
+<ol>
+<li>Perform DFS of <span class="math inline">\(G\)</span>. Record the finishing times <span class="math inline">\(f[v] \forall v \in G\)</span>
+</li>
+<li>Construct digraph <span class="math inline">\(H\)</span> from <span class="math inline">\(G\)</span> by reversing the direction of all edges in <span class="math inline">\(G\)</span>
+</li>
+<li>Perform a DFS of <span class="math inline">\(H\)</span>, considering vertices in <strong>decreasing order</strong> of the values <span class="math inline">\(f[v]\)</span> from step 1</li>
+<li>The strongly connected components of <span class="math inline">\(G\)</span> are the trees in the DFS forest constructed in 3</li>
+</ol>
+<h2 id="minimum-spanning-trees-prims-algorithm">Minimum Spanning Trees (Prim's Algorithm)</h2>
+<ul>
+<li>A <strong>tree</strong> is a connected graph that is acyclic.</li>
+<li>Removing any edge from a tree disconnects the tree</li>
+<li>Breaking any edge from a cycle <span class="math inline">\(G\)</span> in a graph <span class="math inline">\(G\)</span> cannot disconnect <span class="math inline">\(G\)</span>
+</li>
+<li>Any tree with <span class="math inline">\(n\)</span> vertices contains <span class="math inline">\(n-1\)</span> edges</li>
+<li>A minimum spanning tree takes a undirected and connected graph <span class="math inline">\(G(V,E)\)</span> and arbitrary edge weights and outputs a tree <span class="math inline">\(T^*\)</span> of <span class="math inline">\(V\)</span> such that <span class="math inline">\(w(T^*)\)</span> is minimized</li>
+</ul>
+<h3 id="algorithm">Algorithm</h3>
+<ul>
+<li>Start with a vertex</li>
+<li>At each step, add the vertex that costs the least to get to from the current set of visited vertices</li>
+</ul>
+<h3 id="implementation">Implementation</h3>
+<ul><li>Keep each vertex <span class="math inline">\(v\)</span> in a priority queue <span class="math inline">\(R\)</span> using the min distance <span class="math inline">\(v\)</span> has to <span class="math inline">\(L\)</span>
+</li></ul>
+<pre><code>def prim(G(V,E), weights) {
+  choose any s in V
+  let l = {S}
+  let r = V-{S}
+  let minWeightEdge be a priority queue storing, for all v in R, the weight of the edge (u,v) connecting v to l
+  T = {}
+
+  for i in 1..n {
+    (v, (u,v)) = minWeightEdge.extractMin()
+    remove v from r
+    add v to l
+    add (u,v) to T
+    for each (v,z) in E such that z in R {
+      minWeightEdge.decrementKey(z, w[v,z])
+    }
+  }
+
+  return T
+}</code></pre>
+<p>A <strong>cut</strong> on an edge divides a graph into sections if that edge was removed.</p>
+<ul>
+<li>A graph <span class="math inline">\(G(V,E)\)</span> is not connected if <span class="math inline">\(\exists\)</span> a cut <span class="math inline">\((X,Y)\)</span> with no crossing edges</li>
+<li>Given a cut <span class="math inline">\(X,Y\)</span> and a cycle <span class="math inline">\(C\)</span>, if <span class="math inline">\(C\)</span> contains an edge <span class="math inline">\(e\)</span> crossing <span class="math inline">\(X,Y\)</span>, then there exists <span class="math inline">\(e' \ne e\)</span> part of <span class="math inline">\(C\)</span> that is also crossing <span class="math inline">\((X,Y)\)</span>
+</li>
+<li>If <span class="math inline">\(\exists\)</span> a cut <span class="math inline">\((X,Y)\)</span> such that only one edge <span class="math inline">\(e\)</span> is crossing <span class="math inline">\((X,Y)\)</span>, then <span class="math inline">\(e\)</span> cannot be part of a cycle</li>
+</ul>
+<p>Kruskal's Algorithm is another algorithm to solve this</p>
+<h2 id="single-source-shortest-path">Single Source Shortest Path</h2>
+<p>Looking for the path of minimum weight. <strong>Dijkstra's Algorithm</strong> solves this when there are no negative weight edges.</p>
+<ul>
+<li>
+<span class="math inline">\(S\)</span> is the set of vertices you know the shortest path to. Initially just path to the starting vertex (no edge)</li>
+<li>If <span class="math inline">\(v \in S\)</span>, <span class="math inline">\(D[v]\)</span> is the weight of the shortest path <span class="math inline">\(P_v\)</span> from <span class="math inline">\(u_0\)</span> to <span class="math inline">\(v\)</span> and all vertices in <span class="math inline">\(P_v \in S\)</span>.</li>
+<li>If <span class="math inline">\(v \notin S\)</span>, <span class="math inline">\(D[v]\)</span> is the weight of the shortest path <span class="math inline">\(P_v\)</span> from <span class="math inline">\(u_0\)</span> to <span class="math inline">\(v\)</span> and all interior vertices in <span class="math inline">\(P_v \in S\)</span>.</li>
+<li>At each stage, we choose <span class="math inline">\(v \in V \setminus S\)</span> so that <span class="math inline">\(D[v]\)</span> is minimized, and then we add <span class="math inline">\(v\)</span> to <span class="math inline">\(S\)</span>
+</li>
+</ul>
+<p>Bellman-Ford Algorithm (works with negative edges but not negative weight cycles)</p>
+<ul><li>repeat <span class="math inline">\(n-1\)</span> times:<ul><li>Relax each edge in the graph</li></ul>
+</li></ul>
+<h2 id="shortest-path-in-dag">Shortest path in DAG</h2>
+<p>Since there are no directed cycles, there are no negative weight directed cycles since there are no directed cycles</p>
+<ol>
+<li>Find a topological ordering of the directed graph <span class="math inline">\(G\)</span> (<span class="math inline">\(O(m+n)\)</span>). <span class="math inline">\(v_1, v_2, ..., v_n\)</span> is the ordering.</li>
+<li>We find shortest path from the source <span class="math inline">\(v_1\)</span>. If we want to start at a later vertex, delete all vertices before it in the ordering.</li>
+<li>For <span class="math inline">\(i\)</span> in 1 to <span class="math inline">\(n\)</span>, look at the vertices in <span class="math inline">\(Adj[v_1]\)</span> and "relax" them</li>
+</ol>
+<h2 id="all-pairs-shortest-paths">All Pairs Shortest Paths</h2>
+<p>In a directed graph <span class="math inline">\(G=(V,E)\)</span>, and a weight matrix <span class="math inline">\(W\)</span> where <span class="math inline">\(W[i,j]\)</span> is the weight of edge <span class="math inline">\(ij\)</span>, for all pairs of vertices <span class="math inline">\(u,v, \in V, u \ne v\)</span>, find a directed path <span class="math inline">\(P\)</span> from <span class="math inline">\(u\)</span> to <span class="math inline">\(v\)</span> such that:<br>
+<span class="math display">\[w(P) = \sum_{ij \in P} W[i,j]\]</span></p>
+<h3 id="algorithms">Algorithms</h3>
+<h4 id="using-bellman-ford">Using Bellman-Ford</h4>
+<p>Run Bellman-Ford algorithm <span class="math inline">\(n\)</span> times, once for each source. This is <span class="math inline">\(O(n^2m)\)</span>.</p>
+<h4 id="slow-shortest-path">Slow Shortest Path</h4>
+<p>Let <span class="math inline">\(L_m[i,j]\)</span> to be the minimum weight of an <span class="math inline">\((i,j)\)</span> path having at most <span class="math inline">\(m\)</span> edges. (We will look at <span class="math inline">\(L_{n-1}[i,j]\)</span> to find the answer.) <span class="math inline">\(W[i,j]=0\)</span> if <span class="math inline">\(i=j\)</span>.</p>
+<p>Initially, <span class="math inline">\(L_1 = W\)</span> (matrix of edge weights).</p>
+<p>Let <span class="math inline">\(P\)</span> be the min-weight <span class="math inline">\((i,j)\)</span> path with less than or equal to <span class="math inline">\(m\)</span> edges. Let <span class="math inline">\(k\)</span> be the predecessor of <span class="math inline">\(j\)</span> on <span class="math inline">\(P\)</span>. Let <span class="math inline">\(P'\)</span> be the <span class="math inline">\((i,k)\)</span>-path (delete <span class="math inline">\(j\)</span> from <span class="math inline">\(P\)</span>). <span class="math inline">\(P'\)</span> is a <strong>min-weight</strong> <span class="math inline">\((i,k)\)</span> path having <span class="math inline">\(\le m-1\)</span> edges.</p>
+<p>This gives us the recurrence relation:<br>
+<span class="math display">\[L_m[i,j] = \min{L_{m-1}[i,k]+w[k,j] : 1 \le k \le n}\]</span></p>
+<h4 id="slightly-less-slow">Slightly less slow</h4>
+<p>This is called "successive doubling"</p>
+<p>The idea is to compute <span class="math inline">\(L_1, L_2, ..., L_{2^k}\)</span> where <span class="math inline">\(2^k \ge n-1\)</span> and each depends on the previous. There are then <span class="math inline">\(\Theta(\log n)\)</span> matrices to compute.</p>
+<p><span class="math display">\[L_m[i,j] = \min{L_\frac{m}{2}[i,k]+L_\frac{m}{2}[k,j] : 1 \le k \le n}\]</span></p>
+<h4 id="floyd-warshall">Floyd-Warshall</h4>
+<p>Let <span class="math inline">\(D_m[i,j]\)</span> be the min weight of an <span class="math inline">\((i,j)\)</span>-path where interior vertices are in <span class="math inline">\(\{1,...,m\}\)</span>. We want to compute <span class="math inline">\(D_n\)</span>.</p>
+<p>Initially, <span class="math inline">\(D_0 = W\)</span>.</p>
+<p><span class="math display">\[D_m[i,j] = \min{D_{m-1}[i,k], D_{m-1}[i,m], D_{m-1}[m,j]}\]</span></p>
+<p>Is <span class="math inline">\(D_{m-1}[i,m] + D_{m-1}[m,j]\)</span> the minimum weight path that contains <span class="math inline">\(m\)</span> as an interior vertex? <span class="math inline">\(p_1, p_2\)</span> are simple paths (no negative weight cycles.) Are <span class="math inline">\(p_1, p_2\)</span> disjoint?</p>
+<ul><li>If <span class="math inline">\(p_1, p_2\)</span> are <strong>not disjoint</strong>, we get a lower weight path than <span class="math inline">\(D_{m-1}[i,m] + D_{m-1}[m,j]\)</span>, then there is a negative weight cycle. This is a contradiction.</li></ul>
+<p>e.g.<br>
+<img src="img/warshall-example.png"></p>
+<p><span class="math display">\[D_0 = \begin{bmatrix}
+0 &amp; 3 &amp; \infty &amp; \infty \\
+\infty &amp; 0 &amp; 12 &amp; 5 \\
+4 &amp; \infty &amp; 0 &amp; -1 \\
+2 &amp; -4 &amp; \infty &amp; 0
+\end{bmatrix}\]</span></p>
+<p><span class="math display">\[\begin{align*}
+D_1[3,2]&amp;=\min\{D_0[3,2], D_0[3,1] + D_1[1,2]\}\\
+&amp;= \min\{\infty, 4+3\}\\
+&amp;= 7
+\end{align*}\]</span></p>
+<p><span class="math display">\[D_1 = \begin{bmatrix}
+0 &amp; 3 &amp; \infty &amp; \infty \\
+\infty &amp; 0 &amp; 12 &amp; 5 \\
+4 &amp; [7] &amp; 0 &amp; -1 \\
+2 &amp; -4 &amp; \infty &amp; 0
+\end{bmatrix}\]</span></p>
+<p><span class="math display">\[D_2 = \begin{bmatrix}
+0 &amp; 3 &amp; [15] &amp; [8] \\
+\infty &amp; 0 &amp; 12 &amp; 5 \\
+4 &amp; 7 &amp; 0 &amp; -1 \\
+2 &amp; -4 &amp; [8] &amp; 0
+\end{bmatrix}\]</span></p>
+<p><span class="math display">\[D_3 = \begin{bmatrix}
+0 &amp; 3 &amp; 15 &amp; 8 \\
+[16] &amp; 0 &amp; 12 &amp; 5 \\
+4 &amp; -7 &amp; 0 &amp; -1 \\
+2 &amp; -4 &amp; 8 &amp; 0
+\end{bmatrix}\]</span></p>
+<p><span class="math display">\[D_4 = \begin{bmatrix}
+0 &amp; 3 &amp; 15 &amp; 8 \\
+[7] &amp; 0 &amp; 12 &amp; 5 \\
+[1] &amp; [-5] &amp; 0 &amp; -1 \\
+2 &amp; -4 &amp; 8 &amp; 0
+\end{bmatrix}\]</span></p>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

@@ -1,0 +1,638 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<title>Consistency and Replication</title>
+</head>
+<body>
+
+<h1 id="consistency-and-replication">Consistency and Replication</h1>
+<a href="index.html">Back to ece454</a>
+<div id="TOC">
+
+<ul>
+<li><a href="#replication">Replication</a></li>
+<li><a href="#examples">Examples</a></li>
+<li>
+<a href="#storage-system-behaviour">Storage system behaviour</a><ul>
+<li><a href="#sequential-consistency">Sequential Consistency</a></li>
+<li><a href="#causal-consistency">Causal consistency</a></li>
+<li><a href="#linearizability">Linearizability</a></li>
+<li><a href="#eventual-consistency">Eventual consistency</a></li>
+<li><a href="#properties">Properties</a></li>
+</ul>
+</li>
+<li>
+<a href="#protocols">Protocols</a><ul>
+<li><a href="#primary-backup">Primary backup</a></li>
+<li><a href="#quorum">Quorum</a></li>
+</ul>
+</li>
+<li>
+<a href="#fault-tolerance">Fault Tolerance</a><ul><li><a href="#consensus-problem">Consensus Problem</a></li></ul>
+</li>
+<li><a href="#zookeeper">Zookeeper</a></li>
+<li>
+<a href="#fault-tolerant-rpcs">Fault-tolerant RPCs</a><ul>
+<li><a href="#primary-backup-1">Primary backup</a></li>
+<li><a href="#quorum-acid">Quorum (ACID)</a></li>
+<li><a href="#quorum-nosql-key-value-store">Quorum (NoSQL key-value store)</a></li>
+</ul>
+</li>
+<li><a href="#anti-entropy">Anti Entropy</a></li>
+<li>
+<a href="#checkpoints">Checkpoints</a><ul><li><a href="#coordinated-checkpointing-algorithm">Coordinated checkpointing algorithm</a></li></ul>
+</li>
+</ul>
+</div>
+<p>Distribution:</p>
+<ol>
+<li>Partitioning</li>
+<li>Replication</li>
+</ol>
+<h2 id="replication">Replication</h2>
+<p>Why?</p>
+<ul>
+<li>increase throughput<ul><li>e.g. Memcache, having multiple copies allows more things being served at once</li></ul>
+</li>
+<li>Lower latency<ul><li>Adds more hardware to the problem</li></ul>
+</li>
+<li>Greater fault tolerance</li>
+</ul>
+<h2 id="examples">Examples</h2>
+<ol>
+<li>GFS and HDFS<ul><li>Data storage and movement</li></ul>
+</li>
+<li>Map-reduce<ul><li>Math (speculative execution)</li></ul>
+</li>
+<li>MySQL server<ul>
+<li>Data (shared mutable state)</li>
+<li>Very hard</li>
+</ul>
+</li>
+</ol>
+<h2 id="storage-system-behaviour">Storage system behaviour</h2>
+<h3 id="sequential-consistency">Sequential Consistency</h3>
+<p>This example is consistent:</p>
+<table>
+<thead><tr class="header">
+<th>Process</th>
+<th>time</th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>P1</td>
+<td>w(x)a</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>P2</td>
+<td></td>
+<td>w(x)b</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>P3</td>
+<td></td>
+<td></td>
+<td>r(x)b</td>
+<td></td>
+<td>r(x)a</td>
+</tr>
+<tr class="even">
+<td>P4</td>
+<td></td>
+<td></td>
+<td></td>
+<td>r(x)b</td>
+<td>r(x)a</td>
+</tr>
+</tbody>
+</table>
+<p>If two writes occur in two different processes, they do not necessarily fall in temporal order. This only applies to writes in the same process.</p>
+<p>There must be a sequential ordering of the events for it to be sequentially consistent.</p>
+<p>This example is <strong>not</strong>:</p>
+<table>
+<thead><tr class="header">
+<th>Process</th>
+<th>time</th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>P1</td>
+<td>w(x)a</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>P2</td>
+<td></td>
+<td>w(x)b</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>P3</td>
+<td></td>
+<td></td>
+<td>r(x)b</td>
+<td></td>
+<td>r(x)a</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>P4</td>
+<td></td>
+<td></td>
+<td></td>
+<td>r(x)a</td>
+<td></td>
+<td>r(x)b</td>
+</tr>
+</tbody>
+</table>
+<h3 id="causal-consistency">Causal consistency</h3>
+<table>
+<thead><tr class="header">
+<th>Process</th>
+<th>time</th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>P1</td>
+<td>w(x)a</td>
+<td></td>
+<td></td>
+<td>w(x)c</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>P2</td>
+<td></td>
+<td>r(x)a</td>
+<td>w(x)b</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>P3</td>
+<td></td>
+<td>r(x)a</td>
+<td></td>
+<td></td>
+<td>r(x)c</td>
+<td>r(x)b</td>
+</tr>
+<tr class="even">
+<td>P4</td>
+<td></td>
+<td>r(x)a</td>
+<td></td>
+<td></td>
+<td>r(x)b</td>
+<td>r(x)c</td>
+</tr>
+</tbody>
+</table>
+<p>Has relationships "follows in program order" and "reads from", both examples of a causal precedence. This is causally consistent.</p>
+<p>This is not:</p>
+<table>
+<thead><tr class="header">
+<th>Process</th>
+<th>time</th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>P1</td>
+<td>w(x)a</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>P2</td>
+<td></td>
+<td>r(x)a</td>
+<td>w(x)b</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>P3</td>
+<td></td>
+<td></td>
+<td></td>
+<td>r(x)b</td>
+<td>r(x)a</td>
+</tr>
+<tr class="even">
+<td>P4</td>
+<td></td>
+<td></td>
+<td></td>
+<td>r(x)a</td>
+<td>r(x)b</td>
+</tr>
+</tbody>
+</table>
+<p>However, removing a read makes it consistent again:</p>
+<table>
+<thead><tr class="header">
+<th>Process</th>
+<th>time</th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>P1</td>
+<td>w(x)a</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>P2</td>
+<td></td>
+<td></td>
+<td>w(x)b</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>P3</td>
+<td></td>
+<td></td>
+<td></td>
+<td>r(x)b</td>
+<td>r(x)a</td>
+</tr>
+<tr class="even">
+<td>P4</td>
+<td></td>
+<td></td>
+<td></td>
+<td>r(x)a</td>
+<td>r(x)b</td>
+</tr>
+</tbody>
+</table>
+<h3 id="linearizability">Linearizability</h3>
+<p><img src="img/linearizable.png"></p>
+<p>Arrows represent the <strong>happens before</strong> relation.</p>
+<ul>
+<li>
+<span class="math inline">\(a\)</span> happens before <span class="math inline">\(b\)</span> if <span class="math inline">\(a.end \lt b.start\)</span>
+</li>
+<li>Implicitly, each read happens after the most recent write</li>
+</ul>
+<p>Potential orderings:</p>
+<ul>
+<li>O1: P2.w(x)b, P4.r(x)b, P2.w(x)a, P3.r(x)a<ul><li>Not ok since P1.w(x)a happens after P4.r(x)b</li></ul>
+</li>
+<li>O2: P1.w(x)a, P3.r(x)a, P2.w(x)b, P4.r(x)b<ul><li>ok: all read values make sense, no backwards arrows</li></ul>
+</li>
+</ul>
+<p>Since there is a valid total order, the example is linearizable.</p>
+<p>Alternative interpretation</p>
+<ul>
+<li>Place a dot representing a single instant where the event happens, where the dot has to be between the start and end of the operation</li>
+<li>Connect dots so that you never go backwards and read values make sense</li>
+<li>If this is possible, it is linearizable</li>
+</ul>
+<p>This example is not linearizable:<br>
+<img src="img/nonlinear.png"></p>
+<ul>
+<li>Any way that we find a total order, both writes must come before both reads</li>
+<li>It is not possible to do this and have the reads make sense</li>
+</ul>
+<p>Linearizability check algorithm</p>
+<ul>
+<li>Make a graph where the vertices are each operation</li>
+<li>Add an edge <span class="math inline">\((a, b)\)</span> if:<ul>
+<li><span class="math inline">\(a.end \lt b.start\)</span></li>
+<li>there is a read after <span class="math inline">\(b\)</span> that reads the value <span class="math inline">\(b\)</span> wrote, and <span class="math inline">\(a\)</span> wrote a different value</li>
+</ul>
+</li>
+<li>If there is a cycle in this graph, it is not linearizable</li>
+</ul>
+<p>Another:</p>
+<ul>
+<li>Make a graph where the vertices are the values of the thing being read/written to</li>
+<li>Add an edge from <span class="math inline">\(a, b\)</span> if there is a write of <span class="math inline">\(b\)</span> after a read of <span class="math inline">\(a\)</span>
+</li>
+<li>Check for cycles</li>
+</ul>
+<h3 id="eventual-consistency">Eventual consistency</h3>
+<ul>
+<li>If no updates take place for a long time, all replicas will gradually become consistent.</li>
+<li>In the absence of new writes from clients, all servers will eventually hold the same data.</li>
+</ul>
+<p>This allows different processes to observe write operations taking effect in different orders, even when these write operations are related by "causally precedes" or "happens before"</p>
+<p>e.g. This <strong>does not</strong> have eventual consistency</p>
+<ol>
+<li>P1.w(x)a</li>
+<li>P2.w(x)b</li>
+<li>P3.r(x)a</li>
+<li>P4.r(x)b</li>
+<li>Repeat steps 3 and 4 forever.</li>
+</ol>
+<h3 id="properties">Properties</h3>
+<ul>
+<li>There are all examples of <strong>safety properties</strong>
+</li>
+<li>Sequential consistency is a subset of causal consistency (it is a stronger definition)</li>
+<li>Linearizability is a subset of sequential consistency</li>
+<li>linearizable <span class="math inline">\(\Rightarrow\)</span> sequentially consistent <span class="math inline">\(\Rightarrow\)</span> causally consistent</li>
+</ul>
+<h4 id="guarantees-monotonicity">Guarantees: Monotonicity</h4>
+<p>Every time you do a read, it should either be the same value as before, or a newer version</p>
+<p>Negative example:</p>
+<table>
+<thead><tr class="header">
+<th>Process</th>
+<th>time</th>
+<th></th>
+<th></th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>P1</td>
+<td>w(x)a</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>P2</td>
+<td>w(x)b</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>P3</td>
+<td></td>
+<td>r(x)a</td>
+<td>r(x)b</td>
+</tr>
+<tr class="even">
+<td>P4</td>
+<td></td>
+<td>r(x)b</td>
+<td>r(x)a</td>
+</tr>
+</tbody>
+</table>
+<p>Positive example:</p>
+<table>
+<thead><tr class="header">
+<th>Process</th>
+<th>time</th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>P1</td>
+<td>w(x)a</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>P2</td>
+<td>w(x)b</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>P3</td>
+<td></td>
+<td>r(x)a</td>
+<td>r(x)b</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>P4</td>
+<td></td>
+<td></td>
+<td></td>
+<td>r(x)b</td>
+<td>r(x)a</td>
+</tr>
+</tbody>
+</table>
+<h4 id="guarantees-read-your-own-writes">Guarantees: Read your own writes</h4>
+<p>If you write a value and then do a read, you should get the value you just wrote, not an older one</p>
+<h2 id="protocols">Protocols</h2>
+<h3 id="primary-backup">Primary backup</h3>
+<p>A server has the true copy</p>
+<h3 id="quorum">Quorum</h3>
+<p>There is a maximum number of servers <span class="math inline">\(f\)</span> that are allowed to fail, and a value is considered written after a majority have written.</p>
+<p>Let <span class="math inline">\(N\)</span>, <span class="math inline">\(N_R\)</span>, and <span class="math inline">\(N_W\)</span> be total number of replicas for a data object <span class="math inline">\(x\)</span>, the size of the read quorum, and the size of the write quorum.</p>
+<p>In distributed databases, RW quorums must satisfy:</p>
+<ol>
+<li>
+<span class="math inline">\(N_R + N_W \gt N\)</span> (read and write quorums overlap)</li>
+<li>
+<span class="math inline">\(N_W + N_W \gt N\)</span> (two write quorums overlap)</li>
+</ol>
+<h4 id="partial-quorums">Partial quorums</h4>
+<p>Partial quorums lack overlap</p>
+<ol>
+<li>
+<span class="math inline">\(N_R + N_W \gt N\)</span> (strong consistency)</li>
+<li>
+<span class="math inline">\(N_R + N_W \le N\)</span> (weak consistency)</li>
+</ol>
+<p>Use last-timestamp-wins to deal with conflicts</p>
+<h2 id="fault-tolerance">Fault Tolerance</h2>
+<p>Dependability</p>
+<ul>
+<li>Availability (e.g. 99.99...%)</li>
+<li>Reliability</li>
+<li>Safety</li>
+<li>Maintainability</li>
+</ul>
+<p>Fault types</p>
+<ul>
+<li>Transient: goes away on its own</li>
+<li>Intermittent: fault that happens only some of the time, often related to electrical contacts</li>
+<li>Permanent: much easier to diagnose</li>
+</ul>
+<p>Masking failures</p>
+<ul>
+<li>Have redundant, identical processes<ul>
+<li>Arranged in a flat group: all have equal weight</li>
+<li>Arranged hierarchically: has a leader/coordinator</li>
+</ul>
+</li>
+<li>How many backups?<ul>
+<li>If you need to tolerate <span class="math inline">\(f\)</span> failures, you need at least <span class="math inline">\(2f+1\)</span> processes to be able to have a majority</li>
+<li>If you have primary backups, you need <span class="math inline">\(f+1\)</span>, but with the assumption that you will fix the broken ones soon</li>
+</ul>
+</li>
+</ul>
+<h3 id="consensus-problem">Consensus Problem</h3>
+<ul>
+<li>Has interfaces <code>propose(x)</code>, <code>decide()</code>
+</li>
+<li>Each process calls <code>propose()</code> at most once, and <code>decide()</code> at most once</li>
+<li>Safety properties<ul>
+<li>Agreement: two calls to <code>decide()</code> never return different values</li>
+<li>Validity: If <code>decide()</code> returns <code>v</code>, then some process called <code>propose(v)</code>
+</li>
+</ul>
+</li>
+<li>Liveness/Termination policy: calls to <code>propose(x)</code> and <code>decide()</code> eventually terminate</li>
+</ul>
+<h2 id="zookeeper">Zookeeper</h2>
+<p>Coordination</p>
+<ul>
+<li>group membership</li>
+<li>leader election</li>
+<li>dynamic configuration</li>
+<li>status monitoring</li>
+<li>queueing</li>
+<li>barriers</li>
+<li>critical sections</li>
+<li>sequentially consistent writes</li>
+<li>serializable reads (may be stale)</li>
+<li>client FIFO ordering</li>
+</ul>
+<p>Events</p>
+<ul>
+<li>clients request change notifications</li>
+<li>service does timely notifications</li>
+<li>do not block write requests</li>
+<li>clients get notification of a change before they see the result of a change</li>
+</ul>
+<p>Znodes</p>
+<ul>
+<li>Can be ephemeral</li>
+<li>Can be sequence (used for symmetry breaking)</li>
+</ul>
+<h2 id="fault-tolerant-rpcs">Fault-tolerant RPCs</h2>
+<p>Semantics under failures:</p>
+<ol>
+<li>client is unable to locate the server</li>
+<li>request message from the client to server is lost</li>
+<li>server crashes after receiving a request</li>
+<li>reply message from server to client is lost</li>
+<li>client crashes after sending a request</li>
+</ol>
+<h3 id="primary-backup-1">Primary backup</h3>
+<p>Update:</p>
+<ol>
+<li>Client sends to primary</li>
+<li>Primary locks exclusive lock</li>
+<li>Primary sends to backup</li>
+<li>Backup sends acknowledgement to primary</li>
+<li>Primary unlocks</li>
+<li>Primary sends an acknowledgement to client</li>
+</ol>
+<p>Read:</p>
+<ol>
+<li>client sends to primary</li>
+<li>Primary locks shared lock</li>
+<li>Primary gets data</li>
+<li>Primary unlocks</li>
+<li>Primary sends data to client</li>
+</ol>
+<h3 id="quorum-acid">Quorum (ACID)</h3>
+<ol>
+<li>Client to server to send data and acquire locks</li>
+<li>Server sends data to client</li>
+<li>Client to server to release locks</li>
+<li>Server sends acknowledgement</li>
+</ol>
+<p>To get linearizability:</p>
+<ul>
+<li>For read quorum, we want <span class="math inline">\(N_R + N_w \gt N\)</span>
+</li>
+<li>For write quorum, <span class="math inline">\(N_W + N_R \gt N\)</span>
+</li>
+</ul>
+<h3 id="quorum-nosql-key-value-store">Quorum (NoSQL key-value store)</h3>
+<ul>
+<li>No locking</li>
+<li>Operations have timestamps, which are used to break ties (look at the fresher timestamp)</li>
+</ul>
+<h2 id="anti-entropy">Anti Entropy</h2>
+<p>Entropy is when servers have different values for the same key.</p>
+<p>Solution: use a Merkle tree, hashing the hashes of its child node values</p>
+<h2 id="checkpoints">Checkpoints</h2>
+<p>2-phase commit is the A in ACID. 2-phase locking is the I in ACID.</p>
+<p>A <strong>distributed checkpoint</strong> is a collection of checkpoints (one per process).</p>
+<ul><li>If receive event of some message <span class="math inline">\(m\)</span> is recorded, then the send for <span class="math inline">\(m\)</span> is also recorded.</li></ul>
+<p>The <strong>recovery line</strong> is the most recent distributed snapshot.</p>
+<h3 id="coordinated-checkpointing-algorithm">Coordinated checkpointing algorithm</h3>
+<ul>
+<li>Phase 1<ul>
+<li>Coordinator sends <code>CHECKPOINT_REQUEST</code>
+</li>
+<li>Upon receiving the above message:<ul>
+<li>Pause processing incoming messages</li>
+<li>Take local checkpoint</li>
+<li>Return ack to coordinator</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Phase 2<ul>
+<li>Coordinator waits for all processes to send ack</li>
+<li>Coordinator sends <code>CHECKPOINT_DONE</code> to all processes</li>
+<li>Upon receiving the above message, processes resume processing messages</li>
+</ul>
+</li>
+</ul>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

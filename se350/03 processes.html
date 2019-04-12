@@ -1,0 +1,255 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+<title>Processes</title>
+</head>
+<body>
+
+<h1 id="processes">Processes</h1>
+<a href="index.html">Back to se350</a>
+<div id="TOC">
+
+<ul>
+<li><a href="#requirements">Requirements</a></li>
+<li>
+<a href="#managing-processes">Managing Processes</a><ul>
+<li><a href="#spawning">Spawning</a></li>
+<li><a href="#termination">Termination</a></li>
+<li><a href="#queueing">Queueing</a></li>
+<li><a href="#resource-management">Resource management</a></li>
+<li><a href="#process-creation">Process creation</a></li>
+<li><a href="#when-to-switch-processes">When to switch processes</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="requirements">Requirements</h2>
+<ul>
+<li>Use multiple process for max processor utilization<br>
+- uniprocessor: interleave execution of procs<br>
+- multiprocessor: interleave and parallel execution</li>
+<li>allocate resources to process</li>
+<li>support communication between processes</li>
+<li>support user creation of processes</li>
+<li>OS provides a "virtual machine" to processes for the resources they are allowed to access</li>
+</ul>
+<h2 id="managing-processes">Managing Processes</h2>
+<ul>
+<li>A process is a unit of activity with:<br>
+- execution of a sequence of instructions (program)<br>
+- current state<br>
+- associated set of system instructions</li>
+<li>Has properties:<br>
+- Identifier (PID)<br>
+- State (e.g. running state: what memory regions are assigned, files opened, user name, etc)<br>
+- Priority, relative to other processes<br>
+- Memory pointers<br>
+- context data (registers, PSW, program counter)<br>
+- IO status info<br>
+- accounting information<br>
+- amount of processor time, time limits, threads<br>
+- try <code>top</code> and <code>ulimit</code>
+</li>
+<li>Process Control Block (PCB)<br>
+- The data structure that contains one description of one process<br>
+- created and managed by OS<br>
+- allows support for multiple processes<br>
+- e.g.<br>
+```C<br>
+typedef rom const struct _rom_desc_tsk {<br>
+unsigned char prioinit;<br>
+unsigned char <em>stackAddr;<br>
+void (</em>addr_ROM)(void);<br>
+unsigned char tskstate;<br>
+unsigned char tskid;<br>
+unsigned int stksize;<br>
+} rom_desc_tsk;</li>
+</ul>
+<p>/****************************************<br>
+* -------------- task VM ---------------<br>
+*****************************************/<br>
+rom_desc_tsk rom_desc_task_vm = {<br>
+TASK_VM_PRIO,<br>
+_stack_vm,<br>
+TASK_VM,<br>
+READY,<br>
+TASK_VM_ID,<br>
+sizeof(_stack_vm)<br>
+};<br>
+```</p>
+<ul><li>trace of the process<br>
+- sequence of instructions for a process<br>
+- dispatcher switches the processor from one to another<br>
+- dispatcher invokes scheduler which decides which process to switch to<br>
+- not running processes are in a queue</li></ul>
+<h3 id="spawning">Spawning</h3>
+<ul><li>Sources<br>
+- New batch job<br>
+- interactive logon<br>
+- from OS to provide service<br>
+- Parent process explicitly creates a child process<br>
+- check this with <code>ps --forest</code> and <code>pstree</code>
+</li></ul>
+<h3 id="termination">Termination</h3>
+<ul>
+<li>Sources<br>
+- noral completion<br>
+- time limit exceeded (<code>ulimit</code>)<br>
+- memory unavailable<br>
+- bounds violation<br>
+- protection error<br>
+- arithmetic error<br>
+- time overrun<br>
+- IO failure<br>
+- invalid instruction<br>
+- privileged instruction<br>
+- data misuse<br>
+- operator OS intervention<br>
+- parent termination<br>
+- parent request</li>
+<li>can do a core dump</li>
+</ul>
+<h3 id="queueing">Queueing</h3>
+<ul>
+<li>A process can be either <strong>running</strong> or <strong>not running</strong> state, dispatcher switches between</li>
+<li>Processes must wait ing some sort of queue (priority queue) until it's their turn</li>
+<li>simple queueing is inefficient<br>
+- some processes are ready to execute<br>
+- some are blocked</li>
+<li>with a single queue: dispatcher must scan list to find process not running, ready, and in queue the longest</li>
+<li>multiple queues: make a queue for ready processes and another for busy ones<ul>
+<li>We now have five states, and at least one queue for each state:<ul>
+<li>Running</li>
+<li>Ready</li>
+<li>Blocked/Waiting<ul><li>Make a queue for each type of event you can be blocked on so that you don't have to iterate through each blocked process to see which to remove from the queue</li></ul>
+</li>
+<li>New (ready to enter system)</li>
+<li>Exit (a halted or aborted process)<ul><li>So that we can dispose of resources in bulk if we want</li></ul>
+</li>
+</ul>
+</li>
+<li>We can split blocked and ready into suspended and not suspended states so that suspended processes can be written to disk to free up RAM</li>
+</ul>
+</li>
+</ul>
+<h3 id="resource-management">Resource management</h3>
+<ul><li>Things the OS needs to know about process resource management<ul>
+<li>allocation of main memory processes</li>
+<li>allocation of secondary memory processes</li>
+<li>protection attrs for shared memory regions</li>
+<li>info needed for virtual memory</li>
+<li>IO tables<ul>
+<li>IO device available or assigned</li>
+<li>location in main memory used as source/dest of io transfer</li>
+</ul>
+</li>
+<li>File tables<ul>
+<li>existence of files</li>
+<li>location on secondary memory</li>
+<li>status</li>
+<li>attributes (e.g. <code>rwxr-r-</code>)</li>
+</ul>
+</li>
+<li>Process table<ul>
+<li>where process is located in memory</li>
+<li>attributes in process image</li>
+<li>program</li>
+<li>data</li>
+<li>stack</li>
+<li>process control block<ul>
+<li>identifiers<ul>
+<li>numeric identifiers that may be stored with proceess control block include</li>
+<li>id: unique key for the process</li>
+<li>id for parent process</li>
+<li>user id</li>
+<li>this is defined by <code>pid_t</code>
+</li>
+</ul>
+</li>
+<li>process state info<ul>
+<li>user-visible registers<ul>
+<li>user-visible register is one that may be referenced with the machine language the processor executes while in user mode.</li>
+<li>might be as low as only 1 working register</li>
+</ul>
+</li>
+<li>control and status registers<ul><li>a variety of processor regsiters to control operation, including:<ul>
+<li>program counter: address of next instruction to fetch</li>
+<li>condition codes: result of most recent arithmetic or logical op</li>
+<li>status info: includes interrupt enabled/disabled flags, execution mode</li>
+</ul>
+</li></ul>
+</li>
+<li>processor state info</li>
+<li>stack pointers</li>
+<li>process control info<ul>
+<li>meta info for handling processes</li>
+<li>scheduling and state info</li>
+<li>linked list for child processes</li>
+<li>linked list for same priority processes</li>
+<li>linked list for "cohort" processes</li>
+</ul>
+</li>
+<li>importance</li>
+<li>interprocess communication<ul><li>flags, signals, messages which may be associated with communication between two independent processes</li></ul>
+</li>
+<li>process privileges<ul><li>types of instructions that can be executed</li></ul>
+</li>
+<li>memory management<ul><li>pointers to segment/page tables for virtual memory assignment</li></ul>
+</li>
+<li>resource ownership and utilization<ul><li>resources controlled by process, such as opened files</li></ul>
+</li>
+<li>contents of processor registers</li>
+<li>Program Status Word</li>
+<li>current mode of execution<ul>
+<li>user mode: less trusted</li>
+<li>system mode: more privileged</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li></ul>
+<h3 id="process-creation">Process creation</h3>
+<ol>
+<li>Assign unique PID</li>
+<li>Allocate space</li>
+<li>Initialize PCB</li>
+<li>Set up appropriate links (e.g. add new process to linked list for scheduling queue)</li>
+<li>Create and expand other data structures, e.g. accounting file</li>
+</ol>
+<h3 id="when-to-switch-processes">When to switch processes</h3>
+<ul>
+<li>clock interrupt</li>
+<li>IO interrupt</li>
+<li>memory fault</li>
+<li>trap (used for debugging)</li>
+<li>supervisor call</li>
+</ul>
+<h4 id="steps-to-switch">Steps to switch</h4>
+<ol>
+<li>Save context of processor (PC and other registers)</li>
+<li>Update PCB of the process currently running</li>
+<li>Move PCB to appropriate queue: ready, blocked, ready/suspend</li>
+<li>Seect another process to execute</li>
+</ol>
+<h4 id="change-of-process-state">Change of Process State</h4>
+<ul>
+<li>update PCB of selected process</li>
+<li>update memory management structures</li>
+<li>restore context of selected process</li>
+</ul>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

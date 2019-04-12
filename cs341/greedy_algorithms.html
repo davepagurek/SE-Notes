@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<title>Greedy Algorithms</title>
+</head>
+<body>
+
+<h1 id="greedy-algorithms">Greedy Algorithms</h1>
+<a href="index.html">Back to cs341</a>
+<div id="TOC">
+
+<ul>
+<li>
+<a href="#method">Method</a><ul>
+<li><a href="#partial-solutions">Partial solutions</a></li>
+<li><a href="#choice-set">Choice set</a></li>
+<li><a href="#local-evaluation-criterion">Local evaluation criterion</a></li>
+</ul>
+</li>
+<li>
+<a href="#extension">Extension</a><ul><li><a href="#greedy-algorithm">Greedy algorithm</a></li></ul>
+</li>
+<li>
+<a href="#features">Features</a><ul>
+<li><a href="#e.g.-interval-selection">e.g. interval selection</a></li>
+<li><a href="#e.g.-interval-colouring">e.g. interval colouring</a></li>
+<li><a href="#knapsack-problem">Knapsack problem</a></li>
+<li><a href="#coin-changing">Coin changing</a></li>
+<li><a href="#stable-marriage-problem">Stable Marriage Problem</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<ul>
+<li>
+<strong>Feasible solution</strong>: for any problem input <span class="math inline">\(I\)</span>, <span class="math inline">\(feasible(I)\)</span> is the set of solutions for <span class="math inline">\(I\)</span> that satisfy the constraints</li>
+<li>
+<strong>Objective function</strong>: A profit or cost function to measure feasible solutions</li>
+<li>
+<strong>Optimal solution</strong>: The feasible solution with the highest profit or minimized cost</li>
+</ul>
+<h2 id="method">Method</h2>
+<h3 id="partial-solutions">Partial solutions</h3>
+<p>Given a problem instance <span class="math inline">\(I\)</span>, you can write a feasible solution <span class="math inline">\(X\)</span> as a tuple <span class="math inline">\([x_1, x_2, ..., x_n]\)</span> for some <span class="math inline">\(n\)</span> where <span class="math inline">\(x_i \in X \forall i\)</span>. A tuple where <span class="math inline">\(i \lt n\)</span> is a <strong>partial solution</strong> if no constraints are violated.</p>
+<h3 id="choice-set">Choice set</h3>
+<p>For a partial solution <span class="math inline">\(X\)</span>, we can define a <strong>choice set</strong>:<br>
+<span class="math display">\[choice(X) = \{y \in X: [x_1, ..., x_i, y]\ \text{ is a partial solution}\}\]</span></p>
+<h3 id="local-evaluation-criterion">Local evaluation criterion</h3>
+<p>For any <span class="math inline">\(y \in X\)</span>, <span class="math inline">\(g(y)\)</span> measures the cost or profit in a partial solution</p>
+<h2 id="extension">Extension</h2>
+<p>Choose <span class="math inline">\(y \in choice(X)\)</span> such that <span class="math inline">\(g(y)\)</span> is as small or large as possible. Update <span class="math inline">\(x\)</span> to add <span class="math inline">\(y\)</span> as the <span class="math inline">\(i+1\)</span>th tuple.</p>
+<h3 id="greedy-algorithm">Greedy algorithm</h3>
+<p>Start from an empty partial solution, and extend it until a feasible solution <span class="math inline">\(X\)</span> is constructed. This may not be optimal.</p>
+<h2 id="features">Features</h2>
+<ul>
+<li>no lookahead or backtracking</li>
+<li>Only one feasible solution generated</li>
+</ul>
+<h3 id="e.g.-interval-selection">e.g. interval selection</h3>
+<p>Let a set <span class="math inline">\(A = \{A_1, ..., A_n\}\)</span> be a set of intervals, where each <span class="math inline">\(A_i\)</span> is of the form <span class="math inline">\([s_i, f_i)\)</span>, where <span class="math inline">\(s_i\)</span> is a start time and <span class="math inline">\(f_i\)</span> is a finish time.</p>
+<p>Find a subset <span class="math inline">\(B \subseteq A\)</span> of pairwise distinct intervals that maximizes <span class="math inline">\(|B|\)</span>.</p>
+<h4 id="possible-strategies">Possible strategies</h4>
+<ol>
+<li>Choose the earliest starting interval disjoin from previously chosen ones (local evaluation criterion is <span class="math inline">\(s_i\)</span>)</li>
+<li>Choose the interval of minimum duration that is disjoint from all previously chosen intervals (local evaluation criterion is <span class="math inline">\(f_i - s_i\)</span>)</li>
+<li>Choose the earliest finishing interval disjoint from all previously chosen intervals (local evaluation criterion is <span class="math inline">\(f_i\)</span>)</li>
+</ol>
+<p><strong>Strategy 3</strong> is optimal, if we pre-sort the intervals. The <span class="math inline">\(\Theta(n\log n)\)</span> sort dominates the <span class="math inline">\(\Theta(n)\)</span> iteration.</p>
+<p>e.g.</p>
+<pre><code>GreedyIntervalSelection(A) {
+  A.sort(x =&gt; x.f) // by finish, so i &lt; j =&gt; A[i].f &lt; A[j].f
+  B = [A[0]]
+  for interval in A[1...A.length] {
+    if interval.start &gt;= B.last.finish {
+      B.push(interval)
+    }
+  }
+}</code></pre>
+<h4 id="inductive-proof">Inductive proof</h4>
+<p>Let <span class="math inline">\(A\)</span> be the intervals <span class="math inline">\([A_1, A_2, ..., A_n]\)</span> such that <span class="math inline">\(f_1 \le f_2 \le ... \le f_n\)</span>.<br>
+Let <span class="math inline">\(B\)</span> be the greedy solution. <span class="math inline">\(B=[A_{i_1}, A_{i_2}, ..., A_{i_k}]\)</span> where <span class="math inline">\(i_1 \lt i_2 \lt ... \lt i_k\)</span><br>
+Let <span class="math inline">\(O\)</span> by any optjmal solutjon <span class="math inline">\(O = [A_{j_1}, A_{j_2}, ..., A_{j_l}]\)</span> where <span class="math inline">\(j_1 \lt j_2 \lt ... \lt j_l\)</span></p>
+<p>We want to prove that <span class="math inline">\(k=l\)</span> and that <span class="math inline">\(f_{i_1} \le f_{j_1} \land f_{i_2} \le f_{j_2} \land ... \land f_{i_k} \le f_{j_l}\)</span> (note that <span class="math inline">\(k \le l\)</span>). In this statement, the greedy algorithm "stays ahead" for every step.</p>
+<p><strong>Base case:</strong> <span class="math inline">\(f_{i_1} \le f_{j_1}\)</span><br>
+The greedy algorithm begins by choosing the interval with the earliest finishing time possible.</p>
+<p><strong>Inductive assumption:</strong> <span class="math inline">\(f_{i_{m-1}} \le f_{j_{m-1}}\)</span></p>
+<p><strong>Inductive step:</strong> We want to prove that <span class="math inline">\(f_{i_m} \le f_{j_m}\)</span><br>
+Assume that <span class="math inline">\(f_{i_m} \gt f_{j_m}\)</span>.<br>
+Then, <span class="math inline">\(s_{j_m} \ge f_{j_{m-1}}\)</span>. By the inductive assumption, this must also be <span class="math inline">\(\ge f_{i_{m-1}}\)</span>. <span class="math inline">\(A_{j_m}\)</span> would be selected by the greedy algorithm instead of <span class="math inline">\(A_{i_m}\)</span> because it has an earlier finishing time. This is a contradiction, so we have shown that <span class="math inline">\(f_{i_m} \le f_{j_m}\)</span>.</p>
+<p>By induction, we have proven <span class="math inline">\(f_{i_1} \le f_{j_1} \land f_{i_2} \le f_{j_2} \land ... \land f_{i_k} \le f_{j_l}\)</span> and <span class="math inline">\(k \le l\)</span>.</p>
+<p>Now, assume <span class="math inline">\(k \lt l\)</span>. We know that for every step, the greedy algorithm is headead of <span class="math inline">\(O\)</span> from the previous induction. This means the <span class="math inline">\(k+1\)</span>th element in <span class="math inline">\(O\)</span> is not in the greedy solution <span class="math inline">\(B\)</span>. Since <span class="math inline">\(f_{j_k} \gt f_{i_k}\)</span>, <span class="math inline">\(s_{j_{k+1}}\)</span> must also be <span class="math inline">\(\ge f_{j_k} \ge f_{i_k}\)</span> and would therefore have been included in the greedy solution. This is a contradiction, so <span class="math inline">\(k=l\)</span>.</p>
+<h4 id="wizardly-proof">Wizardly proof</h4>
+<p><strong>Claim</strong>: There is no interval in the optimal solution <span class="math inline">\(O\)</span> that lies between two consecutive values in the list of values <span class="math inline">\(f_{i_0}, f_{i_1}, ..., f_{i_k}\)</span>.</p>
+<p>Assume that one did exist. Then, its finishing value would have been smaller than the finishing value of the next item in the greedy solution, and the greedy algorithm would have selected it instead. Since it didn't, it must not exist. Therefore, every interval in the optimal solution <span class="math inline">\(O\)</span> contains a point in the set <span class="math inline">\(\{f_{i_1}, ..., f_{i_k}\}\)</span>. Therefore there must be <span class="math inline">\(k\)</span> intervals in the optimal solution.</p>
+<h3 id="e.g.-interval-colouring">e.g. interval colouring</h3>
+<p>Given another set <span class="math inline">\(A\)</span> of intervals, a <span class="math inline">\(c\)</span>-colouring is a mapping <span class="math inline">\(col: A \rightarrow \{1,...,c\}\)</span> assigns each interval a colour such that two intervals receiving the same colour are always disjoint. Find a <span class="math inline">\(c\)</span>-colouring of <span class="math inline">\(A\)</span> that minimizes <span class="math inline">\(c\)</span>.</p>
+<p>We will colour the <span class="math inline">\(i+1\)</span>st interval with <strong>any permissible colour</strong>. If none exists, we will add a new colour. The question is, what order do we consider the intervals?</p>
+<p>Sort by start time of the intervals in increasing order.</p>
+<h4 id="proof">Proof</h4>
+<p>Let <span class="math inline">\(D\)</span> be the number of colours the algorithm uses. Suppose <span class="math inline">\([s_i, f_i)\)</span> is the first interval to use colour <span class="math inline">\(D\)</span>. That means that at this point, we have <span class="math inline">\(D\)</span> mutually overlapping intervals containing the point <span class="math inline">\(s_i\)</span>. Therefore we need at least <span class="math inline">\(D\)</span> colours.</p>
+<h4 id="complexity">Complexity</h4>
+<ul>
+<li>Preprocessing is a sort of <span class="math inline">\(\Theta(n\log n)\)</span>
+</li>
+<li>Loop through each item is <span class="math inline">\(\Theta(n)\)</span> operations</li>
+<li>Finding a colour for each item is <span class="math inline">\(O(nD)\)</span> where <span class="math inline">\(D\)</span> is the number of colours used. <span class="math inline">\(D \in O(n)\)</span>, so complexity is <span class="math inline">\(O(n^2)\)</span>.</li>
+</ul>
+<h4 id="complexity-for-a-better-algorithm">Complexity for a better algorithm</h4>
+<ul>
+<li>keep track of finishing times in a min heap</li>
+<li>when we colour an interval, insert its finishing time into the priority queue</li>
+<li>check min finishing time in the priority queue, and if it is <span class="math inline">\(\le s_i\)</span>, delete the min</li>
+<li>The colour finding is now <span class="math inline">\(O(n\log D)\)</span>
+</li>
+<li>overall runtime is now <span class="math inline">\(O(n\log n)\)</span>
+</li>
+</ul>
+<h3 id="knapsack-problem">Knapsack problem</h3>
+<p>Profits <span class="math inline">\(P\)</span> and weights <span class="math inline">\(W\)</span> and a capacity <span class="math inline">\(M\)</span> exist. An <span class="math inline">\(n\)</span>-tuple <span class="math inline">\(X\)</span> exists where <span class="math inline">\(\sum_{i=1}^n w_i x_i \le M\)</span>.</p>
+<ul>
+<li>In the 0-1 Knapsack problem, we require that <span class="math inline">\(x_i \in \{0, 1\}, 1 \le i \le n\)</span>.</li>
+<li>In the Rational Knapsack problem, we require that <span class="math inline">\(x_i \in \mathbb{Q}\)</span> and <span class="math inline">\(0 \le x_i \le 1, 1 \le i \le n\)</span>.</li>
+</ul>
+<p>Find a solution <span class="math inline">\(X\)</span> that maximizes <span class="math inline">\(\sum_{i=1}^n p_i x_i\)</span>.</p>
+<ul>
+<li>Rational knapsack problem is easy to solve with a greedy algorithm.</li>
+<li>0-1 Knapsack problem is NP-hard.</li>
+</ul>
+<h4 id="strategy">Strategy</h4>
+<ul>
+<li>Sort by profit divided by weight</li>
+<li>If you can fit the whole item, add it</li>
+<li>otherwise, add as much of it as you can (this will be the last item)</li>
+</ul>
+<h4 id="proof-1">Proof</h4>
+<p>Assumption: <span class="math inline">\(\frac{p_1}{w_1} \gt \frac{p_2}{w_2} \gt ... \gt \frac{p_n}{w_n}\)</span></p>
+<p>Let the greedy solution by <span class="math inline">\(X\)</span>. Let the optimal solution be <span class="math inline">\(Y\)</span>. We will prove that <span class="math inline">\(X=Y\)</span> by contradiction. Assume <span class="math inline">\(X \ne Y\)</span>.</p>
+<p>Let <span class="math inline">\(j\)</span> be the first index such that <span class="math inline">\(x_j \ne y_j\)</span>. We know that <span class="math inline">\(x_j\)</span> will be greater than <span class="math inline">\(y_j\)</span> because the greedy algorithm chooses the maximum value for <span class="math inline">\(x_j\)</span>. Pick an index <span class="math inline">\(k \gt j\)</span> such that <span class="math inline">\(y_k \gt 0\)</span>. <span class="math inline">\(k\)</span> exists because the greedy solution can't be better than the optimal solution. So, <span class="math inline">\(x_j \gt y_j\)</span> and <span class="math inline">\(k_y \gt 0\)</span> (<span class="math inline">\(k \gt i\)</span>).</p>
+<p>Idea: alter <span class="math inline">\(Y\)</span> to become a new <span class="math inline">\(Y'\)</span> with a higher profit than <span class="math inline">\(Y\)</span>. Let <span class="math inline">\(\delta=\min\{w_ky_k, w_j(w_j-y_j)\}\)</span>. Note that <span class="math inline">\(\delta \gt 0\)</span>.</p>
+<p>Let <span class="math inline">\(y_k' = y_k - \delta/w_k\)</span>, and let <span class="math inline">\(y_j'=y_j+\delta/w_j\)</span>. We now need to show that <span class="math inline">\(y_j' \ge 1\)</span> and that <span class="math inline">\(k_k' \ge 0\)</span>.</p>
+<p><span class="math display">\[y_j' = y_j + \frac{\delta}{w_j} \le y_j + \frac{w_j(x_j-y_j)}{w_j} = x_j \le 1\]</span><br>
+<span class="math display">\[y_k' = y_k - \frac{\delta}{w_k} \ge y_k - \frac{w_ky_k}{w_k} = 0\]</span><br>
+<span class="math display">\[Weight(Y') = Weight(Y) + \frac{\delta w_j}{w_j} - \frac{\delta w_k}{w_k} = Weight(Y)\]</span></p>
+<p><span class="math display">\[\begin{align*}
+Profit(Y') &amp;= Profit(Y) + \frac{\delta p_j}{w_j} - \frac{\delta p_k}{w_k}\\
+&amp;= Profit(Y) + \delta\left(\frac{p_j}{w_j}-\frac{p_k}{w_k}\right) \\
+&amp;\gt Profit(Y)\\
+\end{align*}\]</span><br>
+This is a contradiction.</p>
+<h3 id="coin-changing">Coin changing</h3>
+<p>A list of coin denominations <span class="math inline">\(D\)</span> exists, and a positive target sum <span class="math inline">\(T\)</span>. Find an <span class="math inline">\(n\)</span>-tuple of non-negative integers sich that <span class="math inline">\(T=\sum_{i=1}{n} a_i d_i\)</span> such that the number of coins <span class="math inline">\(n\)</span> is minimized.</p>
+<p>Strategy: Sort by size descending. Take as many as you can of the largest, then as many as you can of the next largest, etc, until you reach the target sum. <strong>This doesn't work for all coin denominations.</strong></p>
+<h3 id="stable-marriage-problem">Stable Marriage Problem</h3>
+<p>A set of men <span class="math inline">\(M\)</span> and a set of women <span class="math inline">\(W\)</span> exist. Each man has a preference ranking for each of the women, and each woman has a ranking for each of the men. Find a matching of the <span class="math inline">\(n\)</span> men with the <span class="math inline">\(n\)</span> women such that there does not exist a couple <span class="math inline">\((m_i, w_i)\)</span> wh are not engaged to each other, but prefer each other to their existing matches. A matching with this property is called a <strong>stable matching</strong>.</p>
+<h4 id="gale-shapley-algorithm">Gale-Shapley Algorithm</h4>
+<ul>
+<li>Men propose to women</li>
+<li>If a woman accepts the proposal, then the couple is engaged</li>
+<li>an unmatched woman must accept a proposal</li>
+<li>If an engaged woman receives a proposal from a man whom she prefers, she can cancel her existing engagement</li>
+<li>If an engaged woman receives a proposal from a man but she prefers the current match, the proposal is rejected</li>
+<li>Engaged women never become unengaged</li>
+<li>A man might make a number of proposals (up to <span class="math inline">\(n\)</span>). The order is determined by the man's preference list</li>
+</ul>
+<h4 id="proof-of-correctness">Proof of correctness</h4>
+<p>Assume there is an instability, so that <span class="math inline">\(m_i\)</span> ranks <span class="math inline">\(w_l \gt w_j\)</span> and <span class="math inline">\(w_l\)</span> ranks <span class="math inline">\(m_i \gt m_k\)</span>, but <span class="math inline">\(m_i\)</span> is matched with <span class="math inline">\(w_j\)</span> and <span class="math inline">\(m_k\)</span> is matched with <span class="math inline">\(w_l\)</span>.</p>
+<p>We know <span class="math inline">\(m_i\)</span> must have proposed to <span class="math inline">\(w_l\)</span> before he proposed to <span class="math inline">\(w_j\)</span> due to the algorithm. What happened in this proposal?</p>
+<ol>
+<li>
+<span class="math inline">\(w_l\)</span> rejected <span class="math inline">\(m_i\)</span><ul><li>In this case, <span class="math inline">\(w_l\)</span> rejected the proposal only if she had an offer from someone she liked better. She would not have then accepted a proposal from <span class="math inline">\(m_k\)</span>, who she likes less.</li></ul>
+</li>
+<li>
+<span class="math inline">\(w_l\)</span> accepted the proposal, but accepted another one later.<ul><li>In this case, it would have only happened if <span class="math inline">\(w_l\)</span> later accepts a proposal from someone she prefers more than <span class="math inline">\(m_i\)</span>. She would not accept a proposal from someone she likes less, such as <span class="math inline">\(m_k\)</span>.</li></ul>
+</li>
+</ol>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

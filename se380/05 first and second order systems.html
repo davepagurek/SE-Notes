@@ -1,0 +1,268 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<title>First and Second Order Systems</title>
+</head>
+<body>
+
+<h1 id="first-and-second-order-systems">First and Second Order Systems</h1>
+<a href="index.html">Back to se380</a>
+<div id="TOC">
+
+<ul>
+<li><a href="#first-order">First order</a></li>
+<li>
+<a href="#second-order">Second order</a><ul>
+<li><a href="#e.g.">e.g.</a></li>
+<li><a href="#pole-locations">Pole locations</a></li>
+<li><a href="#step-response">Step response</a></li>
+</ul>
+</li>
+<li>
+<a href="#underdamped-systems">Underdamped Systems</a><ul><li><a href="#summary">Summary</a></li></ul>
+</li>
+<li>
+<a href="#general-characteristics-of-step-response">General characteristics of step response</a><ul>
+<li><a href="#overshoot">Overshoot</a></li>
+<li><a href="#settling-time">Settling time</a></li>
+<li><a href="#time-to-peak">Time-to-peak</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="first-order">First order</h2>
+<p><span class="math display">\[\tau \dot{y} = ku\]</span><br>
+or<br>
+<span class="math display">\[\frac{Y(s)}{U(s)} = \frac{K}{\tau s + 1}\]</span><br>
+or<br>
+<span class="math display">\[\begin{align}
+\dot{x}&amp;=\frac{-x}{\tau} + \frac{K}{\tau} u\\
+y &amp;= x
+\end{align}\]</span></p>
+<p>Observations:</p>
+<ul>
+<li>Pole at <span class="math inline">\(s=\frac{-1}{\tau}\)</span>
+</li>
+<li>No zeroes</li>
+<li>BIBO stable if and only if <span class="math inline">\(\tau \gt 0\)</span>
+</li>
+<li>steady-state gain: <span class="math inline">\(K\)</span>
+</li>
+<li>bandwidth: <span class="math inline">\(\frac{1}{\tau}\)</span> rad/s</li>
+<li>Impulse response: <span class="math inline">\(g(t)=\frac{K}{\tau} e^{-1/\tau} 1(t)\)</span><ul>
+<li><span class="math inline">\(g(0)=\frac{K}{\tau}\)</span></li>
+<li><span class="math inline">\(g(\tau)=g(0)e^{-1} \approx 0.37g(0)\)</span></li>
+<li><span class="math inline">\(g(2\tau)=g(0)e^{-2} \approx 0.14g(0)\)</span></li>
+</ul>
+</li>
+<li>Higher bandwidth implies faster impulse response, and vice versa</li>
+</ul>
+<p>Step response:<br>
+<span class="math display">\[y(t) = \mathcal{L}^{-1}\{G(s)U(s)\} = \mathcal{L}^{-1}\left\{\frac{K}{\tau s + 1} \frac{1}{s}\right\} = \mathcal{L}^{-1}\left\{\frac{K}{s} - \frac{K}{s + \frac{1}{\tau}}\right\}\]</span><br>
+<span class="math display">\[K(1-e^{\frac{-t}{\tau}}), \quad t \ge 0\]</span></p>
+<p><img src="img/firstordertime.png"></p>
+<p>Observations:</p>
+<ol>
+<li>After <span class="math inline">\(4\tau\)</span> seconds, <span class="math inline">\(y(t)\)</span> is within 2% of its steady-state value</li>
+<li>For all <span class="math inline">\(t \gt 0\)</span>, <span class="math inline">\(y(t) \lt y_{ss}\)</span> (no overshoot)</li>
+<li>
+<span class="math inline">\(y(t)\)</span> increases monotonically (no oscillations)</li>
+<li>Decrease in <span class="math inline">\(\tau \Leftrightarrow\)</span> step response gets faster <span class="math inline">\(\Leftrightarrow\)</span> bandwidth goes up <span class="math inline">\(\Leftrightarrow\)</span> poles move to the left</li>
+</ol>
+<h2 id="second-order">Second order</h2>
+<p><span class="math display">\[\ddot{y}+2\zeta\omega_n \dot{y} + \omega_n^2 y = K\omega_n^2 u\]</span><br>
+or<br>
+<span class="math display">\[ \frac{Y(s)}{U(s)} = \frac{K\omega_n^2}{s^2 + 2\zeta\omega_n s + \omega_n^2}\]</span><br>
+or<br>
+<span class="math display">\[\begin{align}
+\dot{x} &amp;= \begin{bmatrix}0&amp;1\\-\omega_n^2&amp;-2\zeta\omega_n\end{bmatrix}x + \begin{bmatrix}0\\K\omega_n^2\end{bmatrix}u\\
+y &amp;= \begin{bmatrix} 1 &amp; 0\end{bmatrix}x\\
+\end{align}\]</span></p>
+<h3 id="e.g.">e.g.</h3>
+<p><img src="img/secondorderspring.png"></p>
+<p><span class="math display">\[\begin{align}
+M \ddot{q} &amp;= u - K_{spring} q - b\dot{q}\\
+\frac{Y(s)}{U(s)} &amp;= \frac{\frac{1}{M}}{s^2 + \frac{b}{M}s + \frac{K_{spring}}{M}}\\
+\\
+\omega_n &amp;= \sqrt{\frac{K_{spring}}{M}}\\
+\zeta &amp;= \frac{b}{2 \sqrt{K_{spring}M}}\\
+K &amp;= \frac{1}{K_{spring}}
+\end{align}\]</span></p>
+<h3 id="pole-locations">Pole locations</h3>
+<p>From the quadratic formula, find the zeroes of the denominator:<br>
+<span class="math display">\[s = -\zeta \omega_n \pm \omega_n \sqrt{\zeta^2 - 1} = \omega_n\left(-\zeta \pm \sqrt{\zeta^2 - 1}\right)\]</span></p>
+<p><img src="img/secondorderpolelocations.png"></p>
+<p>Pole locations are used to categorize the system:</p>
+<ul>
+<li>Undamped <span class="math inline">\(\zeta = 0\)</span>
+</li>
+<li>Underdamped <span class="math inline">\(0 \lt \zeta \lt 1\)</span>
+</li>
+<li>Critically damped <span class="math inline">\(\zeta = 1\)</span>
+</li>
+<li>Overdamped <span class="math inline">\(\zeta \gt 1\)</span>
+</li>
+</ul>
+<p>Steady-state gain: <span class="math inline">\(K\)</span><br>
+Zeroes: none</p>
+<p><img src="img/secondordergian.png"></p>
+<h3 id="step-response">Step response</h3>
+<p><img src="img/secondorderstepresponse.png"></p>
+<h2 id="underdamped-systems">Underdamped Systems</h2>
+<ul><li>Poles are complex conjugate: <span class="math inline">\(s = -\zeta \omega_n \pm j\omega_n \sqrt{1 - \zeta^2} = \omega_n e^{\pm j (\pi - \theta)}, \theta = \arccos(\zeta)\)</span>
+</li></ul>
+<p><img src="img/underdampedpolar.png"></p>
+<h4 id="impulse-response">Impulse response</h4>
+<p><span class="math display">\[g(t) = K\frac{\omega_n}{\sqrt{1-\zeta^2}} \underbrace{e^{-\zeta \omega_n t}}_\text{decay rate} \sin\underbrace{\left(\omega_n \sqrt{1-\zeta^2} t\right)}_\text{oscillation rate}, \quad t \ge 0\]</span></p>
+<p>Observe: If we fix <span class="math inline">\(\zeta \in (0,1)\)</span>, then larger bandwidth <span class="math inline">\(\Leftrightarrow\)</span> faster decay</p>
+<h4 id="step-response-1">Step response</h4>
+<p><span class="math display">\[\begin{align}
+u(t) &amp;= 1(t)\\
+\Rightarrow U(s) &amp;= \frac{1}{s}\\
+\\
+Y(s) &amp;= G(s)U(s)\\
+\Rightarrow y(t) &amp;= \mathcal{L}^{-1}{G \dot U}\\
+&amp;= K\left(1 - \frac{1}{\sqrt{1 - \zeta^2}} e^{-\zeta \omega_n t} \sin\left(\omega_n \sqrt{1 - \zeta^2}t + \theta\right)\right), \quad \theta = \arccos \zeta\\
+\end{align}\]</span></p>
+<h3 id="summary">Summary</h3>
+<ul>
+<li>As <span class="math inline">\(\zeta \rightarrow 1\)</span>, response is less oscilatory, less overshoot, imaginary part of poles approaches zero</li>
+<li>As <span class="math inline">\(\zeta \rightarrow 0\)</span>, response is more oscillatory, more overshoot, real part of poles approaches 0</li>
+<li>
+<span class="math inline">\(\omega_{BW} \approx \omega_n\)</span>. As <span class="math inline">\(\omega_n \rightarrow \infty\)</span>, response is faster, poles have larger magnitude.</li>
+<li>Frequency of oscillation depends on imaginary part of the poles; rate of decay depends on the real part</li>
+</ul>
+<h2 id="general-characteristics-of-step-response">General characteristics of step response</h2>
+<ul>
+<li>Look at common metrics to quantify the quality</li>
+<li>metrics apply to <strong>any</strong> system</li>
+<li>we use <span class="math inline">\(G(s) = \frac{K \omega_n^2}{s^2 + 2\zeta \omega_n s + \omega_n^2}\)</span> to get equations for the metrics in therms of <span class="math inline">\(K, \omega_n, \zeta\)</span>
+</li>
+</ul>
+<p><img src="img/stepcharacteristics.png"></p>
+<h3 id="overshoot">Overshoot</h3>
+<ul>
+<li>only undamped second order systems have it:<br>
+<span class="math display">\[\%OS = \frac{||y||_\infty - |G(0)|}{|G(0)|}\]</span>
+</li>
+<li>only depends on dampting ratio:<br>
+<span class="math display">\[\%OS = \exp\left(\frac{-\zeta \pi}{\sqrt{1 - \zeta^2}}\right), \quad 0 \lt \zeta \lt 1\]</span>
+</li>
+<li>More damping (larger <span class="math inline">\(\zeta\)</span>) <span class="math inline">\(\Leftrightarrow\)</span> less overshoot</li>
+</ul>
+<h4 id="e.g.-mass-spring-damper">e.g. mass-spring damper</h4>
+<p><span class="math display">\[\frac{Y(s)}{U(s)} = \frac{\frac{1}{M}}{s^2 + \frac{b}{M}s + \frac{K_{spring}}{M}}\]</span></p>
+<ul><li>Find conditions on <span class="math inline">\(M,b,K_{spring}\)</span> so that <span class="math inline">\(\%OS \le \%OS_{max} = 0.05\)</span>
+</li></ul>
+<p><span class="math display">\[\begin{align}
+\zeta &amp;= \frac{b}{2\sqrt{MK_{spring}}}\\
+\zeta &amp;\ge \frac{-\ln(\%OS_{max})}{\sqrt{\pi^2 + (\ln\%OS_{max})^2}} =:\zeta_{min}\\
+\\
+\text{To meet specs:}\\
+\frac{b}{2\sqrt{MK_{spring}}} \ge 0.6901\\
+\end{align}\]</span></p>
+<p>The angle the poles make is <span class="math inline">\(\pm(\pi - \arccos \zeta)\)</span>.<br>
+<span class="math display">\[ \zeta \ge \zeta_{min} \Leftrightarrow \theta \le \arccos(\zeta_{min})\]</span><br>
+In this example, <span class="math inline">\(\theta \le 46^{\circ}\)</span><br>
+<img src="img/overshootangle.png"><br>
+Therefore the overshoot spec is not met if there are poles in the shaded region.</p>
+<h3 id="settling-time">Settling time</h3>
+<ul>
+<li>The smallest time <span class="math inline">\(T_s\)</span> such that <span class="math inline">\(\forall t \ge T_s,\quad \frac{|G(0)-y(t)|}{|y(t)|} \le 0.02\)</span>.</li>
+<li>An estimate is obtained by looking at the decay rate <span class="math inline">\(e^{-\zeta \omega_n t}\)</span>:<br>
+<span class="math display">\[e^{-\zeta \omega_n t} \le 0.02 \Rightarrow t \ge \frac{4}{\zeta \omega_n} \text{ (approx)}\]</span><br>
+i.e. <span class="math inline">\(T_s = \frac{4}{\zeta \omega_n}\)</span>
+</li>
+</ul>
+<h4 id="e.g.-mass-spring-damper-1">e.g. Mass-spring damper</h4>
+<p>Find the condition so that <span class="math inline">\(T_s \le T_s^{max} = 3\)</span></p>
+<p><span class="math display">\[\begin{align}
+G(s) &amp;= \frac{\frac{1}{M}}{s^2 + \frac{b}{M}s + \frac{K_{spring}}{M}}\\
+\frac{4}{\zeta \omega_n} &amp;\le 3 = T_s^{max}\\
+\Leftrightarrow \zeta\omega_n &amp;\ge \frac{4}{T_s^{max}}\\
+\Leftrightarrow \frac{b}{2M} &amp;\ge \frac{4}{3}\\
+\end{align}\]</span></p>
+<p><img src="img/massspringpoles.png"></p>
+<h3 id="time-to-peak">Time-to-peak</h3>
+<ul>
+<li>Smallest <span class="math inline">\(T_p \gt 0\)</span> such that <span class="math inline">\(||y||_\infty = y(T_p)\)</span>
+</li>
+<li>Derived similar to overshoot: <span class="math inline">\(T_p = \frac{\pi}{\omega_n \sqrt{1 - \zeta^2}}, \quad 0 \lt \zeta \lt 1\)</span>
+</li>
+<li>So <span class="math inline">\(T_p\)</span> only depends on the imaginary part of the poles</li>
+</ul>
+<h4 id="e.g.-mass-spring-damper-again">e.g. mass-spring damper again</h4>
+<p>Spec: <span class="math inline">\(T_p \le T_p^{max} = 3 \text{ seconds }\)</span></p>
+<p><span class="math display">\[\begin{align}
+\omega_n\sqrt{1-\zeta^2} &amp;\le \frac{\pi}{T_p^{max}}\\
+\Leftrightarrow \sqrt{\frac{K_{spring}}{M} - \frac{b^2}{4M^2}} &amp;\le \frac{\pi}{3}\\
+\end{align}\]</span></p>
+<p><img src="img/massspringpoles2.png"></p>
+<h4 id="changes-to-poles">Changes to poles</h4>
+<p><img src="img/polechanges.png"></p>
+<table style="width:14%;">
+<colgroup>
+<col width="2%">
+<col width="2%">
+<col width="2%">
+<col width="2%">
+<col width="2%">
+</colgroup>
+<thead><tr class="header">
+<th></th>
+<th>decrease real part</th>
+<th>increase imaginary part</th>
+<th>angle of poles to <span class="math inline">\(\pm \pi\)</span>
+</th>
+<th>increase magnitude</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(\omega_n\)</span></td>
+<td>+</td>
+<td>+</td>
+<td>no change</td>
+<td>+</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\zeta\)</span></td>
+<td>+</td>
+<td>-</td>
+<td>+</td>
+<td>no change</td>
+</tr>
+<tr class="odd">
+<td>%OS</td>
+<td>-</td>
+<td>+</td>
+<td>-</td>
+<td>no change</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(T_s\)</span></td>
+<td>-</td>
+<td>no change</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(T_p\)</span></td>
+<td>no change</td>
+<td>-</td>
+<td>+</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

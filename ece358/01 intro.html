@@ -1,0 +1,221 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<title>Intro</title>
+</head>
+<body>
+
+<h1 id="intro">Intro</h1>
+<a href="index.html">Back to ece358</a>
+<div id="TOC">
+
+<ul>
+<li><a href="#internet">Internet</a></li>
+<li>
+<a href="#network-core">Network core</a><ul>
+<li><a href="#circuit-switching">Circuit switching</a></li>
+<li><a href="#packet-switching">Packet switching</a></li>
+<li><a href="#internet-structure">Internet structure</a></li>
+</ul>
+</li>
+<li>
+<a href="#network-loss-and-delays">Network loss and delays</a><ul><li><a href="#queueing-delay">Queueing delay</a></li></ul>
+</li>
+<li><a href="#layers">Layers</a></li>
+<li><a href="#security">Security</a></li>
+</ul>
+</div>
+<h2 id="internet">Internet</h2>
+<ul>
+<li>Hardware<ul>
+<li>Billions of devices: <strong>hosts</strong> or <strong>end systems</strong>
+</li>
+<li>Devices are connected with <strong>communication links</strong> (e.g. Fibre, with a transmission rate called <strong>bandwidth</strong> in bits per second)</li>
+<li>
+<strong>Packet switches</strong> forward packets (chunks of data) with <strong>routers</strong> and <strong>switches</strong>
+</li>
+</ul>
+</li>
+<li>Software<ul>
+<li>
+<strong>protocols</strong>: controls sending and receiving of messages (TCP, IP, HTTP, etc)</li>
+<li>
+<strong>standards</strong>:<ul>
+<li>RFC (request for comments)</li>
+<li>IETF (internet engineering task force)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Infrastructure<ul>
+<li>Provides services to applications (web, VoIP, email, etc)</li>
+<li>Provides programming interface to apps</li>
+</ul>
+</li>
+</ul>
+<p>Network edge:</p>
+<ul>
+<li>hosts: clients and servers</li>
+<li>servers are often in data centers</li>
+</ul>
+<p>Access networks, physical media: wired, wireless communication links</p>
+<h2 id="network-core">Network core</h2>
+<ul>
+<li>Interconnected routers</li>
+<li>network of networks</li>
+</ul>
+<p><strong>Frequency division multiplexing</strong>: different channels transmitted in different frequencies</p>
+<p><strong>HFC</strong>: hybrid fibre coax</p>
+<ul>
+<li>30Mbps down, 2Mbps up</li>
+<li>Shared line for neighbourhood, not a direct connection like in DSL</li>
+</ul>
+<h3 id="circuit-switching">Circuit switching</h3>
+<ul>
+<li>Frequency division: each user gets a frequency band<ul><li>Bit rate not evenly divided since not all frequencies have the same capacity</li></ul>
+</li>
+<li>Time division: rate per time slot is frames per second times the number of bits in one time slot<ul>
+<li>e.g. 1 frame per second, 24 slots, 1.536 Mbps wire</li>
+<li><span class="math inline">\(rate = \frac{1.536 Mbps}{24} = 64 Kbps\)</span></li>
+<li>Time to transmit a 640 Kb file: <span class="math inline">\(\frac{640Kb}{64 Kbps} = 10s\)</span>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="packet-switching">Packet switching</h3>
+<ul>
+<li>Allows more users to use the network than circuit switching</li>
+<li>Has queueing delay</li>
+</ul>
+<p>e.g. 1Mbps link, each user has 100Kbps when active, but only active 10% of the time</p>
+<ul>
+<li>Circuit switching can only use 10 users</li>
+<li>Packet switching: with 35 users, probability &gt; 10 active at the same time is less than 0.0004:</li>
+</ul>
+<p>Probability that 11 or more users or more are sending is equal to 1 - the probability that 10 users are sending<br>
+<span class="math display">\[\begin{align}
+1 - P(\text{10 users sending}) &amp;= 1 - \sum_{n = 0}^{10} {\binom{35}{n} 0.1^n (1-0.1)^{35 - n}}\\
+&amp;= 0.0004\\
+\end{align}\]</span></p>
+<ul>
+<li>Packet switching is good for data that comes in bursts (resource sharing, no call setup)</li>
+<li>Packet delay and loss possible. Protocols needed for reliable data transfer, congestion control</li>
+<li>Bandwidth guarantees are needed for audio/video apps to provide circuit-like behaviour. Still an unsolved problem.</li>
+</ul>
+<h3 id="internet-structure">Internet structure</h3>
+<ul>
+<li>Bottom: access ISPs</li>
+<li>Above that are by regional ISPs</li>
+<li>Above that are some Internet Exchange Points</li>
+<li>Above that are Tier 1 ISPs and content providers (e.g. Google)</li>
+</ul>
+<h2 id="network-loss-and-delays">Network loss and delays</h2>
+<ul>
+<li>Packets queue in router buffers</li>
+<li>Loss and delays occur when packet arrival rate exceeds output link capacity</li>
+<li>Packets wait for their turn to be transmitted</li>
+</ul>
+<p><span class="math display">\[d_{nodal} = d_{proc} + d_{queue} + d_{trans} + d_{prop}\]</span></p>
+<ul>
+<li>
+<span class="math inline">\(d_{proc}\)</span>: nodal processing<ul>
+<li>check for bit errors</li>
+<li>determine output link</li>
+<li>typically less than milliseconds</li>
+</ul>
+</li>
+<li>
+<span class="math inline">\(d_{queue}\)</span>: queueing delay<ul>
+<li>Time waiting for output link</li>
+<li>Depends on congestion</li>
+</ul>
+</li>
+<li>
+<span class="math inline">\(d_{trans}\)</span>: transmission delay<ul>
+<li>Delay from receiving start of packet to receiving end of packet</li>
+<li>Depends on packet length and bitrate</li>
+<li>
+<span class="math inline">\(L\)</span>: packet length</li>
+<li>
+<span class="math inline">\(R\)</span>: bandwidth</li>
+<li><span class="math inline">\(d_{trans} = \frac{L}{R}\)</span></li>
+</ul>
+</li>
+<li>
+<span class="math inline">\(d_{prop}\)</span>: propagation delay<ul>
+<li>Delay from sending start of packet to receiving start of packet</li>
+<li>
+<span class="math inline">\(d\)</span>: length of physical link</li>
+<li>
+<span class="math inline">\(s\)</span>: propagation speed in medium</li>
+<li><span class="math inline">\(d_{prop} = \frac{d}{s}\)</span></li>
+</ul>
+</li>
+</ul>
+<h3 id="queueing-delay">Queueing delay</h3>
+<p>Given a packet length of <span class="math inline">\(L\)</span> bits, an <span class="math inline">\(R\)</span> bps link, and an average arrival rate <span class="math inline">\(a\)</span>, we define <strong>traffic utilization</strong> or <strong>traffic intensity</strong>:<br>
+<span class="math display">\[\text{Traffic intensity} = \frac{\underbrace{La}_\text{rate of arriving bits}}{\underbrace{R}_\text{rate of outgoing bits}}\]</span></p>
+<ul>
+<li>
+<span class="math inline">\(La/R \approx 0\)</span>: avg queueing delay is small</li>
+<li>
+<span class="math inline">\(La/R \rightarrow 1\)</span>: avg queueing delay is large</li>
+<li>
+<span class="math inline">\(La/R \gt 1\)</span>: avg delay is infinite because more work arrives than can be serviced</li>
+</ul>
+<p><code>traceroute</code> provides delay measurement from source to router, for each router along the path to the destination. Can be used to find routers that are congested</p>
+<p><strong>Throughput</strong> is the rate (bits/time) at which bits are transferred between sender and receiver</p>
+<ul>
+<li>Instantaneous throughput is the rate at a given point in time</li>
+<li>Average is over a long period of time</li>
+<li>The link with the smallest rate will always be the bottleneck for throughput</li>
+<li>Throughput is always the minimum rate along the link</li>
+</ul>
+<h2 id="layers">Layers</h2>
+<p>Each later represents a service</p>
+<p>Internet protocol stack:</p>
+<ul>
+<li>application: supports network applications (e.g. FTP, SMTP, HTTP)</li>
+<li>transport: Process to process data transfer (TCP, UDP)</li>
+<li>network: routing from source to destination (IP, routing protocols)</li>
+<li>link: data transfer between network elements (Ethernet, 802.111 (wifi), PPP)</li>
+<li>physical: bits "on the wire"</li>
+</ul>
+<p>OSI model:</p>
+<ul>
+<li>application</li>
+<li>
+<strong>presentation</strong>: allow applications to interpret meaning of data (e.g. encryption, compression)</li>
+<li>
+<strong>session</strong>: synchronization, checkpointing, recovery of data exchange</li>
+<li>transport</li>
+<li>network</li>
+<li>link</li>
+<li>physical</li>
+</ul>
+<p><strong>Encapsulation</strong> means taking something from another layer, adding a header, and passing it on (not directly modifying data from the previous layer, just extending it)</p>
+<ul>
+<li>The full, extended message is called a datagram</li>
+<li>Removing of headers is decapsulation</li>
+</ul>
+<h2 id="security">Security</h2>
+<ul>
+<li>virus: self replication by receiving and executing</li>
+<li>worm: self replicating by passively receiving and getting itself executed</li>
+<li>spyware: records info and uploads</li>
+<li>botnet: a network of similarly infected hosts</li>
+<li>packet sniffing: promiscuous network interface reads/records all broadcasted packets</li>
+<li>IP spoofing: send a message claiming to be from another address</li>
+</ul>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

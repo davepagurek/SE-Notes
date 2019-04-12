@@ -1,0 +1,277 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<title>Root-Locus Method</title>
+</head>
+<body>
+
+<h1 id="root-locus-method">Root-Locus Method</h1>
+<a href="index.html">Back to se380</a>
+<div id="TOC">
+
+<ul>
+<li>
+<a href="#basic-root-locus-construction">6.1 Basic root-locus construction</a><ul>
+<li><a href="#e.g.-6.1.1">e.g. 6.1.1</a></li>
+<li><a href="#construction">Construction</a></li>
+</ul>
+</li>
+<li>
+<a href="#procedure-for-plotting-root-locus">Procedure for plotting root-locus</a><ul>
+<li><a href="#e.g.-6.3.1">e.g. 6.3.1</a></li>
+<li><a href="#e.g.-6.2.2">e.g. 6.2.2</a></li>
+<li><a href="#e.g.-cart-pendulum-system">e.g. Cart pendulum system</a></li>
+</ul>
+</li>
+<li>
+<a href="#non-standard-problems">6.3 Non-standard problems</a><ul>
+<li><a href="#non-unity-feedback">Non-unity feedback</a></li>
+<li><a href="#controller-isnt-a-linear-function-of-the-gain">Controller isn't a linear function of the gain</a></li>
+<li><a href="#improper-loop-gain">Improper Loop Gain</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="basic-root-locus-construction">6.1 Basic root-locus construction</h2>
+<h3 id="e.g.-6.1.1">e.g. 6.1.1</h3>
+<p><span class="math display">\[C(s)=K_p, \quad P(s) = \frac{1}{s(s+2)}\]</span><br>
+<span class="math display">\[\begin{align}
+\pi(s) &amp;= s^2 + 2s + K_p\\
+s &amp;= -1 \pm \sqrt{1-K_p}\\
+\end{align}\]</span></p>
+<ul>
+<li>If <span class="math inline">\(K_p \le 0\)</span>, lose IO stability</li>
+<li>If <span class="math inline">\(0 \lt K_p \le 1\)</span>, we have two roots with negative real part</li>
+</ul>
+<p><img src="img/rootlocuseg1.png"></p>
+<ul>
+<li>This root locus tells us that the system can go unstable with bad choices of <span class="math inline">\(K_p\)</span>
+</li>
+<li>From the diagram, we can qualitatively see that <span class="math inline">\(K_p\)</span> should be such that <span class="math inline">\(\Im(s)\)</span> of the poles <span class="math inline">\(\ne 0\)</span>, but not too big.</li>
+<li>Matlab: use <code>sisotool</code> or <code>rltool</code>
+</li>
+</ul>
+<h3 id="construction">Construction</h3>
+<p><img src="img/basicrootlocus.png"><br>
+<span class="math display">\[\pi(s) = \underbrace{D_pD_c}_{D(s)} + K\underbrace{N_pN_c}_{N(s)}\]</span></p>
+<p>A root-locus diagram is a drawing of how the roots of <span class="math inline">\(\pi\)</span> change as <span class="math inline">\(K\)</span> is changed.</p>
+<p>Assumptions:</p>
+<ul>
+<li>
+<span class="math inline">\(C(s)P(s)\)</span> proper</li>
+<li><span class="math inline">\(K \ge 0\)</span></li>
+<li>
+<span class="math inline">\(D(s)\)</span> and <span class="math inline">\(N(s)\)</span> are monic (leading coefficient is 1)</li>
+</ul>
+<p>Let <span class="math inline">\(n:=\deg(D(s))\)</span>, <span class="math inline">\(m:=\deg(N(s))\)</span></p>
+<p><strong>Rules</strong></p>
+<ol>
+<li>Roots of <span class="math inline">\(\pi\)</span> are symmetric about the real axis</li>
+<li>There are <span class="math inline">\(n\)</span> "branches" (paths) of the root locus (since <span class="math inline">\(\deg(\pi)=n\)</span>)</li>
+<li>Roots of <span class="math inline">\(\pi\)</span> are a continuous function of <span class="math inline">\(K\)</span>
+</li>
+<li>When <span class="math inline">\(K=0\)</span>, roots of <span class="math inline">\(\pi\)</span> are equal to the roots of <span class="math inline">\(D\)</span>
+</li>
+<li>As <span class="math inline">\(K \rightarrow +\infty\)</span>, <span class="math inline">\(m\)</span> branches of the root locus approach the roots of <span class="math inline">\(N(s)\)</span> (<span class="math inline">\(\pi(s) = 0 \Leftrightarrow \frac{N(s)}{D(s)}=\frac{-1}{K}\)</span>)</li>
+<li>The remaining <span class="math inline">\(n-m\)</span> branches tend towards <span class="math inline">\(\infty\)</span>. They do so along asymptotes:<ul>
+<li>Go through the point <span class="math inline">\(s=\sigma + 0j\)</span> where <span class="math inline">\(\sigma = \frac{\sum \text{roots of } D - \sum \text{roots of } N}{n-m}\)</span> (centroid)</li>
+<li>Make angles <span class="math inline">\(\phi_1, ...,\phi_{n-m}\)</span> with real axis given by <span class="math inline">\(\phi_k := \frac{(2k-1)\pi}{n-m}, k \in \{1, ..., n-m\}\)</span>
+</li>
+<li>Asymptote patterns: (fig. 6.4)</li>
+<li><img src="img/rootlocussigmalocations.png"></li>
+</ul>
+</li>
+<li>("no-yes-no" rule) A point <span class="math inline">\(s_0\)</span> on the real axis is a part of the root locus if and only if <span class="math inline">\(s_0\)</span> is to the <strong>left</strong> of an <strong>odd</strong> number of poles/zeroes.<ul><li>It follows from the fact that on the root locus, <span class="math inline">\(\angle N(s_0) - \angle D(s_0) = \angle \frac{-1}{K} = \pi\)</span>
+</li></ul>
+</li>
+<li>(angles of departure/arrival)<ul>
+<li><img src="img/departurearrival.png"></li>
+<li>To compute, use <span class="math inline">\(\angle N(s) - \angle D(s) = \pi\)</span>
+</li>
+<li><span class="math inline">\(\Rightarrow \angle (s-z_1) + \angle (s-z_2) + ... + \angle(s - z_m) - \angle (s-p_1) + ... + \angle (s-p_n) = \pi\)</span></li>
+<li>To compute the angle of departure at pole <span class="math inline">\(p_i\)</span>, plug <span class="math inline">\(s=p_i\)</span> into the above and solve for <span class="math inline">\(\angle (s-p_i) =: \theta_{p_i}\)</span>.</li>
+</ul>
+</li>
+</ol>
+<h2 id="procedure-for-plotting-root-locus">Procedure for plotting root-locus</h2>
+<p>Given an <span class="math inline">\(n\)</span>th-order polynomial <span class="math inline">\(\pi(s)=D(s)+KN(s)\)</span></p>
+<ol>
+<li>Compute the roots <span class="math inline">\(\{z_1, ..., z_n\}\)</span> of <span class="math inline">\(N(s)\)</span> and place a circle at each location.</li>
+<li>Compute the roots <span class="math inline">\(\{p_1, ..., p_n\}\)</span> of <span class="math inline">\(D(s)\)</span> and place an X at each location.</li>
+<li>Use rule 7 ("no-yes-no") to fill in the real axis</li>
+<li>Compute centroid <span class="math inline">\(\sigma\)</span>, label the point <span class="math inline">\(s=\sigma +j0\)</span> in <span class="math inline">\(\mathbb{C}\)</span>
+</li>
+<li>Compute and draw the <span class="math inline">\(n-m\)</span> asymptotes</li>
+<li>Compute angles using rule 8. Usually only needed for complex conjugate rots and repeated real roots.</li>
+<li>Give a reasonable guess of how it looks (symmetric around real axis!)</li>
+</ol>
+<h3 id="e.g.-6.3.1">e.g. 6.3.1</h3>
+<p><span class="math display">\[P(s)=\frac{1}{s^2+2s+5}, \quad C(s)=K\left(1+\frac{1}{0.25s}\right)\]</span></p>
+<p><span class="math display">\[\begin{align}
+\pi(s)&amp;=N_cN_p+D_cD_p\\
+&amp;= s(s^2+2s+s)+K(s+4)\\
+&amp;=:D(s)+KN(s)\\
+\end{align}\]</span></p>
+<ol>
+<li><span class="math inline">\(N(s)=s+4 \Rightarrow z_1=-4, m=1\)</span></li>
+<li><span class="math inline">\(D(s)=s(s^2+2s+s) \Rightarrow n=3, \{p_1, p_2, p_3\}=\{0, -1+2j, -2-2j\}\)</span></li>
+<li>"no-yes-no"</li>
+<li><span class="math inline">\(\sigma = \frac{0+(-1+2j)+(-1-2j)-(-4)}{3-1}=1\)</span></li>
+<li><span class="math inline">\(n-m=2 \Rightarrow \phi_1=\frac{\pi}{2}, \phi_2=\frac{-\pi}{2}\)</span></li>
+<li>Compute departure angle for <span class="math inline">\(p_2\)</span> (no need for <span class="math inline">\(p_3\)</span>, we know it from symmetry):<ul>
+<li><span class="math inline">\(\pi(s)=D(s)+kN(s)=0 \Leftrightarrow \frac{N(s)}{D(s)}=\frac{-1}{K}\)</span></li>
+<li><span class="math inline">\(\angle N(s) - \angle D(s) = \pi\)</span></li>
+<li><span class="math inline">\(\angle(s+4)-\angle s - \underbrace{\angle(s+1-2j)}_{\theta_{p_2}}-\angle(s+1+2j) = \pi\)</span></li>
+<li><span class="math inline">\(\theta_{p_2} = \angle (p_2+4) - \angle p_2 - \angle (p_2 + 1 + 2j) - \pi\)</span></li>
+<li><span class="math inline">\(\theta_{p_2} = \angle(-3+2j)-\angle(-1+2j)-\angle 4j - \pi\)</span></li>
+<li><span class="math inline">\(\theta_{p_2} = 7.125^\circ\)</span></li>
+</ul>
+</li>
+</ol>
+<p><img src="img/eg621.png"></p>
+<h3 id="e.g.-6.2.2">e.g. 6.2.2</h3>
+<p><span class="math display">\[\pi(s)=D(s)+KN(s), \quad D(s)=s^3(s+4), \quad N(s)=s+1\]</span><br>
+<span class="math inline">\(n=4\)</span><br>
+<span class="math inline">\(m=1\)</span></p>
+<p><span class="math inline">\(\sigma = \frac{-4 - (-1)}{4-1} = -1\)</span></p>
+<p><img src="img/eg622.png"></p>
+<h3 id="e.g.-cart-pendulum-system">e.g. Cart pendulum system</h3>
+<p><img src="img/rootlocuspendulum.png"></p>
+<p><span class="math display">\[\frac{Y(s)}{U(s)} = P(s)=\frac{\frac{1}{Ml}}{s^2 - \frac{g}{Ml}(m+M)}\]</span></p>
+<p><img src="img/pendulumblock.png"></p>
+<h4 id="proportional-controller">6.2.3 Proportional controller</h4>
+<p>Try <span class="math inline">\(C(s)=K_p\)</span>. We get:<br>
+<span class="math display">\[\begin{align}
+\pi(s)&amp;=D_pD_c+N_pN_c\\
+&amp;=s^2-\frac{g(M+m)}{Ml}+\frac{K_p}{Ml}\\
+\\
+D(s)&amp;:=s^2-\frac{g}{Ml}(m+M)\\
+N(s)&amp;:=1\\
+K&amp;:=\frac{K_p}{Ml}\\
+\end{align}\]</span></p>
+<p>Asymptotes: <span class="math inline">\(\sigma = 0\)</span><br>
+<span class="math inline">\(n-m=2-0=2\)</span></p>
+<p><img src="img/pendulumproportional.png"></p>
+<p>Proportional control won't work.</p>
+<p>Matlab: suppose you have a controller <span class="math inline">\(P(s)C(s)=\frac{8(s+2)}{(s+1)(s+5)(s+10)}\)</span>. In matlab:</p>
+<div class="sourceCode"><pre class="sourceCode matlab"><code class="sourceCode matlab">z = -<span class="fl">2</span>;
+p = [-<span class="fl">1</span> -<span class="fl">5</span> -<span class="fl">10</span>];
+k = <span class="fl">8</span>;
+L = zpk(z, p, k) <span class="co">% Zeroes, Poles, gain</span>
+rlocus(L);</code></pre></div>
+<h4 id="p.d.-control">6.2.4 P.D. Control</h4>
+<p><span class="math display">\[\begin{align}
+C(s) &amp;= K_p(1+T_ds)\\
+&amp;= K_pT_d\left(s+\frac{1}{T_d}\right)\\
+\\
+\pi(s) &amp;= \underbrace{s^2- \frac{g}{Ml}(M+m)}_{D(s), \quad n=2} + \underbrace{\frac{K_pT_d}{Ml}}_{K}\underbrace{\left(s+\frac{1}{T_d}\right)}_{N(s), \quad m=1}\\
+\end{align}\]</span></p>
+<p><img src="img/pendulumpd.png"></p>
+<h4 id="p.i.-control">6.2.5 P.I. Control</h4>
+<p><span class="math display">\[\begin{align}
+C(s)&amp;=K_p\left(1+\frac{1}{T_is}\right)\\
+&amp;= K_p \frac{s+\frac{1}{T_i}}{s}\\
+\\
+\pi(s) &amp;= \underbrace{s\left(s^2-\frac{g}{Ml}(m+M)\right)}_{D(s)} + \underbrace{\frac{K_p}{M_l}}_K \underbrace{\left(s+\frac{1}{T_i}\right)}_{N(s)}\\
+\\
+\sigma &amp;= \frac{1}{2T_i}\\
+\end{align}\]</span></p>
+<p><img src="img/pendulumpi.png"></p>
+<h2 id="non-standard-problems">6.3 Non-standard problems</h2>
+<h3 id="non-unity-feedback">Non-unity feedback</h3>
+<p><img src="img/nonunityfeedback.png"></p>
+<p>In this case, the characteristic polynomial is:<br>
+<span class="math display">\[\pi(s)=N_pN_cN_h + D_pD_cD_h\]</span></p>
+<p>Identify <span class="math inline">\(D\)</span>, <span class="math inline">\(N\)</span>, and <span class="math inline">\(K\)</span>, and proceed as before.</p>
+<h3 id="controller-isnt-a-linear-function-of-the-gain">Controller isn't a linear function of the gain</h3>
+<p>Even if we can't factor <span class="math inline">\(K\)</span> out from <span class="math inline">\(C(s)\)</span>, the characteristic polynomial can still be expressed in the form <span class="math inline">\(\pi(s)=D(s)+KN(s)\)</span>, but now, <span class="math inline">\(D \ne D_pD_c\)</span> and <span class="math inline">\(N \ne N_pN_c\)</span></p>
+<p>e.g.</p>
+<p><span class="math display">\[\begin{align}
+P(s)&amp;=\frac{1}{s(s+2)}\\
+C(s) &amp;= 10(1+T_ds)\\
+\\
+\pi(s)=D_pD_c+N_pN_c\\
+&amp;= \underbrace{s^2+2s+10}_{D(s)} + \underbrace{10T_d}_K \underbrace{s}_N\\
+\\
+\text{Observe:}\\
+D(s)=s^2+2s+10 \ne D_pD_c\\
+N(s)=s \ne N_pN_c\\
+\end{align}\]</span></p>
+<p>Then proceed as before.</p>
+<h3 id="improper-loop-gain">Improper Loop Gain</h3>
+<p><span class="math display">\[\pi(s)=D(s)+KN(s)\]</span><br>
+Normally, <span class="math inline">\(\deg(D) \ge \deg(N)\)</span>. In this case, we have the opposite: <span class="math inline">\(\deg(D) \lt \deg(N)\)</span>.</p>
+<p><span class="math display">\[\pi(s) = 0 \Leftrightarrow N(s) + \frac{1}{K}D(s)=0\]</span></p>
+<p>Define:<br>
+<span class="math display">\[\hat{D} := N, \quad \hat{N}:=D, \quad \hat{K}:=\frac{1}{K}\]</span></p>
+<p>Do the usual root-locus using <span class="math inline">\(\hat{\pi}(s)=\hat{D}(s)+\hat{K}\hat{N}(s)\)</span>. At the end:</p>
+<ol>
+<li>Turn each X into an O</li>
+<li>Turn each O into an X</li>
+<li>Revertse arrows</li>
+</ol>
+<h4 id="e.g.-6.3.2">e.g. 6.3.2</h4>
+<p><span class="math display">\[\begin{align}
+P(s)&amp;=\frac{1}{s(s+1)}\\
+C(s)&amp;= \frac{s+3}{\tau s+1}\\
+\\
+\pi(s)&amp;=s(s+1)(\tau s+1)+s+3\\
+&amp;= s^2+2s+3+\tau s^2(s+1)\\
+\\
+\hat{D}(s)&amp;=s^2(s+1)\\
+\hat{N}(s)&amp;=s^2+2s+3\\
+\hat{K}&amp;=\frac{1}{\tau}\\
+\\
+\hat{n}&amp;=3, \quad \{0,0,-1\}\\
+\hat{m}&amp;=2, \quad \{-1 \pm \sqrt{2}j\}\\
+\end{align}\]</span></p>
+<p><img src="img/rootlocusimproperloopgain.png"></p>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

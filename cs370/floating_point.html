@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<title>Floating Point Numbers</title>
+</head>
+<body>
+
+<h1 id="floating-point-numbers">Floating Point Numbers</h1>
+<a href="index.html">Back to cs370</a>
+<div id="TOC">
+
+<ul><li>
+<a href="#compounded-error">Compounded error</a><ul><li><a href="#what-happened">What happened?</a></li></ul>
+</li></ul>
+</div>
+<h2 id="compounded-error">Compounded error</h2>
+<p>For a given real number <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(n, n\ge 0\)</span>. There is a trick to evaluate:</p>
+<p><span class="math display">\[\begin{align}
+I_n &amp;= \int_0^1{\frac{x^n}{x+\alpha} dx}\\
+&amp;= \int_0^1 \frac{x^n + x^{n-1}\alpha - x^{n-1} \alpha}{x+\alpha} dx \\
+&amp;= \int_0^1 \frac{x^n + x^{n-1}\alpha}{x+\alpha} dx - \int_0^1 \frac{x^{n-1}\alpha}{x+\alpha} dx\\
+&amp;= \int_0^1 \frac{x^{n-1}(x+\alpha)}{x+\alpha} dx - \int_0^1 \frac{x^{n-1}\alpha}{x+\alpha} dx\\
+&amp;= \int_0^1 x^{n-1} dx - \alpha I_{n-1}\\
+&amp;= \frac{1}{n} x^n \bigg|^1_0 - \alpha I_{n-1}\\
+&amp;= \frac{1}{n} - \alpha I_{n-1}\\
+I_n &amp;= \frac{1}{n} - \alpha I_{n-1}
+\end{align}\]</span></p>
+<p>So, to evaluate <span class="math inline">\(I_{100}\)</span>:</p>
+<p><span class="math display">\[\begin{align}
+I_1 &amp;= \frac{1}{1} - \alpha I_0\\
+I_2 &amp;= \frac{1}{2} - \alpha I_1\\
+...\\
+I_{100} &amp;= \frac{1}{100} - \alpha I_{99}\\
+\end{align}\]</span></p>
+<p><span class="math display">\[\begin{align}
+I_0 &amp;= \int_0^1 \frac{x^0}{x+\alpha} dx\\
+&amp;= \int_0^1 \frac{1}{x+\alpha} dx\\
+&amp;= \ln(x+\alpha) \bigg|^{x=1}_{x=0}\\
+&amp;= \ln(1+\alpha)-\ln(\alpha)\\
+\end{align}\]</span></p>
+<p>In matlab:</p>
+<div class="sourceCode"><pre class="sourceCode matlab"><code class="sourceCode matlab"><span class="co">% Try alpha values of 0.5 and 2.</span>
+alpha = <span class="fl">0.5</span>;
+N = <span class="fl">100</span>;
+I = log((<span class="fl">1</span>+alpha) / alpha);
+for n = <span class="fl">1</span>:N
+  I = <span class="fl">1</span>/n - alpha * I;
+end
+disp([<span class="st">'Answer: '</span> num2str(I)]);</code></pre></div>
+<p>If <span class="math inline">\(\alpha=0.5\)</span>, <span class="math inline">\(I_{100}=0.0066444\)</span>.<br>
+If <span class="math inline">\(\alpha=2\)</span>, <span class="math inline">\(I_{100}=6.053*10^{12}\)</span>.</p>
+<p>For <span class="math inline">\(0 \le x \le 1, \alpha \gt 1\)</span>:<br>
+<span class="math display">\[0 \le \frac{x^n}{x+\alpha} \le x^n \Rightarrow \int_0^1 \frac{x^n}{x+\alpha} \le \int_0^1 x^n\]</span></p>
+<p>This means <span class="math inline">\(I_{100}\)</span> should have been less than <span class="math inline">\(\frac{1}{101}\)</span>, and not on the order of <span class="math inline">\(10^{12}\)</span>.</p>
+<h3 id="what-happened">What happened?</h3>
+<p>Each <strong>computed</strong> <span class="math inline">\(I\)</span> value has an error associated with it that compounds over multiple operations.</p>
+<p><span class="math display">\[\begin{align}
+I_n^{comp} &amp;= I_n^{exact} + e_n\\
+I_n^{exact} &amp;= \frac{1}{n} - \alpha I^{exact}_{n-1}\\
+I_n^{comp} &amp;= \frac{1}{n} - \alpha I^{comp}_{n-1}\\
+e_n &amp;= I_n^{comp} - I_n^{exact}\\
+&amp;= -\alpha(I_{n-1}^{comp} - I_{n-1}^{exact})\\
+&amp;= -\alpha e_{n-1}\\
+&amp;= -\alpha(-\alpha e_{n-2})\\
+|e_n| &amp;= |\alpha| |e_{n-1}|\\
+&amp;= |\alpha|^2 |e_{n-2}|\\
+&amp;= |\alpha|^3 |e_{n-3}|\\
+...\\
+&amp;=|\alpha|^n |e_0|\\
+\end{align}\]</span></p>
+<p>If <span class="math inline">\(|\alpha|&lt;1\)</span>, then <span class="math inline">\(|e_n| \rightarrow 0\)</span> (good)<br>
+If <span class="math inline">\(|\alpha|&gt;1\)</span>, then <span class="math inline">\(|e_n| \rightarrow \infty\)</span> (bad)</p>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

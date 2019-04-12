@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+<title>Processes</title>
+</head>
+<body>
+
+<h1 id="processes">Processes</h1>
+<a href="index.html">Back to ece454</a>
+<div id="TOC">
+
+<ul>
+<li><a href="#multi-threaded-servers">Multi-threaded servers</a></li>
+<li><a href="#virtualization">Virtualization</a></li>
+<li><a href="#server-clusters">Server clusters</a></li>
+</ul>
+</div>
+<ul>
+<li>Inter-process communication in Linux is costly because it requires context switching from user to kernel space and back</li>
+<li>Threads in the same process communicate through shared memory<ul><li>Implemented by running threads in kernel-space <strong>lightweight processes</strong> with shared resources</li></ul>
+</li>
+</ul>
+<h2 id="multi-threaded-servers">Multi-threaded servers</h2>
+<ul><li>Often follows a <strong>dispatcher/worker</strong> pattern</li></ul>
+<h2 id="virtualization">Virtualization</h2>
+<ul>
+<li>e.g. running in a VM like the Java Runtime Environment or a virtual machine monitor (VMM)</li>
+<li>VMM benefits:<ul>
+<li>live migration allows load balancing and proactive maintenance</li>
+<li>VM replication improves availability and fault tolerance</li>
+</ul>
+</li>
+</ul>
+<h2 id="server-clusters">Server clusters</h2>
+<p>Typically in three tiers:</p>
+<ol>
+<li>Logic switch</li>
+<li>Application/compute servers</li>
+<li>Distribute file/database systems</li>
+</ol>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

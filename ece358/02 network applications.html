@@ -1,0 +1,198 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+<title>Network Applications</title>
+</head>
+<body>
+
+<h1 id="network-applications">Network Applications</h1>
+<a href="index.html">Back to ece358</a>
+<div id="TOC">
+
+<ul>
+<li><a href="#client-server">Client-server</a></li>
+<li><a href="#peer-to-peer">Peer-to-peer</a></li>
+<li>
+<a href="#processes-communicating">Processes communicating</a><ul>
+<li><a href="#tcp">TCP</a></li>
+<li><a href="#udp">UDP</a></li>
+<li><a href="#web-and-http">Web and HTTP</a></li>
+<li><a href="#dns">DNS</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<p>Write programs that:</p>
+<ul>
+<li>run on different end systems</li>
+<li>communicate over network</li>
+<li>no need to write software for network core devices</li>
+</ul>
+<p>Architectures</p>
+<ul>
+<li>client/server</li>
+<li>peer-to-peer</li>
+</ul>
+<h2 id="client-server">Client-server</h2>
+<p>Server</p>
+<ul>
+<li>always on</li>
+<li>static IP</li>
+</ul>
+<p>Clients</p>
+<ul>
+<li>communicated with server</li>
+<li>intermittently connected</li>
+<li>dynamic IP</li>
+<li>doesn't directly communicate with other clients</li>
+</ul>
+<h2 id="peer-to-peer">Peer-to-peer</h2>
+<ul>
+<li>no always-on server</li>
+<li>arbitrary end systems can directly communicate</li>
+<li>all peers intermittently connected, can change IP</li>
+</ul>
+<h2 id="processes-communicating">Processes communicating</h2>
+<ul>
+<li>
+<strong>Process</strong>: program running on host</li>
+<li>within a host, two processes communicate using inter process communication, defined by the OS</li>
+<li>processes on different hosts communicate by exchanging messages</li>
+<li>Processes send and receive messages to/from its unique socket</li>
+<li>to receive messages, processes must have an identifier, a unique 32-bit IP address</li>
+</ul>
+<p>Application layer protocol</p>
+<ul>
+<li>types of messages (request, response)</li>
+<li>message syntax</li>
+<li>message semantics</li>
+<li>rules for when and how processes send and respond</li>
+</ul>
+<p>What transport service is needed?</p>
+<ul>
+<li>data integrity: must be reliable, or is some loss acceptable?</li>
+<li>timing: does it need low latency?</li>
+<li>throughput: does it need a minimum amount or can it be elastic?</li>
+<li>security: encryption, data integrity, etc</li>
+</ul>
+<h3 id="tcp">TCP</h3>
+<p>Transmission Control Protocol</p>
+<ul>
+<li>reliable transport</li>
+<li>flow control: sender won't overwhelm receiver</li>
+<li>congestion control</li>
+<li>Does not provide timing, throughput, security guarantees</li>
+<li>Connection-oriented: requires setup</li>
+<li>Adding security: use SSL<ul>
+<li>provides encrypted TCP connection</li>
+<li>endpoint authentication</li>
+<li>resides in the application layer, using SSL libraries that talk to TCP</li>
+<li>cleartext passwords sent into socket traverse the internet encrypted</li>
+</ul>
+</li>
+</ul>
+<h3 id="udp">UDP</h3>
+<p>User Datagram Protocol</p>
+<ul>
+<li>Unreliable data transfer</li>
+<li>does not provide flow control, congestion control, timing, throughput, security, or connection setup</li>
+<li>Faster than TCP, no overhead</li>
+</ul>
+<h3 id="web-and-http">Web and HTTP</h3>
+<ul>
+<li>Web is made of objects</li>
+<li>Web page consists of a base HTML file object which references other objects</li>
+<li>Each object is addressable by a URL (Uniform Resource Locator)</li>
+<li>Client: e.g. browser</li>
+<li>Server: web server sends objects in response to requests</li>
+<li>Stateless: server maintains no information about past client requests</li>
+<li>Uses TCP</li>
+<li>Connection types<ul>
+<li>Non persistent<ul>
+<li>At most one object sent over TCP connection, which is then closed</li>
+<li>2 RTT + transmission time</li>
+</ul>
+</li>
+<li>Persistent<ul>
+<li>Multiple objects sent over single TCP connection between client and server</li>
+<li>RTT + 1 transmission time per object</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>HTTP/1.0:<ul>
+<li>GET</li>
+<li>POST</li>
+<li>HEAD (gets header only, no response)</li>
+</ul>
+</li>
+<li>HTTP/1.1:<ul>
+<li>PUT</li>
+<li>DELETE</li>
+</ul>
+</li>
+<li>Conditional GET: don't send obhect if cache has up-to-date version<ul>
+<li>Send <code>If-modified0since: &lt;date&gt;</code> in header</li>
+<li>Server can send a <code>304 not modified</code> if the cache is valid</li>
+</ul>
+</li>
+</ul>
+<h3 id="dns">DNS</h3>
+<ul>
+<li>Provides mapping between address and name</li>
+<li>Distributed database implemented by hierarchy of many name servers</li>
+<li>Hosts resolve name (application layer protocol)</li>
+<li>Services<ul>
+<li>Hostname to IP translation</li>
+<li>Host aliasing</li>
+<li>Mail server aliasing</li>
+<li>Load distribution</li>
+</ul>
+</li>
+<li>Local DNS: acts as a local DNS cache, acting as a proxy</li>
+<li>Caching<ul>
+<li>Once a nameserver learns a mapping, it caches it</li>
+<li>Caches time out after some time (TTL)</li>
+<li>Cached entries may be out of date: won't fully propagate changes until TTL</li>
+</ul>
+</li>
+<li>DNS records:<ul>
+<li>Format: <code>(name, value, type, ttl)</code>
+</li>
+<li>A: name is a hostname, value is an IP address</li>
+<li>NS: name is a domain (e.g. foo.com), value is hostname of authoritative name server for the domain</li>
+<li>CNAME: name is an alias for some real name, value is the real (canonical) name</li>
+<li>MX: value is the name of the mailserver associated with the name</li>
+</ul>
+</li>
+</ul>
+<p>Query and reply have the same format:</p>
+<table>
+<tr>
+<th>2 bytes</th>
+<th>2 bytes</th>
+</tr>
+<tr>
+<td>identification</td>
+<td>flags</td>
+</tr>
+<tr>
+<td># authority RRs</td>
+<td># additional RRs</td>
+</tr>
+<tr><td colspan="2">questions (variably number of questions)</td></tr>
+<tr><td colspan="2">answers (variable number of RRs)</td></tr>
+<tr><td colspan="2">authority (variable number of RRs)</td></tr>
+<tr><td colspan="2">additional info (variable number of RRs)</td></tr>
+</table>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

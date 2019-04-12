@@ -1,0 +1,113 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<title>Block Diagrams</title>
+</head>
+<body>
+
+<h1 id="block-diagrams">Block Diagrams</h1>
+<a href="index.html">Back to se380</a>
+<div id="TOC">
+
+<ul>
+<li><a href="#e.g.-linearized-pendulum">e.g. Linearized pendulum</a></li>
+<li><a href="#block-diagram-manipulations">Block diagram manipulations</a></li>
+<li><a href="#systematic-method-of-finding-transfer-functions">Systematic method of finding transfer functions</a></li>
+</ul>
+</div>
+<p><img src="img/blocks.png"></p>
+<p>Let <span class="math inline">\(\mathbb{R}(s)\)</span> be the set of all real rational transfer functions.</p>
+<ul>
+<li>
+<span class="math inline">\(G(s) \in \mathbb{R}(s)\)</span> is <strong>proper</strong> if the degree of the denominator is greater than or equal to the numerator</li>
+<li>Is is <strong>strictly proper</strong> if it is strictly greater</li>
+</ul>
+<p>A complex number <span class="math inline">\(x \in \mathbb{C}\)</span> is a <strong>zero</strong> of <span class="math inline">\(G(s)\)</span> if <span class="math inline">\(\lim_{s \rightarrow x} |G(s)| = 0\)</span>.</p>
+<ul>
+<li>Poles of <span class="math inline">\(G\)</span> are roots of the denominator</li>
+<li><p>Zeroes are roots of the numerator</p></li>
+<li><p>The transfer function obtained from a state space model is always rational and always proper</p></li>
+</ul>
+<h3 id="e.g.-linearized-pendulum">e.g. Linearized pendulum</h3>
+<p><span class="math display">\[\begin{align}
+\bar{x} &amp;= \begin{bmatrix}\pi\\0\end{bmatrix}, \quad \bar{u}=0\\
+\\
+\partial \dot{x} &amp;= \begin{bmatrix} 0 &amp; 1 \\ \frac{3g}{l} &amp; 0 \end{bmatrix} \partial x + \begin{bmatrix}0 \\ \frac{3}{Ml^2}\end{bmatrix} \partial u\\
+\partial y &amp;= \begin{bmatrix}1 &amp; 0\end{bmatrix} \partial x\\
+\\
+G(s) &amp;= C(sI-A)^{-1}B + D, \quad (sI-A)^{-1} = \frac{\text{adj}(sI-A)}{\det(sI-A)}\\
+&amp;= \begin{bmatrix}1 &amp; 0\end{bmatrix}\begin{bmatrix}s &amp; -1 \\ \frac{-3g}{l} &amp; s\end{bmatrix}^{-1}\begin{bmatrix}0 \\ \frac{3}{Ml^2}\end{bmatrix}\\
+&amp;= \begin{bmatrix}1 &amp; 0\end{bmatrix}\begin{bmatrix}s &amp; \frac{-3g}{l} \\ 1 &amp; s\end{bmatrix}^T\begin{bmatrix}0 \\ \frac{3}{Ml^2}\end{bmatrix}\\
+&amp;= \frac{\frac{s}{Ml^2}}{s^2 - \frac{3g}{l}}\\
+\end{align}\]</span></p>
+<h2 id="block-diagram-manipulations">Block diagram manipulations</h2>
+<pre><code>          +------+
+  U(s) --&gt;| G(s) |--&gt; Y(s)      Y(s) = G(s)U(s)
+          +------+
+
+           +------+
+        +-&gt;| G(s) |--+
+        |  +------+  |
+  U(s) -+            +--&gt; Y(s)   Y(s) = (G(s) + H(s))U(s)
+        |  +------+  |
+        +-&gt;| H(s) |--+
+           +------+
+
+                                        D(s) 
+                                         |
+                                         v
+                                      +-----+
+                  D(s)                | 1/G |
+                    |                 +-----+   
+          +------+  v                     |   +------+
+  U(s) --&gt;| G(s) |--o--&gt; Y(s)   =  U(s) --o--&gt;| G(s) |   Y(s) = D(s) + G(s)U(s)
+          +------+                            +------+
+
+
+             +------+
+  U(s) --o--&gt;| G(s) |--+--&gt; Y(s)      Y(s) = G(s)U(s)/(1 + G(s)H(s))
+         ^-  +------+  |
+         |             |
+         |   +------+  |
+         +---| H(s) |--+
+             +------+ 
+</code></pre>
+<h2 id="systematic-method-of-finding-transfer-functions">Systematic method of finding transfer functions</h2>
+<ol>
+<li>Introduce new variables <span class="math inline">\(\{v_1, v_2, ... \}\)</span> at the output of every summer</li>
+<li>Write expressions for inputs of summers in terms of <span class="math inline">\(\{u, y, v_1, v_2, ...\}\)</span>
+</li>
+<li>Write equations for each summer and <span class="math inline">\(y\)</span>
+</li>
+<li>Eliminate <span class="math inline">\(\{v_1, v_2, ...\}\)</span> from equations</li>
+</ol>
+<p>e.g.<br>
+<img src="img/blockdiagramtf.png"></p>
+<p><span class="math display">\[\begin{align}
+y&amp;=G_3G_2v_2\\
+v_2 &amp;= H_2y+G_1v_1-H_2G_2v_1\\
+v_1&amp;=u-H_1G_2v_2\\
+\\
+\begin{bmatrix}1 &amp; H_1 G_2 &amp; 0 \\ -G_1 &amp; 1+H_2G_2 &amp; -H_3 \\ 0 &amp; -G_3G_2 &amp; 1\end{bmatrix}
+  \begin{bmatrix}v_1 \\ v_2 \\ y\end{bmatrix} &amp;= \begin{bmatrix}u \\ 0 \\ 0\end{bmatrix}\\
+\\
+\text{By cramer's rule:}\\
+Y(s) &amp;- \frac{
+\det\begin{bmatrix}1 &amp; H_1G_2 &amp; u \\ -G_1 &amp; 1+H_2G_2 &amp; 0 \\ 0 &amp; -G_2G_3 &amp; 0\end{bmatrix}
+}{
+\det\begin{bmatrix}1 &amp; H_1G_2 &amp; 0 \\ -G_1 &amp; 1+H_2G_2 &amp; -H_3 \\ 0 &amp; -G_3G_2 &amp; 1\end{bmatrix}
+}\\
+&amp;= \frac{G_1 G_2 G_3}{1 + H_1 H_2 G_2 - H_3 G_3 G_2 + G_1 H_1 G_2} U(s)\\
+\end{align}\]</span></p>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<title>Dynamic Programming</title>
+</head>
+<body>
+
+<h1 id="dynamic-programming">Dynamic Programming</h1>
+<a href="index.html">Back to cs341</a>
+<div id="TOC">
+
+<ul>
+<li>
+<a href="#knapsack">0-1 Knapsack</a><ul>
+<li><a href="#runtime">Runtime</a></li>
+<li><a href="#traceback">Traceback</a></li>
+</ul>
+</li>
+<li>
+<a href="#coin-changing">Coin changing</a><ul><li><a href="#algorithm">Algorithm</a></li></ul>
+</li>
+<li>
+<a href="#longest-common-subsequence">Longest Common Subsequence</a><ul><li><a href="#algorithm-1">Algorithm</a></li></ul>
+</li>
+<li><a href="#minimum-length-triangulation">Minimum Length Triangulation</a></li>
+</ul>
+</div>
+<ol>
+<li>Examine the structure of an optimal solution to a problem instance <span class="math inline">\(I\)</span>, and determine if an optimal solution for <span class="math inline">\(I\)</span> can be expressed in terms of optimal solutions to certain subproblems of <span class="math inline">\(I\)</span>.</li>
+<li>Define a set of subproblems <span class="math inline">\(S(I)\)</span> of the instance <span class="math inline">\(I\)</span>, the solution of which enables the optimal solution of <span class="math inline">\(I\)</span> to be computed. <span class="math inline">\(I\)</span> will be the last or largest instance in the set <span class="math inline">\(S(I)\)</span>.</li>
+<li>Derive a recurrence relation on the optimal solutions to the instances in <span class="math inline">\(S(I)\)</span>. This recurrence relation should be completely specified in terms of optimal solutions to (smaller) instances in <span class="math inline">\(S(I)\)</span> and/or base cases.</li>
+<li>Compute the optimal solutions to all the instances in <span class="math inline">\(S(I)\)</span>. Compute these solutions using the recurrence relation in a bottom-up fashion, filling in a table of values containing these optimal solutions. Whenever a particular table entry is filled in using the recurrence relation, the optimal solutions of relevant subproblems can be looked up in the table (they have been computed already). The final table entry is the solution to <span class="math inline">\(I\)</span>.</li>
+</ol>
+<h2 id="knapsack">0-1 Knapsack</h2>
+<p>Profits <span class="math inline">\(P\)</span> and weights <span class="math inline">\(W\)</span> and a capacity <span class="math inline">\(M\)</span> exist. An <span class="math inline">\(n\)</span>-tuple <span class="math inline">\(X\)</span> exists where <span class="math inline">\(\sum_{i=1}^n w_i x_i \le M\)</span>. We require that <span class="math inline">\(x_i \in \{0, 1\}, 1 \le i \le n\)</span>.</p>
+<p>Consider <span class="math inline">\(x_n\)</span>. Two cases exist:</p>
+<ul>
+<li>
+<span class="math inline">\(x_n = 0\)</span>: We don't include <span class="math inline">\(x_i\)</span>, so the optimal solution for <span class="math inline">\(I\)</span> is the optimal solution for the items <span class="math inline">\(1, ..., n-1\)</span> (capacity is <span class="math inline">\(M\)</span>)</li>
+<li>
+<span class="math inline">\(x_n = 1\)</span>: We do include <span class="math inline">\(x_i\)</span>, so the optimal solution for <span class="math inline">\(I\)</span> includes <span class="math inline">\(x_i\)</span> plus the optimal solution for items <span class="math inline">\(1, ..., n-1\)</span> (capacity is <span class="math inline">\(M-1\)</span> this time)</li>
+</ul>
+<p>Subproblems <span class="math inline">\(S(I)\)</span>: Let <span class="math inline">\(P(i, m)\)</span> be the optimal solution to the subproblem consisting of:</p>
+<ul>
+<li>The first <span class="math inline">\(i\)</span> items (<span class="math inline">\(i=1, 2, ..., 2)\)</span>
+</li>
+<li>the capacity <span class="math inline">\(m\)</span>, <span class="math inline">\(0 \le m \le M\)</span>
+</li>
+</ul>
+<p>In total, we get <span class="math inline">\(n(M+1)\)</span> subproblems</p>
+<p>Recurrence relation:<br>
+<span class="math display">\[P(i, m) = \begin{cases}
+\max\left\{P(i-1, m), P(i-1, m-w_i)+p_i\right\}, &amp;m \ge w_i, i \ge 2\\
+P(i-1, m), &amp;m \lt w_i, i \ge 2\\
+\end{cases}\]</span></p>
+<p>Base cases:<br>
+<span class="math display">\[P(1, m) = \begin{cases}
+p_1, &amp;m \ge w_1\\
+0, &amp;m \lt w_1\\
+\end{cases}\]</span></p>
+<ul>
+<li>Fill in table of values</li>
+<li>Fill in each row from left to right</li>
+<li>solution = <span class="math inline">\(P(n, M)\)</span>
+</li>
+</ul>
+<p><img src="img/knapsack-dp-algo.png"></p>
+<h3 id="runtime">Runtime</h3>
+<p>Assuming unit cost operations: <span class="math inline">\(\Theta(1)\)</span> time additions and subtractions</p>
+<ul>
+<li>DP: <span class="math inline">\(\Theta(Mn)\)</span>
+</li>
+<li>Recursive: <span class="math inline">\(\Theta(2^n)\)</span>
+</li>
+</ul>
+<p>But <strong>neither is polynomial complexity</strong>:<br>
+<span class="math display">\[\begin{align*}
+I &amp;= (p_1, ..., p_n, w_1, ..., w_n, M)\\
+size(I) &amp;= \sum_{i=1}^n \log_2 p_i + \sum_{i=1}^n \log_2 w_i + \log_2 M\\
+size(I) &amp;\ge n\\
+\end{align*}\]</span></p>
+<p><span class="math inline">\(M\)</span> is exponentially large compared to <span class="math inline">\(\log_2 M\)</span>. Therefore we cannot express the problem in polynomial time with an <span class="math inline">\(M\)</span> in it when it is exponentially large compared to the problem instance.</p>
+<h3 id="traceback">Traceback</h3>
+<p>The first step only fills in the table. If we want to know what is actually in the knapsack, we have to trace back through the table to see what items we added.</p>
+<p><img src="img/knapsack-dp-soln.png"></p>
+<h2 id="coin-changing">Coin changing</h2>
+<p>A list of coin denominations <span class="math inline">\(D\)</span> exists, and a positive target sum <span class="math inline">\(T\)</span>. Find an <span class="math inline">\(n\)</span>-tuple of non-negative integers sich that <span class="math inline">\(T=\sum_{i=1}{n} a_i d_i\)</span> such that the number of coins <span class="math inline">\(n\)</span> is minimized.</p>
+<p>Let <span class="math inline">\(N(i, t)\)</span> denote the optimal solution to the subproblem consisting of the first <span class="math inline">\(i\)</span> coin denominations <span class="math inline">\(d_1, ..., d_i\)</span> and target sum <span class="math inline">\(t\)</span>. Let <span class="math inline">\(A(i, t)\)</span> denote the number of coins of denomination <span class="math inline">\(d_i\)</span> used in the optimal solution to this subproblem.</p>
+<h3 id="algorithm">Algorithm</h3>
+<p>For a given target sum <span class="math inline">\(T\)</span>, consider coins of denomination <span class="math inline">\(d_n\)</span>. Let <span class="math inline">\(a_n\)</span> be the number of coins. Then <span class="math inline">\(0 \le a_n \le \left\lfloor\frac{T}{d_n}\right\rfloor\)</span>.</p>
+<p>If we use <span class="math inline">\(a_n\)</span> coins of denomination <span class="math inline">\(d_n\)</span>, then the optimal solution for <span class="math inline">\(I\)</span> is <span class="math inline">\(a_n\)</span> plus the optimal solution using the first <span class="math inline">\(n-1\)</span> coin denominations, for the targt sum <span class="math inline">\(T-a_n d_n\)</span>.</p>
+<p>We then have the subproblems <span class="math inline">\(N(i, t), i=1,...,n, 0 \le t \le T\)</span>. There will be <span class="math inline">\(n(T+1)\)</span> subproblems.</p>
+<p>We get the recurrence relation:<br>
+<span class="math display">\[N(i, t) = \min\left\{j+N(i-1, t-jd_i), 0 \le j \le \left\lfloor\frac{t}{d_i}\right\rfloor\right\}\]</span></p>
+<p>If <span class="math inline">\(i=1\)</span>, we get the base case <span class="math inline">\(N(1, t) = t\)</span>.</p>
+<p>Traceback options:</p>
+<ol>
+<li>Recompute table values</li>
+<li>Store extra information while the table is constructed to avoid recomputation</li>
+</ol>
+<p>The minimum number of coins required for <span class="math inline">\(I\)</span> is <span class="math inline">\(N[n, T]\)</span>.</p>
+<p>Traceback: The number of coins of denomination <span class="math inline">\(d_n\)</span> in the optimal solution is <span class="math inline">\(A[n, T]\)</span>, so set <span class="math inline">\(a_n = A[n, t]\)</span>. Then, set <span class="math inline">\(t \leftarrow t-a_n d_n\)</span>. Then find the number of coins of denomination <span class="math inline">\(d_{n-1}\)</span> in the optimal solution <span class="math inline">\(A[n-1, t]\)</span>. Repeat.</p>
+<p>We observe that we are filling in an <span class="math inline">\(n \times (T+1)\)</span> table, so the size of the table is <span class="math inline">\(\Theta(nT)\)</span>. But the problem instance is <span class="math inline">\(I = (d_1, ..., d_n, T)\)</span>. Since <span class="math inline">\(size(I) = \sum_{i=1}^n \log_2 d_i + \log_2 T\)</span>, <span class="math inline">\(T\)</span> is an exponention function of <span class="math inline">\(log_2 T\)</span>. This implies that we do not have a polynomial time algorithm.</p>
+<h2 id="longest-common-subsequence">Longest Common Subsequence</h2>
+<p>There are two sequences <span class="math inline">\(X = (x_1, ..., x_m)\)</span> and <span class="math inline">\(Y = (y_1, ..., y_n)\)</span> over some infinite alphabet <span class="math inline">\(\Gamma\)</span>. Find a maximum length sequence <span class="math inline">\(Z\)</span> that is a subsequence of both <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span>.</p>
+<p><span class="math inline">\(Z= (z_1, ..., z_l)\)</span> is a <strong>subsequence</strong> of <span class="math inline">\(X\)</span> if there exists indices <span class="math inline">\(1 \le i_1 \lt ... \lt i_l \le m\)</span> such that <span class="math inline">\(z_j = x_{i_j}, 1 \le j \le l\)</span>. Similarly, <span class="math inline">\(Z\)</span> is a subsequence of <span class="math inline">\(Y\)</span> if there exists indices <span class="math inline">\(1 \le h_1 \lt ... \lt h_l \le n\)</span> such that <span class="math inline">\(z_j = y_{h_j}, 1 \le j \le l\)</span>.</p>
+<p>e.g. <span class="math inline">\(X=\texttt{gdvegta}, Y=\texttt{gvcekst}\)</span>. <span class="math inline">\(LCS(X,Y)=\texttt{gvet}\)</span>.</p>
+<h3 id="algorithm-1">Algorithm</h3>
+<p>Let <span class="math inline">\(X' = (x_1, ..., x_{m-1})\)</span>. Let <span class="math inline">\(Y' = (y_1, ..., y_{n-1})\)</span></p>
+<p>Cases:</p>
+<ol>
+<li>
+<span class="math inline">\(x_m = y_n\)</span>. Then, <span class="math inline">\(LCS(X, Y) = LCS(X', Y') . X_m\)</span> where <span class="math inline">\(.\)</span> is a string concatenation operator.</li>
+<li>
+<span class="math inline">\(x_m \ne y_n\)</span>. Then, there are three mutually exclusive possibilities:<ul>
+<li>LCS can contain <span class="math inline">\(x_m\)</span> (doesn't contain <span class="math inline">\(y_n\)</span>)</li>
+<li>LCS can contain <span class="math inline">\(y_n\)</span> (doesn't contain <span class="math inline">\(x_m\)</span>)</li>
+<li>LCS contains neither (this case is covered by the earlier two)<br>
+Therefore, <span class="math inline">\(LCS(X,Y)=\max\{LCS(X, Y'), LCS(X', Y), LCS(X', Y')\}\)</span><br>
+This can be reduced to simply, <span class="math inline">\(LCS(X,Y)=\max\{LCS(X, Y'), LCS(X', Y)\}\)</span>
+</li>
+</ul>
+</li>
+</ol>
+<h4 id="subproblem">Subproblem</h4>
+<p>Consider all possible <strong>prefixes</strong> of <span class="math inline">\(X\)</span> and all possible prefixes of <span class="math inline">\(Y\)</span>.</p>
+<p>Define <span class="math inline">\(x[i, j]\)</span> to be the length of the LCS of <span class="math inline">\((x_1, ..., x_i)\)</span> and <span class="math inline">\((y_1, ..., y_j)\)</span>, <span class="math inline">\(0 \le i \le m, 0 \le j \le n\)</span>.</p>
+<p><span class="math display">\[C[i,j] = \begin{cases}
+1 + c[i-1, j-1], &amp;x_i = y_i \land i,j \ge 1\\
+\max\{c[i-1, j], c[i, j-1]\}, &amp;x_i \ne y_i \land i,j \ge 1\\
+0, &amp;i=0 \lor j=0\\
+\end{cases}\]</span></p>
+<p>Each cell in the table references the cells to the left and above, so if we compute rows top down and columsn left to right, each subproblem will already have a solution.</p>
+<h4 id="complexity">Complexity</h4>
+<p>To construct the tables, it takes <span class="math inline">\(\Theta(mn)\)</span>. The traceback procedure is <span class="math inline">\(O(m+n)\)</span>.</p>
+<h2 id="minimum-length-triangulation">Minimum Length Triangulation</h2>
+<p>Given <span class="math inline">\(n\)</span> points <span class="math inline">\(q_1, ..., q_n\)</span> in the Euclidean plane that forms a convex <span class="math inline">\(n\)</span>-gon <span class="math inline">\(P\)</span>. Find a triangulation of <span class="math inline">\(P\)</span> such that the sum <span class="math inline">\(S_C\)</span> of the lengths of the <span class="math inline">\(n-3\)</span> chords is minimized. Alternatively, find the triangulation <span class="math inline">\(P\)</span> such that the sum <span class="math inline">\(S_p\)</span> of the perimeters of the <span class="math inline">\(n-2\)</span> triangles is minimized (if you solve one of these, you have solved both, since if <span class="math inline">\(L\)</span> is the perimeter of <span class="math inline">\(P\)</span>, <span class="math inline">\(S_p=L+2S_C\)</span>). We will work with the second version.</p>
+<p>Aside: Using <strong>Catalan Numbers</strong>, <span class="math inline">\(C_n = \frac{1}{n+1} \binom{2n}{n}\)</span> is the number of triangulations of a convex polygon with <span class="math inline">\(n+2\)</span> vertices.</p>
+<p>The edge <span class="math inline">\(q_nq_1\)</span> is in a triangle with a third vertex <span class="math inline">\(q_k\)</span> whree <span class="math inline">\(k \in \{2, ..., n-1\}\)</span>.</p>
+<p>For a given <span class="math inline">\(k\)</span>, we have:</p>
+<ol>
+<li>the triangle <span class="math inline">\(q_1q_kq_n\)</span>,</li>
+<li>the polygon with vertices <span class="math inline">\(q_1,...,q_k\)</span>,</li>
+<li>the polygon with vertices <span class="math inline">\(q_k, ..., q_n\)</span>.</li>
+</ol>
+<p>The optimal solution will consist of the optimal solutions for subproblems 2 and 3, along with the triangle in 1.</p>
+<p>For <span class="math inline">\(1 \le i \lt j \le n\)</span>, let <span class="math inline">\(S[i, j]\)</span> be the optimal solution to the subproblem consisting of the polygon with vertices <span class="math inline">\(q_i, ..., q_j\)</span>. Let <span class="math inline">\(\Delta(q_i, q_k, q_j)\)</span> be the perimeter of the triangle with vertices <span class="math inline">\(q_i, q_k, q_j\)</span>.</p>
+<p>We have the recurrence relation:<br>
+<span class="math display">\[S[i,j] = \min\{\Delta(q_i, q_k, q_j) + S[i,k] + S[k,j] : i \lt k \lt j\}\]</span></p>
+<p>The base cases are given by <span class="math inline">\(S[i, i+1] = 0 \forall i\)</span>.</p>
+<p>Compute all <span class="math inline">\(S[i,j]\)</span> with <span class="math inline">\(j-i=c\)</span> for <span class="math inline">\(c=2,3,...,n-1\)</span>.</p>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+<title>Communication</title>
+</head>
+<body>
+
+<h1 id="communication">Communication</h1>
+<a href="index.html">Back to ece454</a>
+<div id="TOC">
+
+<ul>
+<li><a href="#remote-procedure-calls">Remote Procedure Calls</a></li>
+<li><a href="#message-queueing-model">Message queueing model</a></li>
+<li>
+<a href="#apache-thrift">Apache Thrift</a><ul>
+<li><a href="#defining-services-in-the-idl">Defining services in the IDL</a></li>
+<li><a href="#asynchronous-client">Asynchronous client</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<p>A middleware layer sits between the transport layer and the application layer (we start to depart from the OSI model here.)</p>
+<h2 id="remote-procedure-calls">Remote Procedure Calls</h2>
+<p>These work similar to normal procedure calls, but over the network. The arguments that would be pushed to the stack in a conventional procedure call get sent in a message over the network.</p>
+<ul>
+<li>
+<strong>Client stub</strong> translates the call to a protocol message<ul>
+<li>The client stub is a normal class with normal messages that hide the fact that networking happens</li>
+<li>Inside the client stub, the method's arguments are translated to a message (using <strong>marshalling</strong>) and sent</li>
+</ul>
+</li>
+<li>Message is received and processed at the server by a <strong>server stub</strong>
+</li>
+<li>Server stub sends the return value to the client as another protocol message</li>
+<li>Marshalling takes into account different representations of values on different architectures</li>
+<li>Can be <strong>synchronous</strong> or <strong>asynchronous</strong><ul>
+<li>In synchronous RPCs, the client waits for the return value</li>
+<li>In asynchronous, the client continues executing. A second RCP can be issued by the server to return the response</li>
+</ul>
+</li>
+<li>Messages are <strong>transient</strong>, so they don't persist anywhere</li>
+<li>Used mostly for two-way communication</li>
+<li>Middleware linked into client and server, no extra infrastructure needed</li>
+</ul>
+<h2 id="message-queueing-model">Message queueing model</h2>
+<ul>
+<li>
+<strong>Persisted communication</strong>, messages are their own entities independent of client/server connections</li>
+<li>Messages are ordered and persisted in a queue until they are consumed</li>
+<li>Queue primitives:<ul>
+<li>
+<strong>Put</strong>: append a message</li>
+<li>
+<strong>Get</strong>: wait until the queue is not empty and then remove the first message</li>
+<li>
+<strong>Poll</strong>: check if the queue has a message, and remove/return one if it does, but do nothing otherwise. This will never block</li>
+<li>
+<strong>Notify</strong>: install a handler to be called when a message is put into the queue</li>
+</ul>
+</li>
+<li>This has looser temporal coupling than RPCs, because you don't need both the consumer and producer connected at the same time to be able to communicate</li>
+<li>Similar to pub/sub. Both are examples of <strong>message-oriented middleware.</strong>
+</li>
+<li>Used mostly for one way communication where a response is not always expected</li>
+<li>Middleware needs to be a separate component</li>
+</ul>
+<h2 id="apache-thrift">Apache Thrift</h2>
+<p>Software stack:</p>
+<ul>
+<li>Server<ul>
+<li>Receives incoming connections</li>
+<li>single threaded, event driven</li>
+</ul>
+</li>
+<li>Processor<ul>
+<li>reads and writes IO streams</li>
+<li>compiler generated</li>
+</ul>
+</li>
+<li>Protocol<ul>
+<li>encodes and decodes data</li>
+<li>JSON, compact, etc</li>
+</ul>
+</li>
+<li>Transport<ul>
+<li>reads/writes to network</li>
+<li>raw TCP, HTTP, etc</li>
+</ul>
+</li>
+</ul>
+<h3 id="defining-services-in-the-idl">Defining services in the IDL</h3>
+<pre><code>namespace java example1
+
+exception IllegalArgument {
+  1: string message;
+}
+
+service MathService {
+  double sqrt(1:double num) throws (1: IllegalArgument ia)
+}</code></pre>
+<h3 id="asynchronous-client">Asynchronous client</h3>
+<ul>
+<li>Needs to provide a callback handler</li>
+<li>Pass in a <code>TNonblockingSocket</code>
+</li>
+</ul>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

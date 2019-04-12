@@ -1,0 +1,186 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<title>PID Control</title>
+</head>
+<body>
+
+<h1 id="pid-control">PID Control</h1>
+<a href="index.html">Back to se380</a>
+<div id="TOC">
+
+<ul>
+<li>
+<a href="#classical-pid">7.1 Classical PID</a><ul>
+<li><a href="#refinements-to-the-basic-pid-control">Refinements to the basic PID control</a></li>
+<li><a href="#what-does-each-term-do">What does each term do?</a></li>
+</ul>
+</li>
+<li>
+<a href="#pole-placement">7.3 Pole placement</a><ul>
+<li><a href="#e.g.-7.3.1">e.g. 7.3.1</a></li>
+<li><a href="#pade-approximation">Padé approximation</a></li>
+</ul>
+</li>
+<li>
+<a href="#when-can-pid-be-used">When can PID be used?</a><ul><li><a href="#e.g.">e.g.</a></li></ul>
+</li>
+</ul>
+</div>
+<h2 id="classical-pid">7.1 Classical PID</h2>
+<p><img src="img/pidcontroller.png"><br>
+<span class="math display">\[\begin{align}
+C(s) &amp;= \frac{U(s)}{E(s)}\\
+&amp;= K_p + \frac{K_i}{s} + K_ds\\
+&amp;= \frac{K_ds^2 + K_ps + K_i}{s}\\
+\\
+\text{Standard form:}\\
+&amp;= K_p\left(1 + \frac{1}{T_is}+T_ds\right)\\
+\text{Where:}\\
+T_i &amp;= \text{integral time constant}\\
+T_d &amp;= \text{derivative time constant}\\
+\\
+u(t)&amp;=K_pe(t) + K_i \int_0^t e(\tau)d\tau + K_d \frac{de}{dt}\\
+\end{align}\]</span></p>
+<h3 id="refinements-to-the-basic-pid-control">Refinements to the basic PID control</h3>
+<ol>
+<li>Since the transfer function for PID is improper, the derivative term is approximated using a low-pass filtered version:<ul><li><span class="math inline">\(C(s) = K_p\left(1+\frac{1}{T_is}+\frac{T_ds}{\tau_ds+1}\right)\)</span></li></ul>
+</li>
+<li>Since <span class="math inline">\(r(t)\)</span> is often discontinuous, we often avoid differentiating it, since it would lead to control spikes.<ul>
+<li>We feed <span class="math inline">\(y\)</span> and <span class="math inline">\(r\)</span> in separately instead of just the error so we have two degrees of freedom</li>
+<li><img src="img/twodegreesoffreedom.png"></li>
+<li><span class="math inline">\(U(s)=\frac{K_i}{s}E(s)-\left(K_p + \frac{T_ds}{\tau_ds+1}\right)Y(s)\)</span></li>
+</ul>
+</li>
+<li>Anti-windup (deals with actuator constraints), see section 7.4 (won't be tested on this)</li>
+</ol>
+<h3 id="what-does-each-term-do">What does each term do?</h3>
+<p>Consider <span class="math inline">\(u(t) = K_pe(t) + \frac{K_p}{T_i} \int_0^t e(\tau)d\tau + K_pT_d \frac{de(t)}{dt}\)</span>.</p>
+<ul>
+<li>Proportional part<ul>
+<li>only depends on the <em>current</em> value of <span class="math inline">\(e(t)\)</span>
+</li>
+<li>high gain usually gives good performance in terms of tracking</li>
+<li>if <span class="math inline">\(K_p\)</span> is too high, we get instability</li>
+</ul>
+</li>
+<li>Integral part<ul>
+<li>gives perfect step tracking (see internal model principle discussion earlier)</li>
+<li>acts on historic data, accumulated error</li>
+</ul>
+</li>
+<li>Derivative part<ul>
+<li>penalizes fast changes in the error, smooths out transients. Acts kind of like friction in a physical system</li>
+<li>called the "predictive part" of PID<ul>
+<li>e.g. PD controller: <span class="math inline">\(u(t)=K_p\left(e(t)+T_d\frac{de(t)}{dt}\right)\)</span>
+</li>
+<li><img src="img/predictivepid.png"></li>
+<li>The <span class="math inline">\(e(t)+T_d\frac{de(t)}{dt}\)</span> terms are a prediction of error at <span class="math inline">\(t+T_d\)</span> seconds using linear interpolation</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="pole-placement">7.3 Pole placement</h2>
+<p><img src="img/standardpid.png"></p>
+<p>Any controller of the form <span class="math inline">\(C(s) = \frac{g_2s^2 + g_1s+g_0}{s^2+f_1s}\)</span> is a PID controller in standard form:<br>
+<span class="math display">\[\begin{align}
+K_p &amp;= \frac{g_1f_1 - g_0}{f_1^2}\\
+T_i &amp;= \frac{g_1f_1 - g_0}{g_0f_1}\\
+T_d &amp;= \frac{g_0 - g_1f_1-g_2f_1^2}{f_1(g_1f_1-g_0)}\\
+\tau_d &amp;= \frac{1}{f_1}\\
+\end{align}\]</span></p>
+<p>We assume the plant is:<br>
+<span class="math display">\[P(s) = \frac{b_1s+b_0}{s^2+a_1s+a_0}, \quad b_0 \ne 0\]</span></p>
+<p><span class="math display">\[\pi(s) = s^4 + (a_1+f_1+b_1g_2)s^3 + (a_0+a_1f_1+b_1g_1+b_0g_2)s^2 + (a_0f_1+b_1g_0+b_0g_1)s+b_0g_0\]</span></p>
+<p>Now we say we want the closed-loop poles to be located at <span class="math inline">\(\{\lambda_1, \lambda_2, \lambda_3, \lambda_4\} \subset \mathbb{C}^-\)</span>. These desired pole locations can be picked based on settling time, percent overshoot, etc.</p>
+<p><img src="img/poleplacement.png"></p>
+<p>Our desired pole locations <span class="math inline">\(\lambda_1, ..., \lambda_4\)</span> generate a desired characteristic polynomial.</p>
+<p><span class="math display">\[\begin{align}
+\pi_{des}(s) &amp;:= (s-\lambda_1)(s-\lambda_2)(s-\lambda_3)(s-\lambda_4)\\
+&amp;=:s^4+\alpha_3s^3+\alpha_2s^2+\alpha_1s+\alpha_0\\
+\end{align}\]</span></p>
+<p>Equating coefficients between <span class="math inline">\(\pi\)</span> and <span class="math inline">\(\pi_{des}\)</span>:</p>
+<p><span class="math display">\[\begin{align}
+\begin{bmatrix}1&amp;b_1&amp;0&amp;0\\a_1&amp;b_0&amp;b_1&amp;0\\a_0&amp;0&amp;b_0&amp;b_1\\0&amp;0&amp;0&amp;b_0\end{bmatrix}
+\begin{bmatrix}f_1\\g_2\\g_1\\g_0\end{bmatrix} =
+\begin{bmatrix}\alpha_3-a_1\\\alpha_2-a_0\\\alpha_1\\\alpha_0\end{bmatrix}
+\end{align}\]</span></p>
+<p>Remarks:</p>
+<ol>
+<li>If <span class="math inline">\(N_p\)</span> and <span class="math inline">\(D_p\)</span> are coprime, the equation has a unique solution</li>
+<li>Can't allow <span class="math inline">\(b_0=0\)</span> in the plant, because if we do, we get an unstable pole-zero cancellation</li>
+<li>
+<span class="math inline">\(\tau_d\)</span> was treated as a design parameter, not a necessary evil</li>
+<li>This shows that if the plant can be completely modelled using a second order transfer function, then PID can achieve almost any control objective</li>
+</ol>
+<h3 id="e.g.-7.3.1">e.g. 7.3.1</h3>
+<p><span class="math display">\[P(s)=\frac{2}{s^2+3s+2}\]</span></p>
+<p>Specs:</p>
+<ul>
+<li>
+<span class="math inline">\(e_{ss}=0\)</span> if <span class="math inline">\(r(t)=r_01(t)\)</span>
+</li>
+<li>
+<span class="math inline">\(y_{ss}=0\)</span> if <span class="math inline">\(d(t)=d_01(t)\)</span>
+</li>
+<li>
+<span class="math inline">\(T_s \le 4\)</span> seconds</li>
+<li>%OS <span class="math inline">\(\le 0.2\)</span>
+</li>
+</ul>
+<p><img src="img/piddisturbance.png"></p>
+<p><img src="img/poleplacementexample.png"></p>
+<p>Pick:<br>
+<span class="math display">\[\begin{align}
+\lambda_1 &amp;= -3+j\\
+\lambda_2 &amp;= -3-j\\
+\lambda_3 &amp;= -10\\
+\lambda_4 &amp;= -11\\
+\\
+\pi_{des}(s) &amp;= \underbrace{(s+3-j)(s+3+j)}_\text{dominant poles}\underbrace{(s+10)(s+11)}_\text{fast poles}\\
+&amp;= s^4+\underbrace{27}_{\alpha_3}s^3+\underbrace{246}_{\alpha_2}s^2+\underbrace{870}_{\alpha_1}s+\underbrace{1100}_{\alpha_0}\\
+\\
+\begin{bmatrix}1&amp;0&amp;0&amp;0\\3&amp;2&amp;0&amp;0\\2&amp;0&amp;2&amp;0\\0&amp;0&amp;0&amp;2\end{bmatrix}\begin{bmatrix}f_1\\g_2\\g_1\\g_0\end{bmatrix}&amp;=\begin{bmatrix}27-3\\246-2\\870\\1100\end{bmatrix}\\
+(f_1, g_2, g_1, g_0) &amp;= (24, 86, 411, 550)\\
+\\
+C(s) &amp;= \frac{86x^2+411s+550}{s^2+24s}\\
+K_p&amp;=16.17\\
+T_i&amp;=0.7056\\
+T_d&amp;=0.1799\\
+\tau_d&amp;=0.0417\\
+\end{align}\]</span></p>
+<p>We can also use pole placement to design PID for first order plants with time delays.</p>
+<h3 id="pade-approximation">Padé approximation</h3>
+<p><span class="math display">\[P(s) = e^{-sT} \frac{K}{\tau s + 1}\]</span><br>
+We approximate the irrational term <span class="math inline">\(e^{-sT}\)</span> using a Padé approximation:<br>
+<span class="math display">\[e^{-sT} \approx \frac{-s\frac{T}{2} + 1}{s \frac{T}{2} + 1}\]</span></p>
+<p>This is a first order Padé approximation (in matlab: <code>pade</code>). Now, we get:</p>
+<p><span class="math display">\[P(s) \approx \frac{K}{\tau s + 1} \left(\frac{-sT+2}{sT+2}\right)\]</span></p>
+<p>This is a second order system.</p>
+<h2 id="when-can-pid-be-used">When can PID be used?</h2>
+<ul>
+<li>When <span class="math inline">\(P(s)\)</span> is approximately second order, we can use PID to place the closed loop poles anywhere in <span class="math inline">\(\mathbb{C}\)</span>
+</li>
+<li>Also gives step tracking and step disturbance rejection</li>
+</ul>
+<h3 id="e.g.">e.g.</h3>
+<p><span class="math display">\[\begin{align}
+P(s)&amp;=\frac{s+3}{(s^2+2s+2)(s+10)(s+15)}\\
+&amp;\approx \frac{1}{(10)(15)} \cdot \frac{s+3}{s^2+3s+2}
+\end{align}\]</span><br>
+(See section 4.5)</p>
+<p><img src="img/pidhighorder.png"></p>
+<p>We don't really care about the poles to the far left. If <span class="math inline">\(P(s) \not\approx\)</span> second order, then there are advantages to using more complicated controllers.</p>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

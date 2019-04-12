@@ -1,0 +1,289 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<title>Threads</title>
+</head>
+<body>
+
+<h1 id="threads">Threads</h1>
+<a href="index.html">Back to se350</a>
+<div id="TOC">
+
+<ul>
+<li><a href="#relationship-with-processes">Relationship with Processes</a></li>
+<li><a href="#benefits-of-threads">Benefits of Threads</a></li>
+<li>
+<a href="#behaviour">Behaviour</a><ul>
+<li><a href="#user-level-threads">User-level threads</a></li>
+<li><a href="#kernel-level-threads">Kernel-level threads</a></li>
+</ul>
+</li>
+<li><a href="#microkernels">Microkernels</a></li>
+</ul>
+</div>
+<h2 id="relationship-with-processes">Relationship with Processes</h2>
+<p>Processes <strong>own resources</strong>, so processes include a virtual address space to hold the process image</p>
+<p>Processes have to be <strong>scheduled and execute</strong>, and may be interleaved with other processes.</p>
+<p>We use <strong>threads</strong> to execute within a process and use the resources of a process.</p>
+<ul>
+<li>Dispatching referred to as threads. They have:<ul>
+<li>basically everything but resource ownership</li>
+<li>execution state (running, ready, etc)</li>
+<li>saved context when not running</li>
+<li>has execution stack</li>
+<li>per-thread static storage for local variables</li>
+<li>access to process resources</li>
+</ul>
+</li>
+<li>Resource ownership referred to as a process<ul>
+<li>virtual address space to hold the process image</li>
+<li>protected access to processors, other processes, files, IO</li>
+</ul>
+</li>
+</ul>
+<h2 id="benefits-of-threads">Benefits of Threads</h2>
+<ul>
+<li>threads are faster to make because you can skip resource allocation</li>
+<li>less time to terminate than a process, no memory area to deallocate</li>
+<li>less time to switch between two threads in the same process because they share the same process heap</li>
+<li>Good for separating foreground/background work</li>
+<li>Good for async processing</li>
+</ul>
+<h2 id="behaviour">Behaviour</h2>
+<ul>
+<li>Suspending a process suspends all threads of the process</li>
+<li>termination of a process terminates all threads of the process</li>
+<li>States for threads:<ul>
+<li>spawn (spand another thread)</li>
+<li>block</li>
+<li>unblock</li>
+<li>finish (deallocate register context and stack)</li>
+</ul>
+</li>
+</ul>
+<h3 id="user-level-threads">User-level threads</h3>
+<ul>
+<li>all thread management done by application</li>
+<li>if the kernel is not aware of existence of threads, it can't assign threads to multiple processors</li>
+<li>less switching overhead</li>
+<li>scheduling is app specific</li>
+<li>can run on any OS</li>
+</ul>
+<h3 id="kernel-level-threads">Kernel-level threads</h3>
+<ul>
+<li>OS calls are blocking only the thread</li>
+<li>can schedule threads simultaneously on multiple processors</li>
+</ul>
+<h2 id="microkernels">Microkernels</h2>
+<ul>
+<li>Small OS core</li>
+<li>contains only essential functions for OS</li>
+<li>these are now subsystems (in user mode) instead of OS things:<ul>
+<li>device drivers</li>
+<li>file systems</li>
+<li>virtual memory manager</li>
+<li>windowing system</li>
+<li>security services</li>
+</ul>
+</li>
+<li>crashing a module doesn't crash the kernel</li>
+</ul>
+<h1 id="concurrency">Concurrency</h1>
+<h2 id="requirements">Requirements</h2>
+<ul>
+<li>Multiple applications and multiprogramming</li>
+<li>structured applications: applications can be a set of concurrent processes</li>
+<li>OS structure: OS is a set of processes or threads</li>
+</ul>
+<h3 id="terms">Terms</h3>
+<ul>
+<li>
+<strong>critical section</strong>: section of code that requires access to shared resources, may not be executed while another process is in a corresponding section of code</li>
+<li>
+<strong>deadlock</strong>: situation where two or more processes are unable to proceed because each is waiting for another</li>
+<li>
+<strong>livelock</strong>: both continuously change their state in response ot another process without actually doing useful work</li>
+<li>
+<strong>mutual exclusion</strong>: rewuirement that no two processes can be in the critical section at once</li>
+<li>
+<strong>race condition</strong>: the result depends on relative timing of multiple concurrent processes</li>
+<li>
+<strong>starvation</strong>: runnable process overlooked indefinitely by the scheduler</li>
+</ul>
+<h3 id="os-concerns">OS Concerns</h3>
+<ul>
+<li>keep track of processes</li>
+<li>allocate and deallocate resources:<ul>
+<li>processor time</li>
+<li>memory</li>
+<li>files</li>
+<li>IO devices</li>
+</ul>
+</li>
+<li>protect data resources</li>
+</ul>
+<h3 id="interaction-among-processes">Interaction among processes</h3>
+<ol>
+<li>Processes are unwaware of each other</li>
+<li>Processes are indirectly aware of each other</li>
+<li>Processes are directly aware of each other</li>
+</ol>
+<h4 id="mechanisms-for-mutual-exclusion">Mechanisms for mutual exclusion</h4>
+<ul>
+<li>Software: Dekker's algorithm</li>
+<li>Hardware<ul>
+<li>special instructions<ul>
+<li>performed in a single instruction cycle</li>
+<li>access to memory location is blocked for any other instructions</li>
+</ul>
+</li>
+<li>disable interrupts as a means for mutual exclusion on a uniprocessor system<ul>
+<li>dispatcher is triggered by an interrupt, so if interrupts are enabled, the process won't switch</li>
+<li>special machine instructions<ul>
+<li>atomic, will not be preempted</li>
+<li>performed in single instruction cycle</li>
+<li>access to memory it blocked for any other instructions</li>
+<li>e.g. <code>exchange</code>, <code>testset</code>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="advanced-mechanisms">Advanced mechanisms</h2>
+<h3 id="semaphores">Semaphores</h3>
+<p>A concurrency control mechanism based on special variable for signalling. If a process is waiting for a signal, it is suspended until the signal is sent.</p>
+<ul>
+<li>semaphore variable has an integer value</li>
+<li>wait operation decrements semaphore value</li>
+<li>signal operation increments the value</li>
+<li>
+<strong>anyone can call <code>semWait()</code> or <code>semSignal</code></strong>, unlike mutexes, where only the process with the lock can release the lock</li>
+<li>no way to know if <code>semWait()</code> will block or not</li>
+<li>
+<code>semSignal()</code> may wake up a process, but you won't know whether or not it does</li>
+<li>They block when the value is <span class="math inline">\(\leq 0\)</span>
+</li>
+</ul>
+<h3 id="monitors">Monitors</h3>
+<ul>
+<li>Software module</li>
+<li>local data variables are accessible only by the monitor (shared data in the monitor is safe)</li>
+<li>process enters by invoking one of its procedures (controlled entry)</li>
+<li>Only one process can be executing in the monitor at a time (mutex)</li>
+<li>Uses condition variables for signalling</li>
+<li>unused signals are lost</li>
+<li>
+<code>synchronized</code> keyword in Java</li>
+</ul>
+<h4 id="mesa-monitors">Mesa monitors</h4>
+<ul>
+<li>signalling doesn't cause the thread to lose occupancy of the monitor</li>
+<li>nonblocking condition variables</li>
+</ul>
+<h4 id="message-passing">Message passing</h4>
+<ul>
+<li>Enforce mutual exclusion</li>
+<li>Exchange information</li>
+<li><code>send(destination, message)</code></li>
+<li><code>receive(source, message)</code></li>
+<li>Sender and receiver may or may not be blocking</li>
+<li>blocking send and receive: both blocked until mesage delivered (rendez-vous)</li>
+<li>Nonblocking send, blocking receive: sender continues on, receiver is blocked until the requiested message arrives</li>
+<li>Nonblocking send, nonblocking receive: neither party is required to wait</li>
+<li>Direct addressing<ul>
+<li>send primitive includes identifier for the destination process</li>
+<li>receive primitive could know ahead of time from which process a message is expected</li>
+<li>receive primitive could use a source param to return a value when the receive operation has been performed</li>
+</ul>
+</li>
+<li>Indirect addressing<ul>
+<li>messages sent to shared data structure consisting of queues called <strong>mailboxes</strong>
+</li>
+<li>one prcess sends message to mailbox, other picks up message from mailbox</li>
+</ul>
+</li>
+</ul>
+<h3 id="readerwriter-problem">Reader/Writer Problem</h3>
+<ul>
+<li>Any number of readers can read a file</li>
+<li>Only one writer can write at a time</li>
+<li>IF a writer is writing, no one can read</li>
+</ul>
+<h1 id="deadlock">Deadlock</h1>
+<ul>
+<li>permanent blocking of processes that either compete for resources or communicate with each other</li>
+<li>no efficient solution in general case</li>
+<li>involve conflicting needs for resources</li>
+</ul>
+<h2 id="resources">Resources</h2>
+<h3 id="reusable">Reusable</h3>
+<ul>
+<li>processors, IO channels, main memory, devices, files, semaphores, etc</li>
+<li>deadlock occurs if each process holds one resource and requests the other</li>
+</ul>
+<h3 id="consumable">Consumable</h3>
+<ul>
+<li>Created and destroyed</li>
+<li>Interrupts, signals, messages, information on IO buffers</li>
+<li>deadlock can occur if <code>receive()</code> is blocking</li>
+</ul>
+<h2 id="conditions-for-deadlock">Conditions for Deadlock</h2>
+<ul>
+<li>necessary and sufficient<ul><li>Mutual exclusion (only one process can use a resource at a time)</li></ul>
+</li>
+<li>necessary<ul>
+<li>Hold and wait (a process holds allocated resources while waiting for assignment of others)</li>
+<li>No preemption (no resource can be removed forcibly from the process holding it, require rollback mechanism for saving state)</li>
+<li>circular wait (closed chain of processes exist, such that each process holds at least one resource needed by the next process in the chain)</li>
+</ul>
+</li>
+</ul>
+<h2 id="avoidance-at-runtime">Avoidance at runtime</h2>
+<ul>
+<li>Whenever you make a request, first check if it can be granted without problem</li>
+<li>Requires knowledge of future processes</li>
+</ul>
+<p>e.g.</p>
+<ol>
+<li>Do not start a process if its demands might deadlock<ul><li>If the sum of all requested resources exceeds resource budget</li></ul>
+</li>
+<li>Do not grant incremental resource request if this might lead to deadlock</li>
+</ol>
+<p>Referred to as the <strong>Banker's Algorithm.</strong> The state of the system is the current allocation of resources to process. It is in a <strong>safe state</strong> if there is at least one sequence that doesn't result in deadlock. The goal is to always have a safe state.</p>
+<p>Conditions and requirements:</p>
+<ul>
+<li>maximum resource requirement must be stated in advance</li>
+<li>processes under consideration must be independent, no synchronization requirements</li>
+<li>must be fixed number of resources to allocate</li>
+<li>no process may exit when holding resources</li>
+</ul>
+<h2 id="recovering">Recovering</h2>
+<ul>
+<li>Abort all deadlocked processes</li>
+<li>Back up deadlocked process to some previously defined checkpoint, restart all processes</li>
+<li>successfully abort deadlocked processes until deadlock no longer exists</li>
+<li>Successfully preempt resources until deadlock no longer exists</li>
+</ul>
+<h1 id="unix-concurrency">Unix concurrency</h1>
+<ul>
+<li>Pipes: producer/consumer data passing between programs</li>
+<li>Messages</li>
+<li>Shared memory</li>
+<li>Semaphores</li>
+<li>Signals</li>
+</ul>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

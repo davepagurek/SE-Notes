@@ -1,0 +1,376 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<title>Memory Management</title>
+</head>
+<body>
+
+<h1 id="memory-management">Memory Management</h1>
+<a href="index.html">Back to se350</a>
+<div id="TOC">
+
+<ul>
+<li><a href="#relocation">Relocation</a></li>
+<li>
+<a href="#requirement">Requirement</a><ul>
+<li><a href="#protection">Protection</a></li>
+<li><a href="#logical-organization">Logical organization</a></li>
+</ul>
+</li>
+<li><a href="#strategies">Strategies</a></li>
+<li>
+<a href="#relocation-1">Relocation</a><ul><li><a href="#addresses">Addresses</a></li></ul>
+</li>
+<li>
+<a href="#external-fragmentation">External fragmentation</a><ul><li><a href="#paging">Paging</a></li></ul>
+</li>
+</ul>
+</div>
+<p>Responsible for dividing memory to accomodate multiple processes</p>
+<h2 id="relocation">Relocation</h2>
+<ul>
+<li>Programmer doesn't know where the pmemory will be placed when executed</li>
+<li>While program is executing, it may be swapped to disk and returned to memory in a new location</li>
+<li>Memory references must be translated in the code to actual physical memory address</li>
+</ul>
+<h2 id="requirement">Requirement</h2>
+<ul>
+<li>PCB</li>
+<li>Program</li>
+<li>Data, referenced by program</li>
+<li>Stack</li>
+</ul>
+<h3 id="protection">Protection</h3>
+<ul>
+<li>Shouldnt be able to reference memory locations from another process without permission</li>
+<li>Impossible to check the absolute address at compile time</li>
+</ul>
+<h3 id="logical-organization">Logical organization</h3>
+<ul>
+<li>programs written in modules</li>
+<li>modules can be written and compiled independently</li>
+<li>different degrees of protection given to modules (read only, execute only)</li>
+<li>share modules among processes</li>
+</ul>
+<h2 id="strategies">Strategies</h2>
+<ul>
+<li>Equal sized partitions</li>
+<li>Fixed partitioning</li>
+<li>Dynamic partitioning: assign resources dynamically when asked<ul>
+<li>Problem: you get gaps and holes in memory when processes terminate</li>
+<li>Algorithm: best fit vs next fit</li>
+<li>buddy system: creates smaller and smaller blocks to fit things in</li>
+</ul>
+</li>
+</ul>
+<h2 id="relocation-1">Relocation</h2>
+<ul><li>A process may switch memory locations</li></ul>
+<h3 id="addresses">Addresses</h3>
+<ul>
+<li>Logical: reference to a memory location independent of current assignment of data. Translation must be made to physical</li>
+<li>Relative: Address expressed as a location relative to some point<ul><li>Uses base register, bounds register, adder, comparator</li></ul>
+</li>
+<li>Physical: absolute address</li>
+</ul>
+<h2 id="external-fragmentation">External fragmentation</h2>
+<h3 id="paging">Paging</h3>
+<ul>
+<li>partition memory into small equal fixed sized chunks. Divide each process into the same sized chunks</li>
+<li>Chunks of a process are pages, chunks of memory are frames</li>
+<li>OS maintains a page table for each process<ul>
+<li>contains frame location for each page in process</li>
+<li>memory address is a <strong>page number and offset</strong>
+</li>
+</ul>
+</li>
+<li>Logical to physical is still done by hardware<ul>
+<li>logical address: page, offset</li>
+<li>physical address: frame, offset</li>
+<li>The memory address is now a 16 bit logical address: 6 bit page, 10 bit offset<ul><li>The page part goes through the page table lookup, and then the offset gets added</li></ul>
+</li>
+</ul>
+</li>
+<li>Program divided into <strong>segments</strong><ul>
+<li>all segments do not have to be the same length</li>
+<li>max segment length exists</li>
+<li>since segments are not wqual, segmentation is similar to dynamic partitioning<ul><li>programs can have more segments but only one partition<ul>
+<li>e.g. 4 bit segment, 12 bit offset</li>
+<li>Segment goes through process segment table (has length and base), offset then added</li>
+</ul>
+</li></ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="virtual-memory">Virtual Memory</h1>
+<ul>
+<li>Create your memory on demand<ul>
+<li>Onreads, load memory from disk</li>
+<li>when unused, write to disk</li>
+</ul>
+</li>
+<li>Runtime address translation (paging/segmentation) enables noncontiguous memory layouts<ul>
+<li>Programs can no longer directly access memory</li>
+<li>A program can run successfully without loading the whole program into memory at once</li>
+</ul>
+</li>
+</ul>
+<h2 id="how-it-works">How it works</h2>
+<p>At any given time, we need to know:</p>
+<ul>
+<li>Next instruction to execute</li>
+<li>Next data to be accessed</li>
+</ul>
+<p>When a program is executing, run the program until it tries to read or execute something not in ram (this is called a <strong>page fault</strong>). Then, block the process, read in the data, and resume the process. The <strong>residence set</strong> is the part of the program that is in memory.</p>
+<h3 id="performance">Performance</h3>
+<ul>
+<li>lazy loading is a win</li>
+<li>but disk loads in batches is faster</li>
+</ul>
+<h3 id="functionality">Functionality</h3>
+<ul>
+<li>Can juggle more processes at once</li>
+<li>Process can extend a system's RAM size</li>
+</ul>
+<h2 id="replacement">Replacement</h2>
+<ul>
+<li>
+<strong>Thrashing</strong>: Constantly throwing out and reloading memory</li>
+<li>
+<strong>Principle of locality</strong>: stuff you need in the future is close to the stuf you needed in the past</li>
+</ul>
+<h2 id="support">Support</h2>
+<ul>
+<li>Hardware must support paging and segmentation</li>
+<li>OS must support putting pages on desk and reloading them from disk</li>
+<li>Now, virtual addresses have a page number and an offset</li>
+<li>The page table has entries with:<ul>
+<li>
+<strong>Present</strong> flag (is it currently loaded?)</li>
+<li>
+<strong>Modified</strong> flag (has the page been modified since it has been loaded from disk)</li>
+<li>other control bits</li>
+<li>frame number</li>
+</ul>
+</li>
+<li>You can put the page table in memory so it grows, but then you can get two page faults per memory request sometimes</li>
+</ul>
+<h2 id="inverted-page-tables">Inverted Page Tables</h2>
+<ul>
+<li>Inverted means index on frame number, not virtual address</li>
+<li>inverted tables grow with the size of physical memory</li>
+<li>each virtual memory reference can cause two physical memory accesses<ul>
+<li>one to fetch page table entry</li>
+<li>one to fetch data</li>
+</ul>
+</li>
+<li>When a system is too slow, add caches with a <strong>Translation Lookaside Buffer</strong><ul>
+<li>For normal operations, being in the TLB implies that the block is in main memory</li>
+<li>the only time it might not be is in the function that moves memory from one spot to another</li>
+</ul>
+</li>
+<li>smaller page size<ul>
+<li>less amount of internal fragmentation (less memory wasted in last page)</li>
+<li>more pages required per process</li>
+<li>more pages per process means larger page tables</li>
+<li>larger page tables means large portion of page tables in virtual memory</li>
+<li>more tlb entries and therefore more tlb misses</li>
+</ul>
+</li>
+<li>larger page size<ul>
+<li>secondary memory is designed to efficiently transfer large blocks of data so a large page size is better</li>
+<li>after a certain point, larger pages correlates with lower page fault rate</li>
+</ul>
+</li>
+</ul>
+<h3 id="segmentation">Segmentation</h3>
+<p>allows programmer to view memory as consisting of multiple address spaces or segments</p>
+<ul>
+<li>advantages<ul>
+<li>simplifies handling of growing data structures (put whole structure into one segment)</li>
+<li>allows programs to be altered and recompiled independently</li>
+<li>sharing data amongst processes by sharing a segment</li>
+<li>protect segments to have memory protection</li>
+</ul>
+</li>
+<li>segment tables<ul>
+<li>starting address corresponding segment in main memory</li>
+<li>each entry contains length of segment</li>
+<li>bit is needed to determine if the segment is already in main memory</li>
+<li>another bit needed to determine if the segment has been modified since being loaded</li>
+</ul>
+</li>
+<li>paging transparent to programmer, segmentation is visible</li>
+<li>elements<ul>
+<li>1 process</li>
+<li>1 segment table per process</li>
+<li>1 page table per segment</li>
+</ul>
+</li>
+</ul>
+<h3 id="required-algorithms">Required algorithms</h3>
+<ul>
+<li>fetch policy</li>
+<li>replacement policy</li>
+<li>placement policy</li>
+<li>cleaning policy</li>
+<li>load control</li>
+</ul>
+<h4 id="fetch-policy">Fetch Policy</h4>
+<ul>
+<li>determines when apage is brought into memory</li>
+<li>demand paging only brings pages into main memory when a reference is made to the location on the page<ul><li>many page faults when process first started</li></ul>
+</li>
+<li>prepaging brings in more pages than needed<ul><li>more efficient to bring in pages that rely contiguously on the disk</li></ul>
+</li>
+</ul>
+<h4 id="placement-policy">Placement Policy</h4>
+<ul>
+<li>Determines where in real memory a process piece is to reside</li>
+<li>important in a segmentation system (you need to try to minimize fragmentation)</li>
+<li>paging/segmentation hardware performs address translation</li>
+</ul>
+<h4 id="replacement-1">Replacement</h4>
+<ul>
+<li>which should be replaced</li>
+<li>should try to remove the page least likely to be referenced in the near future</li>
+<li>most policies predict future behaviour based on past behaviour</li>
+<li>policy concepts<ul>
+<li>how many page frames allocated to each active process? (Fixed, variable)</li>
+<li>local vs global scope for replacing page frames in main memory</li>
+<li>which of the candidate pages is picked?</li>
+</ul>
+</li>
+<li>frame locking<ul>
+<li>restricts placement policy</li>
+<li>if locked, may not be replaced</li>
+<li>used in kernel, key control structures, io buffers, time critical elements</li>
+<li>associate a lock bit to each frame</li>
+</ul>
+</li>
+<li>algorithms<ul>
+<li>Optimal<ul>
+<li>selects the page for removal for which the time to the next reference is the longest</li>
+<li>impossible to know future events though</li>
+</ul>
+</li>
+<li>Least Recently Used<ul>
+<li>nearly as good as optimal</li>
+<li>replaces the page that has not been referenced for the longest time</li>
+<li>need to store access time for every page</li>
+</ul>
+</li>
+<li>First in first out<ul>
+<li>page that has been in memory the longest is replaced</li>
+<li>old pages assumed to not be referenced soon</li>
+<li>pages removed in round robin style</li>
+<li>simple to implement</li>
+</ul>
+</li>
+<li>Clock policy (approximates LRU)<ul>
+<li>Adds additional bit called the <strong>use bit</strong>
+</li>
+<li>when a page is first loaded, set the bit to 1</li>
+<li>when the page is referenced, set the bit to 1</li>
+<li>when it is time to replace a page, first frame with 0 removed</li>
+<li>in each replacement, each 1 is reset to a 0</li>
+</ul>
+</li>
+<li>Page buffering<ul>
+<li>implements a cache for memory pages</li>
+<li>replaced page is added to one of two lists:<ul>
+<li>free, if page has not been modified</li>
+<li>modified, if it has</li>
+</ul>
+</li>
+<li>OS can revive these if space becomes available</li>
+<li>supports bursty block writes of IO</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Resident Set: pages of a process in memory<ul>
+<li>smaller the amount, the more processes</li>
+<li>too small means high page fault rate</li>
+<li>too large means no real gain</li>
+<li>size<ul>
+<li>fixed allocation: gives process fixed number of pages. when a fault occurs, one of the pages of that process must be replaced<ul>
+<li>decide ahead of time the amount of allocation to give a process (hard)</li>
+<li>if allocation too small, high fault rate</li>
+<li>if too large, too few programs in main memory, processor is idle</li>
+</ul>
+</li>
+<li>variable allocation: number of pages varies over lifetime of process<ul>
+<li>global scope<ul>
+<li>easiest to implement</li>
+<li>OS keeps list of free frames</li>
+<li>free frame is added to resident set of process when a page fault occurs</li>
+<li>if no free frame, replaces anyone</li>
+</ul>
+</li>
+<li>local scope<ul>
+<li>easiest to implement, used frequently in OSes</li>
+<li>OS has list of free frames. Free frame added to resident set when a page fault occurs</li>
+<li>If no frame is free, replaces anyone</li>
+<li>risk: process can suffer reduction of resident set size</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Working set: set of pages of the process that have been referenced in the last <span class="math inline">\(t\)</span> time units<ul>
+<li>Using the working set:<ul>
+<li>monitor the working set of each process</li>
+<li>remove pages from resident set but not working set (least recently used)</li>
+<li>process may only execute if its working set is in main memory</li>
+</ul>
+</li>
+<li>Problems<ul>
+<li>past doesn't always predict the future</li>
+<li>impractical</li>
+<li>optimal window size is unknown and varies: observe page fault frequency to figure out best values</li>
+</ul>
+</li>
+<li>Cleaning policy<ul>
+<li>demand cleaning: page written out only when selected for repalcement. Requires two page transfers per fault</li>
+<li>pre-cleaning: pages written out in batches. Bursty IO in favor of possibly unnecessary writes</li>
+<li>page buffering:<ul>
+<li>pages in two lists, modified and unmodified</li>
+<li>pages in modified list are periodically written out in batches</li>
+<li>unmodified are either reclaimed if refrenced again or lost when frame is assigned to another page</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Load control<ul>
+<li>determines number of processes in resident set in main memory</li>
+<li>too few processes means many occasions when all processes blocked. lots of time spent swapping</li>
+<li>too many processes leads to thrashing</li>
+<li>process suspension<ul>
+<li>lowest priority</li>
+<li>faulting process: doesn't have resident set in memory anyway</li>
+<li>last process activated: least likely to have working set resident</li>
+<li>process with smallest resident set: requires least future effort to load</li>
+<li>largest process: obtains most free frames by suspending</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

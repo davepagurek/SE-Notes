@@ -1,0 +1,505 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<title>Feedback Control Theory</title>
+</head>
+<body>
+
+<h1 id="feedback-control-theory">Feedback Control Theory</h1>
+<a href="index.html">Back to se380</a>
+<div id="TOC">
+
+<ul>
+<li>
+<a href="#closing-the-loop">5.1 Closing the loop</a><ul><li><a href="#e.g.-pendulum">e.g. Pendulum</a></li></ul>
+</li>
+<li>
+<a href="#stability-of-feedback-systems">Stability of feedback systems</a><ul>
+<li><a href="#internal-stability">Internal stability</a></li>
+<li><a href="#input-output-stability">Input-output stability</a></li>
+<li><a href="#characteristic-polynomial">Characteristic polynomial</a></li>
+<li><a href="#comparing-internal-and-input-output-stability">Comparing Internal and Input-Output Stability</a></li>
+<li><a href="#the-routh-hurwitz-criterion">The Routh-Hurwitz Criterion</a></li>
+<li><a href="#rouths-algorithm">Routh's Algorithm</a></li>
+</ul>
+</li>
+<li>
+<a href="#steady-state-performance">Steady-state performance</a><ul>
+<li><a href="#tracking-reference-signals">Tracking reference signals</a></li>
+<li><a href="#design-strategy">Design strategy</a></li>
+<li><a href="#internal-model-principle">Internal model principle</a></li>
+<li><a href="#steady-state-disturbance-rejection">Steady-state disturbance rejection</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="closing-the-loop">5.1 Closing the loop</h2>
+<h3 id="e.g.-pendulum">e.g. Pendulum</h3>
+<p><img src="img/pendulum2.png"></p>
+<p>Design a controller to keep the pendulum in upright position.</p>
+<p><span class="math display">\[\begin{align}
+\text{Model:}\\
+\dot{x_1}&amp;=x_2\\
+\dot{x_2}&amp;= \frac{-g}{l}\sin x_1 + \frac{1}{Ml^2}u\\
+y&amp;=x_1\\
+\\
+\text{Equilibrium config } (\bar{x}, \bar{u}) \text{ at which } y=\pi \text{ is: }\\
+(\bar{x}, \bar{u}) &amp;= \left(\begin{bmatrix}\pi\\0\end{bmatrix}, 0\right)\\
+\\
+\text{Linearization:}\\
+\dot{\partial x} &amp;= \begin{bmatrix}0&amp;1\\\frac{g}{l}&amp;0\end{bmatrix} \partial x + \begin{bmatrix}0\\\frac{1}{Ml^2}\end{bmatrix}\partial u\\
+\partial x &amp;:= x-\bar{x}\\
+\partial u &amp;:= u-\bar{u}\\
+\partial y &amp;:= y-\bar{y}\\
+&amp;= \begin{bmatrix}1 &amp; 0\end{bmatrix}\partial x\\
+\\
+\text{Transfer function:}\\
+U(s) &amp;:= \mathbb{L}\{\partial u\}, Y(s) := \mathbb{L}\{\partial y\}\\
+\\
+\text{Poles:}\\
+s &amp;= \pm \sqrt{\frac{g}{l}}\\
+\\
+\frac{Y(s)}{U(s)} = \frac{1}{Ml^2} \frac{1}{s^2 - \frac{g}{l}} =: P(s)\\
+\end{align}\]</span></p>
+<p><img src="img/pendulumblock.png"></p>
+<p>One controller that does the job is <span class="math inline">\(C(s) = 100 + \frac{s+10}{s+20}\)</span>, a "lead" controller.</p>
+<p>With this choice of controller, the TF from <span class="math inline">\(R\)</span> to <span class="math inline">\(Y\)</span> is:<br>
+<span class="math display">\[\frac{Y(s)}{R(s)} = \frac{C(s)P(s)}{1 + C(s)P(s)} = \frac{100s+1000}{s^3 + 20s^2 + 99s + 980}\]</span></p>
+<p>Closed-loop poles: <span class="math inline">\(\{-17.5, -1 \pm 7.3j\}\)</span></p>
+<p><img src="img/pendulumpoles.png"></p>
+<p>Closed-loop response is dominated by poles at <span class="math inline">\(s=-1 \pm 7.3j\)</span>, making it look like an underdamped second-order system with a lot of overshoot because of the large angle from the x axis.</p>
+<p>Input signal: From 0 to 5s, move in the counter-clockwise direction by 1 radian. After 5s, return to the upright position.</p>
+<p><img src="img/pendulumresponse.png"></p>
+<p>To implement the controller, we have the following (A/D means analogue to digital):</p>
+<p><img src="img/controllerimplementation.png"></p>
+<p>In this case, using a "bilinear transformation", we get:</p>
+<p><span class="math display">\[u[k] = \frac{1}{2+20T}\left((20T-2)u[k-1]+100(2+10T)e[k]+100(10T-2)e[k-1]\right)\]</span></p>
+<p>Where:</p>
+<ul>
+<li>
+<span class="math inline">\(T\)</span> is the sampling period</li>
+<li><span class="math inline">\(e[k]=r[k]-y[k]\)</span></li>
+</ul>
+<h2 id="stability-of-feedback-systems">Stability of feedback systems</h2>
+<p><img src="img/stabilitysystem.png"></p>
+<p>Systems</p>
+<ul>
+<li>
+<span class="math inline">\(C(s)\)</span>: controller</li>
+<li>
+<span class="math inline">\(P(s)\)</span>: plant</li>
+</ul>
+<p>Signals</p>
+<ul>
+<li>
+<span class="math inline">\(r(t)\)</span>: reference</li>
+<li>
+<span class="math inline">\(u(t)\)</span>: plant input</li>
+<li>
+<span class="math inline">\(d(t)\)</span>: disturbance</li>
+<li>
+<span class="math inline">\(y(t)\)</span>: output</li>
+<li>
+<span class="math inline">\(e(t)\)</span>: tracking error</li>
+</ul>
+<p>What does it mean for this system to be stable?</p>
+<h3 id="internal-stability">Internal stability</h3>
+<p>Assume <span class="math inline">\(P\)</span> and <span class="math inline">\(C\)</span> are rational; <span class="math inline">\(P\)</span> is strictly proper; <span class="math inline">\(C\)</span> is proper.</p>
+<p>Set <span class="math inline">\(r(t)=d(t)=0\)</span>. Bring in state-space models for <span class="math inline">\(C\)</span> and <span class="math inline">\(P\)</span>.</p>
+<p><img src="img/controllerinternalstability.png"></p>
+<p><span class="math display">\[\begin{align}
+\dot{x_c} &amp;= A_cx_c+B_ce\\
+u &amp;= C_cx_c+D_ce\\
+\\
+\dot{x_p} &amp;= A_p x_p + B_pu\\
+y &amp;= C_px_p\\
+\end{align}\]</span></p>
+<p>We get:<br>
+<span class="math display">\[\underbrace{\begin{bmatrix}\dot{x_p}\\\dot{x_c}\end{bmatrix}}_{x_{cl}} = \underbrace{\begin{bmatrix}A_p-B_pD_cC_p&amp;B_pC_c\\-B_cC_p&amp;A_c\end{bmatrix}}_{A_{cl}}\begin{bmatrix}X_p\\x_c\end{bmatrix}\]</span></p>
+<p>The closed-loop system is <strong>internally stable</strong> if <span class="math inline">\(\dot{x_{cl}}=A_{cl}x_{cl}\)</span> is asymptotically stable.</p>
+<h4 id="e.g.">e.g.</h4>
+<p>Given:<br>
+<span class="math display">\[\begin{align}
+\dot{x_p} &amp;= \begin{bmatrix}0&amp;1\\0&amp;-5\end{bmatrix}x_p + \begin{bmatrix}0\\1\end{bmatrix}u\\
+y &amp;= \begin{bmatrix}1&amp;0\end{bmatrix}x_p\\
+\dot{x_c} &amp;= -15x_c + e\\
+y &amp;= -1000x_c + 100e\\
+\end{align}\]</span></p>
+<p>Then:<br>
+<span class="math display">\[\begin{align}
+A_{cl} &amp;= \begin{bmatrix}
+  \begin{bmatrix}0&amp;1\\0&amp;-5\end{bmatrix}-\begin{bmatrix}0\\1\end{bmatrix}100\begin{bmatrix}1&amp;0\end{bmatrix} &amp;
+  -\begin{bmatrix}0\\1\end{bmatrix} \\
+  -\begin{bmatrix}1&amp;0\end{bmatrix} &amp;
+  -15
+\end{bmatrix}\\
+&amp;= \begin{bmatrix}0&amp;1&amp;0\\-100&amp;-5&amp;-1000\\-1&amp;0&amp;-15\end{bmatrix}\\
+\\
+\det(sI-A_{cl}) &amp;= \det\begin{bmatrix}s&amp;-1&amp;0\\100&amp;s+5&amp;1000\\1&amp;0&amp;s+15\end{bmatrix}\\
+&amp;= s(s+5)(s+15)+100(s+5)\\
+&amp;= (s+5)(s^2+15s+100)\\
+\end{align}\]</span></p>
+<p>You can check that all the roots of the determinant (all the eigenvalues) have negative real parts. This implies that <span class="math inline">\(\dot{x_{cl}}=A_{cl}x_{cl}\)</span> is asymptotically stable, and therefore the feedback system is internally stable.</p>
+<h3 id="input-output-stability">Input-output stability</h3>
+<p>Given the same feedback loop as before:<br>
+<img src="img/stabilitysystem.png"></p>
+<p>This system has 6 transfer functions from <span class="math inline">\((r, d)\)</span> to <span class="math inline">\((e, u, y)\)</span>. Finding them:</p>
+<p><span class="math display">\[\begin{align}
+Y &amp;= PU\\
+E &amp;= R - PU\\
+U &amp;= D+CE\\
+\Rightarrow \begin{bmatrix}1&amp;P\\-C&amp;1\end{bmatrix}\begin{bmatrix}E\\U\end{bmatrix}&amp;=\begin{bmatrix}R\\D\end{bmatrix}\\
+\begin{bmatrix}E\\U\end{bmatrix} &amp;= \frac{1}{1+PC}\begin{bmatrix}1&amp;-P\\C&amp;1\end{bmatrix}\begin{bmatrix}R\\D\end{bmatrix}\\
+\\
+\frac{E}{R} &amp;= \frac{1}{1+PC}\\
+\frac{E}{D} &amp;= \frac{-P}{1+PC}\\
+\frac{U}{R} &amp;= \frac{C}{1+PC}\\
+\frac{U}{D} &amp;= \frac{1}{1+PC}\\
+\frac{Y}{R} &amp;= \frac{PC}{1+PC}\\
+\frac{Y}{D} &amp;= \frac{P}{1+PC}\\
+\end{align}\]</span></p>
+<p>A feedback system is <strong>input-output stable</strong> if <span class="math inline">\((e, u, y)\)</span> are bounded whenever <span class="math inline">\((r, d)\)</span> are bounded.</p>
+<p>Since whenever <span class="math inline">\(r\)</span> and <span class="math inline">\(e\)</span> are bounded, so is <span class="math inline">\(y=r-e\)</span>, we only need to look at the TFs from <span class="math inline">\((r,d)\)</span> to <span class="math inline">\((e,u)\)</span>.</p>
+<h4 id="e.g.-5.2.5">e.g. 5.2.5</h4>
+<p><span class="math display">\[P(s)=\frac{1}{(s+1)(s-1)}, \quad C(s)=\frac{s-1}{s+1}\]</span></p>
+<p>The for transfer functions are:<br>
+<span class="math display">\[\begin{align}
+\begin{bmatrix}E\\U\end{bmatrix} &amp;= \begin{bmatrix}
+  \frac{(1+1)^2}{s^2+2s+2} &amp; \frac{s+1}{(s-1)(s^2+2s+2)} \\
+  \frac{(s+1)(s-1)}{s^2+2s+2} &amp; \frac{(s+1)^2}{s^2+2s+2}
+\end{bmatrix}
+\begin{bmatrix}R\\D\end{bmatrix}
+\end{align}\]</span><br>
+Three of these TFs are BIBO stable; the one from D to E is not. Therefore the feedback system is not input-output stable.</p>
+<p>Observe:<br>
+<span class="math display">\[\frac{Y(s)}{R(s)}=\frac{1}{s^2+2s+2}\]</span><br>
+This is BIBO stable, so don't be fooled. The problem is that <span class="math inline">\(C\)</span> cancels an <strong>unstable pole</strong> of the plant. Input-output stability is more than just the stability of one transfer function.</p>
+<h3 id="characteristic-polynomial">Characteristic polynomial</h3>
+<p>Write:<br>
+<span class="math display">\[P(s)=\frac{N_p}{D_p}, \quad C(s)=\frac{N_c}{D_c}\]</span></p>
+<ul>
+<li>
+<span class="math inline">\(N_p\)</span>, <span class="math inline">\(D_p\)</span>, <span class="math inline">\(D_c\)</span> are polynomials in <span class="math inline">\(s\)</span>
+</li>
+<li>
+<span class="math inline">\(\deg(N_p) \lt \deg(D_p)\)</span>, <span class="math inline">\(\deg(N_c) \le \deg(D_c)\)</span>
+</li>
+<li>
+<p><span class="math inline">\((N_p, D_p)\)</span> and <span class="math inline">\((N_c, D_c)\)</span> are coprime</p>
+<p>The <strong>characteristic polynomial</strong> of the feedback system is:<br>
+<span class="math display">\[\pi(s) := N_p(s)N_c(s) + D_p(s)D_c(s)\]</span></p>
+</li>
+</ul>
+<h4 id="e.g.-5.2.7">e.g. 5.2.7</h4>
+<p><span class="math display">\[P(s)=\frac{1}{(s+1)(s-1)}, \quad C(s)=\frac{s-1}{s+1}\]</span><br>
+<span class="math display">\[\begin{align}
+\pi(s)&amp;=(1)(s-1)+(s+1)(s-1)(s+1)\\
+&amp;= (s-1)(s^2 + 2s + 2)
+\end{align}\]</span></p>
+<p>The characteristic polynomial has an unstable root, the one we cancelled.</p>
+<p><strong>Theorem 5.2.6.</strong> The feedback system is input-output stable if and only if its characteristic polynomial has no roots with <span class="math inline">\(\Re(s) \ge 0\)</span>.</p>
+<p>Observe:<br>
+<span class="math display">\[\begin{align}
+\begin{bmatrix}\frac{1}{1+PC} &amp; \frac{-P}{1_PC} \\ \frac{C}{1+PC} &amp; \frac{1}{1+PC}\end{bmatrix} &amp;= \frac{1}{\pi(s)}\begin{bmatrix}D_pD_c &amp; -N_pD_c \\ D_pN_c &amp; D_pD_c \end{bmatrix}\\
+\end{align}\]</span></p>
+<p>The plant <span class="math inline">\(P(s)\)</span> and the controller <span class="math inline">\(C(s)\)</span> have a <strong>pole-zero cancellation</strong> if there exists a complex number <span class="math inline">\(\lambda \in \mathbb{C}\)</span> such that <span class="math inline">\(N_p(\lambda) = D_c(\lambda)=0\)</span> or <span class="math inline">\(D_p(\lambda)=N_c(\lambda)=0\)</span>.</p>
+<p>It is an <strong>unstable cancellation</strong> if <span class="math inline">\(\Re(\lambda) \ge 0\)</span>.</p>
+<p>If there is an unstable pole-zero cancellation, then the feedback system is unstable.<br>
+<strong>Proof:</strong> Assume there isi an unstable pole-zero cancellation at <span class="math inline">\(\lambda \in \mathbb{C}\)</span> with <span class="math inline">\(\Re(\lambda) \ge 0\)</span>.</p>
+<p><span class="math display">\[\begin{align}
+\pi(\lambda) &amp;= N_p(\lambda)N_c(\lambda) + D_p(\lambda)D_c(\lambda)\\
+&amp;= 0 + 0\\
+\end{align}\]</span><br>
+So <span class="math inline">\(\lambda\)</span> is a root of <span class="math inline">\(\pi\)</span>, so by Theorem 5.2.6, the system is unstable.</p>
+<h3 id="comparing-internal-and-input-output-stability">Comparing Internal and Input-Output Stability</h3>
+<p>It can be shown that the roots of <span class="math inline">\(\pi\)</span> are a subset of the eigenvalues of <span class="math inline">\(A_{\text{closed loop}}\)</span>. So, internal stability implies input-output stability.</p>
+<ul>
+<li>usually the two concepts are the same (but not always)</li>
+<li>in this course we generally assume they are the same unless asked specifically to check</li>
+</ul>
+<h3 id="the-routh-hurwitz-criterion">The Routh-Hurwitz Criterion</h3>
+<p>Consider an <span class="math inline">\(n\)</span>th order polynomial:<br>
+<span class="math display">\[\pi(s) = s^n + a_{n-1}s^{n-1} + ... + a_1s + a_0\]</span></p>
+<p><span class="math inline">\(\pi(s)\)</span> is <strong>Hurwitz</strong> if all its roots have <span class="math inline">\(\Re(s) \lt 0\)</span>.</p>
+<p>The Routh-Hurwitz Criterion is a test to determine if a polynomial is Hurwitz without actually computing the roots. It is a necessary condition for a polynomial to be Hurwitz.</p>
+<p>Let <span class="math inline">\(\{\lambda_1, ..., \lambda_r\}\)</span> be the real roots of <span class="math inline">\(\pi\)</span>.</p>
+<p>Let <span class="math inline">\(\{\mu_1, \bar{\mu_1}, ..., \mu_s, \bar{\mu_s}\}\)</span> be the complex conjugate roots of <span class="math inline">\(\pi\)</span>.</p>
+<p><span class="math display">\[r+2s=n\]</span></p>
+<p>Then, we can write:<br>
+<span class="math display">\[\pi(s) = (s - \lambda_1)...(s - \lambda_r)(s-\mu_1)(s-\bar{\mu_1})...(s-\mu_s)(s-\bar{\mu_s})\]</span></p>
+<p>If <span class="math inline">\(\pi\)</span> is Hurwitz, then all the roots have <span class="math inline">\(\Re(s) \lt 0\)</span>, so the real roots have to be negative. Then <span class="math inline">\(-\lambda_i \gt 0\)</span>.</p>
+<p>For the complex conjugate roots:<br>
+<span class="math display">\[\begin{align}
+(s-\mu_i)(s-\bar{\mu_i}) &amp;= s^2 + (-\mu_i - \bar{\mu_i})s + \mu_i\bar{\mu_i}\\
+&amp;= s^2 - 2\Re(\mu_i)s + |\mu_i|^2\\
+\end{align}\]</span><br>
+If <span class="math inline">\(\pi\)</span> is Hurwitz, then <span class="math inline">\(-\Re(\mu_i)\gt 0\)</span> and <span class="math inline">\(|\mu_i| \ne 0\)</span>. If we expand <span class="math inline">\(\pi(s)\)</span> out again, all the coefficients <span class="math inline">\(a_i\)</span> will be <strong>positive</strong>.</p>
+<h4 id="e.g.-5.3.1">e.g. 5.3.1</h4>
+<p><span class="math display">\[s^4+3s^3-2s^2+5s+6\]</span><br>
+We have a coefficient with a negative sign, so we immediately know it is not Hurwitz.</p>
+<p><span class="math display">\[s^3+4s+6\]</span><br>
+We have a coefficient of 0, and since we need all to be positive, we know it is not Hurwitz.</p>
+<p><span class="math display">\[s^3+5s^2+9s+1\]</span><br>
+We are not sure whether or not this is Hurwitz.</p>
+<h3 id="rouths-algorithm">Routh's Algorithm</h3>
+<p>Input to the algorithm is a polynomial:<br>
+<span class="math display">\[\pi(s) = s^2 + a_{n-1}s^{n-1}+...+a_1s+a_s\]</span></p>
+<p>We create a <strong>Routh Array</strong>:</p>
+<table><tbody>
+<tr class="odd">
+<td><span class="math inline">\(s^n\)</span></td>
+<td><span class="math inline">\(1 = r_{0,0}\)</span></td>
+<td><span class="math inline">\(a_{n-2} = r_{0,1}\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(s^{n-1}\)</span></td>
+<td><span class="math inline">\(a_{n-1} = r_{1,0}\)</span></td>
+<td><span class="math inline">\(a_{n-3} = r_{1,1}\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(s^{n-2}\)</span></td>
+<td><span class="math inline">\(r_{2,0}\)</span></td>
+<td><span class="math inline">\(r_{2,1}\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(s^{n-3}\)</span></td>
+<td><span class="math inline">\(r_{3,0}\)</span></td>
+<td><span class="math inline">\(r_{3,1}\)</span></td>
+</tr>
+<tr class="odd">
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(s^{1}\)</span></td>
+<td><span class="math inline">\(r_{n-1,0}\)</span></td>
+<td><span class="math inline">\(r_{n-1,1}\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(s^{0}\)</span></td>
+<td><span class="math inline">\(r_{n,0}\)</span></td>
+<td><span class="math inline">\(r_{n,1}\)</span></td>
+</tr>
+</tbody></table>
+<p><span class="math display">\[\begin{align}
+r_{2,0} &amp;= \frac{a_{n-1}a_{n-2} - (1)a_{n-3}}{a_{n-1}}\\
+r_{2,1} &amp;= \frac{a_{n-1}a_{n-4} - (1)a_{n-3}}{a_{n-1}}\\
+r_{2,2} &amp;= \frac{a_{n-1}a_{n-6} - (1)a_{n-3}}{a_{n-1}}\\
+&amp;...\\
+\\
+\end{align}\]</span></p>
+<p>The fourth row is computed from the second and third using the same pattern:<br>
+<span class="math display">\[\begin{align}
+r_{3,0} &amp;= \frac{r_{2,0}r_{1,1} - r_{1,0}r_{2,1}}{r_{2,0}}\\
+\end{align}\]</span></p>
+<ul>
+<li>Continue along each row until you get zeroes</li>
+<li>Terminate if we get a zero in the first column</li>
+</ul>
+<h4 id="routh-hurwitz-criterion">Routh-Hurwitz Criterion</h4>
+<ul>
+<li>
+<span class="math inline">\(\pi\)</span> is Hurwitz if and only if all the elements in the first column have the same sign</li>
+<li>If there are no zeroes in the first column, then:<ul>
+<li>The number of sign changes equals the number of bad roots (not in the open left half plane)</li>
+<li>There are no roots on the imaginary axis</li>
+</ul>
+</li>
+</ul>
+<p>e.g.<br>
+<span class="math inline">\(\pi(s) = a_2s^2 + a_1s + a_0\)</span></p>
+<table><tbody>
+<tr class="odd">
+<td><span class="math inline">\(s^2\)</span></td>
+<td><span class="math inline">\(a_2\)</span></td>
+<td><span class="math inline">\(a_0\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(s^1\)</span></td>
+<td><span class="math inline">\(a_1\)</span></td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(s^0\)</span></td>
+<td><span class="math inline">\(\frac{a_1a_0-a_2(0)}{a_1} = a_0\)</span></td>
+<td></td>
+</tr>
+</tbody></table>
+<p><span class="math inline">\(\pi\)</span> is Hurwitz if and only if <span class="math inline">\(\text{sgn}(a_2) = \text{sgn}(a_1) = \text{sgn}(a_0)\)</span></p>
+<p>e.g.<br>
+<span class="math inline">\(\pi(s) = 2s^4 + s^3 + 3s^2 + 5s + 10\)</span></p>
+<table><tbody>
+<tr class="odd">
+<td><span class="math inline">\(s^4\)</span></td>
+<td>2</td>
+<td>3</td>
+<td>10</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(s^3\)</span></td>
+<td>1</td>
+<td>5</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(s^2\)</span></td>
+<td><span class="math inline">\(\frac{(1)(3)-(2)(5)}{1}=7\)</span></td>
+<td>10</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(s^1\)</span></td>
+<td><span class="math inline">\(\frac{(-7)(5)-(1)(10)}{-7}=\frac{45}{7}\)</span></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(s^0\)</span></td>
+<td>10</td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>There are two sign changes: <span class="math inline">\(\{+, +, -, +, +\}\)</span></p>
+<p>Therefore <span class="math inline">\(\pi\)</span> has two roots in <span class="math inline">\(\mathbb{C}\)</span>.</p>
+<h4 id="e.g.-5.3.4">e.g. 5.3.4</h4>
+<p><img src="img/routheg.png"></p>
+<p><span class="math display">\[P(s) = \frac{1}{s^4+6s^3+11s^2+6s}\]</span><br>
+<span class="math display">\[\pi(s) = s^4 + 6s^3 + 11s^2 + 6s + K_p\]</span></p>
+<table><tbody>
+<tr class="odd">
+<td><span class="math inline">\(s^4\)</span></td>
+<td>1</td>
+<td>11</td>
+<td><span class="math inline">\(K_p\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(s^3\)</span></td>
+<td>6</td>
+<td>6</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(s^2\)</span></td>
+<td>10</td>
+<td><span class="math inline">\(K_p\)</span></td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(s^1\)</span></td>
+<td><span class="math inline">\(\frac{60-6K_p}{10}\)</span></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(s^0\)</span></td>
+<td><span class="math inline">\(K_p\)</span></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>System is IO stable if and only if <span class="math inline">\(0 \lt K_p \lt 10\)</span>.</p>
+<h2 id="steady-state-performance">Steady-state performance</h2>
+<p>Typical specs for control design:</p>
+<ul>
+<li>stability (mandatory)</li>
+<li>transient behaviour (see Chapter 4)</li>
+<li>steady-state (tracking and disturbance rejection)</li>
+</ul>
+<h3 id="tracking-reference-signals">Tracking reference signals</h3>
+<h4 id="e.g.-5.4.1">e.g. 5.4.1</h4>
+<p><img src="img/eg541.png"></p>
+<p><span class="math display">\[\begin{align}
+r(t)&amp;=1(t)\\
+C(s)&amp;=\frac{1}{s} \text{ (integrator) }\\
+P(s) &amp;= \frac{1}{s+1}\\
+\end{align}\]</span></p>
+<p>Tracking error <span class="math inline">\(:= r-y\)</span></p>
+<p><span class="math display">\[\begin{align}
+E(s) &amp;= \frac{1}{1+C(s)P(s)}R(s)\\
+&amp;= \frac{s(s+1)}{s^2 + s + 1}R(s)\\
+\end{align}\]</span></p>
+<p>The transfer function is BIBO stable, so we can use Final Value Theorem<br>
+<span class="math display">\[\begin{align}
+e_{ss} &amp;:= \lim_{t\rightarrow\infty}e(t)\\
+&amp;=\lim_{s\rightarrow 0} sE(s)\\
+&amp;=\lim_{s\rightarrow 0} s\frac{s(s+1)}{s^2 + s + 1}\frac{1}{s}\\
+&amp;= 0\\
+\end{align}\]</span></p>
+<p>So we get perfect asymptotic step tracking.</p>
+<p>Why does it work? The pole in the controller turns into a zero in the numerator of the transfer function. In general, <span class="math inline">\(C(s)\)</span> has an <strong>"internal model"</strong> of <span class="math inline">\(R(s)\)</span> (an integrator). This puts a zero at <span class="math inline">\(s=0\)</span> in the transfer function.</p>
+<h4 id="e.g.-1">e.g.</h4>
+<p><span class="math display">\[P(s)=\frac{1}{s+1}, \quad C(s) = \frac{1}{s}, \quad R(s) = \frac{1}{s} \quad (r(t)=1(t))\]</span></p>
+<p>The controller contains a "copy" of <span class="math inline">\(R\)</span> in it and <span class="math inline">\(e(t) \rightarrow 0\)</span>.</p>
+<p>Other interpretations of why this controller gives perfect step tracking:<br>
+<strong>Frequency domain</strong>: <span class="math inline">\(P(s)C(s)\)</span> has a pole at <span class="math inline">\(s=0\)</span>. So, as <span class="math inline">\(\omega \rightarrow 0\)</span>:<br>
+<span class="math display">\[\frac{E(j\omega)}{R(j\omega)} = \frac{1}{1 + C(j\omega)P(j\omega)} \rightarrow 0\]</span></p>
+<p>Pole at <span class="math inline">\(s=0 \Rightarrow\)</span> infinite gain. Line is <span class="math inline">\(20\log|P(j\omega)C(j\omega)|\)</span><br>
+<img src="img/trackingfreqdomain.png"><br>
+<strong>Time domain</strong>: If the system is IO stable, then in steady-state, all signals in the loop approach a constant value for constant input.</p>
+<p><img src="img/trackingtime.png"></p>
+<p>Let <span class="math inline">\(v(t)\)</span> be the output of the integrator.</p>
+<p><span class="math display">\[\begin{align}
+v(t) &amp;= \int_0^t e(\tau)d\tau\\
+\dot{v}&amp;=e\\
+\end{align}\]</span></p>
+<p>So for <span class="math inline">\(v\)</span> to be constant in steady-state, <span class="math inline">\(e\)</span> must approach zero.</p>
+<p>More generally, if <span class="math inline">\(C(s)\)</span> provides internal stability, then FVT can be applied and:<br>
+<span class="math display">\[\begin{align}
+\lim_{t \rightarrow \infty} e(t) &amp;= \lim_{s \rightarrow 0} sE(s)\\
+&amp;= \lim_{s \rightarrow 0} s\frac{1}{1+P(s)C(s)}R(s)\\
+&amp;= \lim_{s \rightarrow 0} s\frac{1}{1+P(s)C(s)}\frac{r_0}{s}\\
+&amp;= \lim_{s \rightarrow 0} \frac{r_0}{1+P(s)C(s)}\\
+\\
+e_{ss} = 0 &amp;\Leftrightarrow \lim_{s \rightarrow 0} P(s)C(s) = \infty\\
+\end{align}\]</span></p>
+<p>Conclusion: Integral control is fundamental for perfect step tracking.</p>
+<h3 id="design-strategy">Design strategy</h3>
+<p>If <span class="math inline">\(P(s)\)</span> doesn't have a pole at 0, pick <span class="math inline">\(C(s) = \frac{1}{s} C_1(s)\)</span>. Design <span class="math inline">\(C_1(s)\)</span> to give IO stability.</p>
+<h3 id="internal-model-principle">Internal model principle</h3>
+<p>Assume IO stability. If <span class="math inline">\(C(s)P(s)\)</span> contains an internal model of the unstable part of <span class="math inline">\(R(s)\)</span>, then <span class="math inline">\(e(t) \rightarrow 0\)</span>.</p>
+<p>Say <span class="math inline">\(R(s) = \frac{N_r(s)}{D_r(s)} = \frac{N_r(s)}{D_r^-(s)D_r^+(s)}\)</span>. Roots of <span class="math inline">\(D_r^+(s)\)</span> have <span class="math inline">\(\Re(s) \gt 0\)</span>.</p>
+<p>IMP says that if <span class="math inline">\(C(s)P(s) = \frac{N(s)}{D(s)D_r^+(s)}\)</span>, then <span class="math inline">\(e_{ss}=0\)</span>.</p>
+<h4 id="e.g.-5.4.3">e.g. 5.4.3</h4>
+<p><span class="math display">\[P(s)=\frac{1}{s+1}, \quad r(t) = r_0\sin(t)\]</span></p>
+<p><span class="math inline">\(R(s) = \frac{r_0}{s^2+1}\)</span>, so <span class="math inline">\(D_r^-(s)=1\)</span> and <span class="math inline">\(D_r^+(s)=s^2+1\)</span></p>
+<p>This suggests the controller <span class="math inline">\(C(s) = \frac{1}{s^2+1}C_1(s)\)</span> where <span class="math inline">\(C_1\)</span> is chosen to ensure IO stability.</p>
+<h3 id="steady-state-disturbance-rejection">Steady-state disturbance rejection</h3>
+<p><img src="img/disturbancerejection.png"></p>
+<p><span class="math display">\[\begin{align}
+Y &amp;= P_2(D+P_1C(-Y))\\
+\frac{Y}{D} &amp;= \frac{P_2}{1+P_1P_2C}\\
+\end{align}\]</span></p>
+<p>Suppose:<br>
+<span class="math display">\[\begin{align}
+D(s) &amp;= \frac{N_d(s)}{D_d(s)}\\
+&amp;= \frac{N_d(s)}{D_d^-(s)D_d^+(s)}\\
+\end{align}\]</span></p>
+<p>Roots of <span class="math inline">\(D_d^+(s)\)</span> have <span class="math inline">\(\Re(s) \ge 0\)</span>.</p>
+<p>Assume IO stability so FVT applies:<br>
+<span class="math display">\[\begin{align}
+lim_{t\rightarrow\infty} y(t) &amp;= \lim_{s \rightarrow 0}sY(s)\\
+&amp;= \lim_{s \rightarrow 0}s\frac{P_2(s)}{1+P_1P_2C}\frac{N_d}{D_d^-D_d^+}\\
+&amp;= \lim_{s \rightarrow 0}s\frac{N_{p_2}D_{p_1}D_c}{D_{p_2}D_{p_1}D_c+N_{p_1}N_{p_2}N_c}\frac{N_d}{D_d^-D_d^+}\\
+\\
+\mathcal{L}\{y\} &amp;= Y(s)\\
+\end{align}\]</span></p>
+<p>So we see that to deal simultaneously with input and output disturbances, the <em>controller</em> must contain an internal model of <span class="math inline">\(D_d^+(s)\)</span> (can't rely on the plant.) i.e.,<br>
+<span class="math display">\[C(s)=\frac{1}{D_d^+(s)}C_1(s)\]</span></p>
+<h4 id="e.g.-2">e.g.</h4>
+<p><span class="math display">\[d(t)=1(t), \quad D(s)=\frac{1}{s}, \quad D_d^+(s)=s, \quad C(s)=\frac{1}{s}C_1(s)\]</span><br>
+<span class="math display">\[D(t)=\sin(\omega t), \quad D(s)=\frac{\omega}{s^2+\omega^2}, \quad D_d^+(s)=s^2+\omega^2, \quad C(s)=\frac{1}{S^2+\omega^2}C_1(s)\]</span></p>
+<p><span class="math display">\[D(t)=e^{-t}, \quad D(s)=\frac{1}{s+1}, \quad D_d^+(s)=1\]</span></p>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

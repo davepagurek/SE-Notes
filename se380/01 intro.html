@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<title>Feedback Control</title>
+</head>
+<body>
+
+<h1 id="feedback-control">Feedback Control</h1>
+<a href="index.html">Back to se380</a>
+<div id="TOC">
+
+<ul>
+<li>
+<a href="#what-is-control-engineering">What is control engineering?</a><ul>
+<li><a href="#e.g.-automated-highway">e.g. Automated highway</a></li>
+<li><a href="#e.g.-web-server">e.g. Web server</a></li>
+<li><a href="#definition">Definition</a></li>
+</ul>
+</li>
+<li><a href="#control-cycle">Control Cycle</a></li>
+<li><a href="#design-cycle">Design Cycle</a></li>
+</ul>
+</div>
+<h2 id="what-is-control-engineering">What is control engineering?</h2>
+<h3 id="e.g.-automated-highway">e.g. Automated highway</h3>
+<p><img src="img/highway.png"></p>
+<p><strong>Objective:</strong></p>
+<ul><li>decide on the velocity commands to the follower in order to maintain a safe inter-vehicle distance</li></ul>
+<p><strong>Assumptions:</strong></p>
+<ul>
+<li>cars only move forward and reverse on flat ground</li>
+<li>through software running on an embedded computer, we can assign different velocities to the follower</li>
+<li>Model for follower: <span class="math inline">\(\frac{df(t)}{dt} = u(t)\)</span>, where we decide <span class="math inline">\(u(t)\)</span>
+</li>
+<li>Leader moves at a constant but unknown speed</li>
+</ul>
+<h4 id="solution-1-open-loop">Solution 1: Open loop</h4>
+<ul>
+<li>Don't equip follower with any sensors (save that money 💰)</li>
+<li>algorithm to decide velocity only has access to the desired inter-vehicle distance, labelled <span class="math inline">\(r(t)\)</span>
+</li>
+</ul>
+<p><img src="img/openloop.png"></p>
+<ul>
+<li>Since the algorithm has no access to <span class="math inline">\(y(t)\)</span>, it can't make an informed decision</li>
+<li>Toasters work like this (doesn't sense toast burntness, just goes for a set time)</li>
+</ul>
+<h4 id="solution-2-closed-loop">Solution 2: Closed Loop</h4>
+<ul><li>equip the follower with sensors that can measure <span class="math inline">\(y(t)\)</span>
+</li></ul>
+<p><img src="img/closedloop.png"></p>
+<ul>
+<li>Simplest control algorithm<ul><li><span class="math inline">\(u(t) = -K_p (r(t) - y(t)), \quad K_p \gt 0\)</span></li></ul>
+</li>
+<li>Better control algorithm: <strong>proportional-integral error feedback</strong><ul><li><span class="math inline">\(u(t) = -K_p (r(t) - y(t)) - K_i \int_0^t{(r(T)-y(T)) dT}, \quad K_p, K_i \gt 0\)</span></li></ul>
+</li>
+</ul>
+<h3 id="e.g.-web-server">e.g. Web server</h3>
+<p>(See 1.4.1 in the notes)</p>
+<ul>
+<li>Web server that responds to GET and POST requests from browsers</li>
+<li>The server has a buffer of pending requests so no requests are lost</li>
+</ul>
+<p><img src="img/webserver.png"></p>
+<h4 id="control-objectives">Control objectives</h4>
+<ol>
+<li>Don't let the queue length get too large (buffer may overflow and requests will be lost)</li>
+<li>Don't let queue length get to zero (it would be a waste of resources to have the server idle)</li>
+</ol>
+<p>Consequently, we want to keep the queue length at some known value <span class="math inline">\(r(t)\)</span>.</p>
+<p>The difficulty is that the <strong>service rate</strong> is not known, as it depends on many things (e.g. number of clients). Because of this, we will model it as a <strong>disturbance</strong> <span class="math inline">\(d(t)\)</span>.</p>
+<p>We must decide on the <strong>request rate</strong> <span class="math inline">\(u(t)\)</span> based on <span class="math inline">\(r(t)\)</span> and <span class="math inline">\(y(t)\)</span> (queue length).</p>
+<p><img src="img/webserver-block.png"></p>
+<h3 id="definition">Definition</h3>
+<p>Control engineering attempts to change the behaviour of a system (called a "plant") in a useful way despite the presence of external influences ("disturbances") and despite <strong>model uncertainty.</strong></p>
+<p>We change the behaviour of the plant by connecting it to another system ("controller"). <strong>Feedback</strong> is the most powerful interconncetion strategy.</p>
+<h2 id="control-cycle">Control Cycle</h2>
+<ol>
+<li>Sense the operation of a system</li>
+<li>Compare against a desired behaviour</li>
+<li>Compute a correctibe action informed bu a model of the sustem's respnse to external stimuli</li>
+<li>Actuate the sustem to affect the desired change</li>
+</ol>
+<p>The <strong>sense, compute, actuate</strong> cycle loops.</p>
+<h2 id="design-cycle">Design Cycle</h2>
+<ol>
+<li>Study the system to be controlled, decide on sensors and actuators. Sensors change what information is at your disposal, and actuators represent choices you can make in response to the inputs.</li>
+<li>Model the resulting system<ul>
+<li>mathematical model</li>
+<li>often one or more differential equations, obtained through analysis or experimental data</li>
+</ul>
+</li>
+<li>Simplify model if necessary<ul>
+<li>classical control (this course) deals with linear, time-invariant systems. It requires that we have a <strong>transfer function</strong> of the plant.</li>
+<li>e.g. <span class="math inline">\(\mathcal{L}\left\{\frac{dx_f}{dt}\right\} = \mathcal{L}\{u\} \Rightarrow sX_f(s) = U(s)\)</span>. Transfer function is <span class="math inline">\(\frac{X_f(s)}{U(s)} = \frac{1}{s}\)</span>.</li>
+<li>A system has a transfer function iff it is linear and time-invariant.</li>
+</ul>
+</li>
+<li>Analyze the resulting system</li>
+<li>Determine specifications: stability, good steady-state behaviour, robustness, good transient performance</li>
+<li>Decide on type of controller</li>
+<li>Design the controller<ul>
+<li>In this course, the controller itself that we design will be a transfer function</li>
+<li>This transfer function corresponds to a differential equation relating the inputs and outputs of the controller</li>
+</ul>
+</li>
+<li>Simulate (usually using Matlab)</li>
+<li>Return to step 1 if neecessary</li>
+<li>Implement controller<ul><li>Realistically, the Ordinary Differential Equation (ODE) from step 7 is discretized and approximated as a difference equation and implemented in software</li></ul>
+</li>
+</ol>
+<p>e.g. follower is <span class="math inline">\(u(t) = -K_p (r(kT)-y(kT)), \quad kT \le t \lt (k+1)T\)</span></p>
+<p>Analog to digital:<br>
+<img src="img/discrete-time.png"></p>
+<p>Digital to analog:<br>
+<img src="img/digital-to-analog.png"></p>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>

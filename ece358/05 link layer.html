@@ -1,0 +1,292 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <meta name="generator" content="pandoc">
+  
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="/SE-Notes/style.css" type="text/css">
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+<title>Link layer</title>
+</head>
+<body>
+
+<h1 id="link-layer">Link layer</h1>
+<a href="index.html">Back to ece358</a>
+<div id="TOC">
+
+<ul>
+<li><a href="#error-detection">Error detection</a></li>
+<li>
+<a href="#multiple-access-links-protocols">Multiple access links, protocols</a><ul>
+<li><a href="#channel-partitioning">Channel partitioning</a></li>
+<li><a href="#random-access">Random access</a></li>
+<li><a href="#taking-turns">taking turns</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<ul>
+<li>Hosts and routers are <strong>nodes</strong>
+</li>
+<li>
+<strong>links</strong> are communication channels that connect adjacent nodes along communication paths<ul><li>wired, wireless, LAN</li></ul>
+</li>
+<li>layer 2 packet is a <strong>frame</strong>
+</li>
+<li>services<ul>
+<li>framing, link access<ul>
+<li>encapsulate data in frame, add header and trailer</li>
+<li>channel access if shared medium</li>
+<li>MAC addresses used in frame headers to identify source, dest (different than IP)<ul><li>hardcoded in network card</li></ul>
+</li>
+</ul>
+</li>
+<li>reliable delivery between adjacent nodes</li>
+<li>flow control</li>
+<li>error detection</li>
+<li>error correction</li>
+<li>half-duplex, full-duplex</li>
+</ul>
+</li>
+</ul>
+<h2 id="error-detection">Error detection</h2>
+<ul>
+<li>EDC: Error detection and correction bits (redundancy)</li>
+<li>Error detection not 100% reliable</li>
+<li>larger EDC field yields better detection and correction</li>
+<li>Parity checking<ul>
+<li>Single bit: detect single bit errors (odd: # of ones is odd in frame; even: number of ones is even in frame)</li>
+<li>2D bit parity: Add a row and column that does single bit checking on the row/column index.</li>
+</ul>
+</li>
+<li>Cyclic redundancy check<ul>
+<li>View data bits, <span class="math inline">\(D\)</span> as a binary number</li>
+<li>choose <span class="math inline">\(r+1\)</span> bit pattern (generator), <span class="math inline">\(G\)</span>
+</li>
+<li>goal: choose <span class="math inline">\(r\)</span> CRC bits, <span class="math inline">\(R\)</span>, such that:<ul>
+<li>
+<span class="math inline">\(\langle D, R\rangle\)</span> exactly divisible by <span class="math inline">\(G \mod 2\)</span>
+</li>
+<li>receiver knows <span class="math inline">\(G\)</span>, divides <span class="math inline">\(\langle D,R\rangle\)</span> by <span class="math inline">\(G\)</span>. If nonzero remainder, error is detected</li>
+<li>can detect all burst errors less than <span class="math inline">\(r+1\)</span> bits</li>
+</ul>
+</li>
+<li>used in ethernet, wifi, ATM</li>
+</ul>
+</li>
+</ul>
+<h2 id="multiple-access-links-protocols">Multiple access links, protocols</h2>
+<ul>
+<li>point-to-point links<ul>
+<li>PPP for dial-up access</li>
+<li>Don't need multiple access protocol</li>
+</ul>
+</li>
+<li>broadcast links (shared wire or medium)<ul>
+<li>old fashioned Ethernet</li>
+<li>upstream HFC</li>
+<li>802.11 wireless LAN</li>
+</ul>
+</li>
+</ul>
+<p>Multiple access protocol organizes who talks first, and how to recover from a collision (multiple talking at once)</p>
+<ul>
+<li>
+<strong>Given:</strong> broadcast channel of rate <span class="math inline">\(R\)</span> bps</li>
+<li>
+<strong>Desiderata:</strong><ol>
+<li>when one node wants to transmit, it can send at rate <span class="math inline">\(R\)</span>
+</li>
+<li>If <span class="math inline">\(M\)</span> nodes want to transmit, they all can transmit on average <span class="math inline">\(R/M\)</span>
+</li>
+<li>Fully decentralized: no node to coordinate transmissions, no synchronization of clocks, slots</li>
+<li>simple</li>
+</ol>
+</li>
+</ul>
+<h3 id="channel-partitioning">Channel partitioning</h3>
+<ul>
+<li>divide channel into pieces (time slots, frequency, etc)</li>
+<li>each piece gives exclusive use to a node</li>
+</ul>
+<h4 id="tdma-time-division-multiple-access">TDMA: time division multiple access</h4>
+<ul>
+<li>access to channel in "rounds"</li>
+<li>each station gets fixed length slow in each round</li>
+<li>unused slots go idle</li>
+<li>fair, collision-free</li>
+<li>waste of bandwidth, unnecessary waiting</li>
+</ul>
+<h4 id="fdma-frequency-division-multiple-access">FDMA: frequency division multiple access</h4>
+<ul>
+<li>channel spectrum divided into frequency bands</li>
+<li>each station assigned fixed frequency band</li>
+<li>unused transmission time in frequency bands goes idle</li>
+<li>collision-free, fair</li>
+<li>waste of bandwidth</li>
+</ul>
+<h4 id="cdma-code-division-multiple-access">CDMA: code division multiple access</h4>
+<ul><li>each user is allocated a unique code to transmit</li></ul>
+<h3 id="random-access">Random access</h3>
+<ul>
+<li>has collisions</li>
+<li>can recover from collisions</li>
+<li>when node has a packet to send:<ul>
+<li>transmit at rate <span class="math inline">\(R\)</span>
+</li>
+<li>no coordination among nodes</li>
+</ul>
+</li>
+<li>If multiple transmit at once, collisions happen and retransmits are needed</li>
+<li>random access specifies how to detect collisions and how to recover</li>
+</ul>
+<h4 id="slotted-aloha">Slotted ALOHA</h4>
+<ul>
+<li>assumes:<ul>
+<li>all frames same size</li>
+<li>time divided into equal slots</li>
+<li>nodes transmit at beginning of time slots</li>
+<li>nodes are synchronized</li>
+</ul>
+</li>
+<li>operation:<ul>
+<li>when node obtains frame, it transmits in the next slot</li>
+<li>if no collision, not can send new frame in next slot</li>
+<li>otherwise, node retransmits frame in each subsequent time slot with probability <span class="math inline">\(p\)</span> until success</li>
+</ul>
+</li>
+<li>pros:<ul>
+<li>single active node can take full channel rate</li>
+<li>highly decentralized</li>
+<li>simple</li>
+</ul>
+</li>
+<li>cons<ul>
+<li>collisions, wasting slots</li>
+<li>idle slots</li>
+<li>nodes can detect collision in less time to retransmit packet</li>
+<li>clock synchronization needed</li>
+</ul>
+</li>
+<li>efficiency<ul>
+<li>assume <span class="math inline">\(N\)</span> nodes with many frames to send, each transmits in slot with probability <span class="math inline">\(p\)</span>
+</li>
+<li>probability of success is: <span class="math inline">\(\underbrace{p}_\text{probability one transmits}\underbrace{(1-p)^{N-1}}_\text{probability no others are transmitting}\)</span>
+</li>
+<li>probability that any node has a success is <span class="math inline">\(Np(1-p)^{N-1}\)</span>
+</li>
+<li>max efficiency: find <span class="math inline">\(p^*\)</span> that maximizes the previous probability</li>
+<li><span class="math inline">\(p^* = \frac{1}{e} = 0.37\)</span></li>
+<li>At best, channel used for useful transmissions 37% of the time</li>
+</ul>
+</li>
+</ul>
+<h4 id="unslotted-aloha">Unslotted ALOHA</h4>
+<ul>
+<li>same as before but without waiting for synchronization (transmit immediately)</li>
+<li>collision probability increases</li>
+<li><span class="math inline">\(P(success) = P(node transmits) P(no other node transmits in [t_0-1, t_0]) P(no other node transmits in [t_0, t_0+1])\)</span></li>
+<li><span class="math inline">\(P(success) = p(1-p)^{N-1}(1-p)^{N-1} = p(1-p)^{2(N-1)}\)</span></li>
+<li>Maximum probability is <span class="math inline">\(\frac{1}{2e} = 0.18\)</span>
+</li>
+</ul>
+<h4 id="csma-carrier-sense-multiple-access">CSMA: carrier sense multiple access</h4>
+<ul>
+<li>listen before transmit</li>
+<li>if channel sensed idle, transmit entire frame</li>
+<li>if channel is busy, defer transmission</li>
+<li>collisions can still occur because of propagation delay (one node has started transmitting but others haven't seen it yet)</li>
+</ul>
+<h4 id="csmacd-collision-detection">CSMA/CD (collision detection)</h4>
+<ul>
+<li>collision detected within short time</li>
+<li>colliding transmissions aborted</li>
+<li>detection<ul>
+<li>easy in wired LANs: measure signal strength</li>
+<li>difficult in wireless LANs: received signal strength overwhelmed by local transmission strength</li>
+</ul>
+</li>
+</ul>
+<p>Algorithm:</p>
+<ol>
+<li>NIC receives datagram from network layer, encapsulates in frame</li>
+<li>NIC senses channel. If busy, wait until free. Then, transmit</li>
+<li>If NIC transmits entire frame without detecting collision, NIC is done with frame.</li>
+<li>If a collision is detected, abort immediately, send jam signal</li>
+<li>After aborting, NIC enters binary (exponential) backoff<ul>
+<li>after <span class="math inline">\(m\)</span>th collision, NIC chooses <span class="math inline">\(K\)</span> at random from <span class="math inline">\(\{0, 1, 2, ..., 2^m-1\}\)</span>
+</li>
+<li>wait <span class="math inline">\(512K\)</span> bit times. Return to step 2</li>
+<li>longer backoff interval with more collisions</li>
+<li>reset <span class="math inline">\(m\)</span> after a successful transmission</li>
+</ul>
+</li>
+</ol>
+<ul>
+<li>Medium sensing done for 96 bit-times</li>
+<li>jamming signal length is 48 bits. Creates just enough energy on the line for collision detection</li>
+<li>efficiency<ul>
+<li>
+<span class="math inline">\(T_{prop}\)</span> is max prop delay between two nodes in LAN</li>
+<li>
+<span class="math inline">\(t_{trans}\)</span> is time to transmit max size frame</li>
+<li>efficiency = <span class="math inline">\(\frac{1}{1 + 5t_{prop} / t_{trans}}\)</span>
+</li>
+<li>can go to 1 as <span class="math inline">\(t_prop \rightarrow 0\)</span> or <span class="math inline">\(t_{trans} \rightarrow \infty\)</span>
+</li>
+<li>better than ALOHA</li>
+</ul>
+</li>
+</ul>
+<h3 id="taking-turns">taking turns</h3>
+<ul>
+<li>channel partitioning MAC protocols<ul>
+<li>share channel efficiently and fairly at high load</li>
+<li>inefficient at low load</li>
+</ul>
+</li>
+<li>random access MAC protocols<ul>
+<li>efficient at low load</li>
+<li>high load has collision overhead</li>
+</ul>
+</li>
+</ul>
+<h4 id="polling">Polling</h4>
+<ul>
+<li>master node invites slave nodes to transmit in turn</li>
+<li>used with dumb slave devices</li>
+<li>no collisions, no empty slots</li>
+<li>concerns<ul>
+<li>polling overhead</li>
+<li>latency</li>
+<li>single point of failure at the master</li>
+</ul>
+</li>
+</ul>
+<h4 id="token-passing">Token passing</h4>
+<ul>
+<li>control token passed from one node to the next sequentially</li>
+<li>token message</li>
+<li>concerns:<ul>
+<li>token overhead</li>
+<li>latency</li>
+<li>single point of failure (token)</li>
+</ul>
+</li>
+</ul>
+<h4 id="docsis-data-over-cable-service-interface-spec">DOCSIS: data over cable service interface spec</h4>
+<ul>
+<li>FDM over upstream, downstream frequency channels</li>
+<li>TDL upstream: some slots assigned, some have contention<ul>
+<li>downstream MAP frame: assigns upstream slots</li>
+<li>request for upstream slots (and data) transmitted random access (binary backoff) in selected slots</li>
+</ul>
+</li>
+</ul>
+<div id="footer">
+  Notes by <a href="http://www.davepagurek.com">Dave Pagurek</a>. Contribute <a href="https://github.com/davepagurek/SE-Notes">on GitHub</a>.
+</div>
+</body>
+</html>
