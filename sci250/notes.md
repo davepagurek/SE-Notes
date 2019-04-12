@@ -428,10 +428,10 @@ Canada's top 5 mineral exports by value
 - Slow cooling promotes crystal growth
 
 **Pluton** defines a body of intrusive igneous rock that formed from cooled magma in the earth
--  Batholith: large area of intrusive rock
--  Dike: vertical sheet of intrusive rock
--  Sill: horizontal sheets of intrusive rock
--  Stock: relatively small plutons
+- Batholith: large area of intrusive rock
+- Dike: vertical sheet of intrusive rock
+- Sill: horizontal sheets of intrusive rock
+- Stock: relatively small plutons
 
 **Kimberlite** is an ultramafic igneous rock containing crystallized carbon
 - Emplaced by gaseous explosions that quickly drive magma to the mantle and into the crust, where crystallization into diamonds occurs
@@ -605,7 +605,7 @@ Types of waste
 - Life cycle analysis: examine life cycle of a product and look for ways to make the process more ecologically efficient
 - Pollution prevention strategies: aimed at reducing waste and pollution at its source
 
-Sewage treatment:
+Sewage treatment
 - Septic systems: solids separated, bacterial breakdown begins
 - Municipal sewage treatment
   - Primary: removal of solids from organic liquid waste

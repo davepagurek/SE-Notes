@@ -482,7 +482,7 @@ Gradient descent:
 
 $$\begin{aligned}
 E &= \frac{1}{2} \sum_{m \in M} (y^{(m)} - o^{(m)})^2\\
-\frac{\partial E}{\partial w_i} = \frac{1}{2} \sum_{m \in M} \frac{\partial E \partial o^m}{\partial o^m \partial w_i}\\
+\frac{\partial E}{\partial w_i} &= \frac{1}{2} \sum_{m \in M} \frac{\partial E \partial o^m}{\partial o^m \partial w_i}\\
 &= \frac{1}{2}\sum_{m \in M} \frac{\partial E}{\partial o^m}\left(\frac{\partial o^m \partial z}{\partial z \partial w_i}\right)\\
 &= -\sum_{m \in M} x_1^{(m)} o^{(m)} (1 - o^{(m)})(y^{(m)} - o^{(m)})\\
 \Delta w_i &= -\epsilon \frac{\partial E}{\partial w_i}\\
