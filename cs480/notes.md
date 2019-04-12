@@ -494,7 +494,7 @@ GANs try to find:
 
 $$\begin{aligned}
 &\min_{W_g} \max_{W_d} \sum_n \log P(x_n \text{ is real; } W_d) + \log P(g(z_n; W_g) \text{ is fake; } W_d)\\
-\equiv &\min_{W_g} \max_{W_d} \sum_n \log d(x_n; W_d) + \log(1 - d(f(z_n; W_g); W-d))\\
+\equiv &\min_{W_g} \max_{W_d} \sum_n \log d(x_n; W_d) + \log(1 - d(g(z_n; W_g); W-d))\\
 \end{aligned}$$
 
 To train, repeat until convergence:
